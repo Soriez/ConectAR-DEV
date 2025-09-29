@@ -1,16 +1,21 @@
 # Dependencias de Node.js
 node_modules/
-
-# Variables de entorno
+*/node_modules/
+# Si usas subcarpetas con node_modules explícitas:
+backend/node_modules/
+frontend/node_modules/
+# Variables de entorno (ignora todos los .env excepto el ejemplo)
 .env
+.env.*
 .env.local
-.env.production
+!.env.example
 
 # Logs
 *.log
 npm-debug.log*
+yarn-error.log
 
-# Archivos temporales
+# Archivos temporales y SO
 .DS_Store
 Thumbs.db
 
@@ -18,6 +23,14 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Archivos de build
+# Archivos de build y caches
 dist/
 build/
+coverage/
+.nyc_output/
+.cache/
+.parcel-cache/
+.next/
+.turbo/
+.pnp.js
+.pnp.cjs

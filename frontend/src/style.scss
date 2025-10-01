@@ -1,0 +1,135 @@
+
+// 1. IMPORTAR FUNCIONES Y VARIABLES
+// Son necesarias porque contienen las definiciones de los breakpoints (sm, md, lg, etc.)
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables'; 
+
+// 2. IMPORTAR MIXINS
+// Este archivo contiene la definición de `@include media-breakpoint-up`
+@import 'bootstrap/scss/mixins';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+:root {
+  /* ==================================== */
+  /* COLORES BASE             */
+  /* ==================================== */
+
+  /* Fondo General */
+  --color-bg-primary: #121B2E;    /* Antes: --background-dark */
+  --color-bg-secondary: #3B82F6;  /* Antes: --background-light (Usado como fondo o header principal) */
+  --color-bg-card: rgba(30, 41, 59, 0.80); /* Antes: --card */
+
+  /* Texto Principal */
+  --color-text-base: #F8FAFC;     /* Antes: --text-light (Texto principal en fondos oscuros) */
+  --color-text-heading: #0F172A;  /* Antes: --text-dark (Texto principal en fondos claros) */
+  --color-text-muted: #475569;    /* Antes: --text-gray (Texto secundario/descripciones) */
+  --color-text-placeholder: #94a3b8; /* Antes: --text-gray-soft (Texto muy tenue) */
+
+  /* Interfaz */
+  --color-border: #334155;        /* Antes: --border */
+
+  /* Colores de Estado / Accent */
+  --color-accent-primary: #3b82f6; /* Antes: --primary */
+  --color-accent-warning: #FBBF24; /* Antes: --yellow */
+  --color-accent-danger: #F59E0B;  /* Antes: --orange */
+
+
+  /* ==================================== */
+  /* ESCALA DE GRISES           */
+  /* ==================================== */
+
+  /* Para usarse en cualquier contexto (claro u oscuro) */
+  --color-gray-50: oklch(.985 .002 247.839);
+  --color-gray-100: oklch(.967 .003 264.542);
+  --color-gray-200: oklch(.928 .006 264.531);
+  --color-gray-400: oklch(.707 .022 261.325);
+
+
+  /* ==================================== */
+  /* COLORES TEMÁTICOS         */
+  /* ==================================== */
+
+  /* Estos nombres son buenos si se refieren a un propósito específico, 
+     pero si son genéricos, es mejor usar nombres semánticos. */
+  --color-theme-green: oklch(.723 .219 149.579);   /* Antes: --color-green-500 */
+  --color-theme-cyan: oklch(.789 .154 211.53);    /* Antes: --color-cyan-400 */
+  --color-theme-purple: oklch(.714 .203 305.504); /* Antes: --color-purple-400 */
+  --color-theme-slate: oklch(.929 .013 255.508);  /* Antes: --color-slate-200 */
+
+  /* Color de card */
+  --card-color: #1C2739;
+}
+html {
+  font-size: 100%;
+}
+
+
+body {
+  background: linear-gradient(141deg,rgba(59, 130, 246, 1) 0%, rgba(32, 59, 105, 1) 31%, rgba(18, 27, 46, 1) 67%);
+  background-attachment: fixed;
+}
+
+.text-yellow {
+  color: var(--color-accent-warning);
+}
+
+.head-img {
+  height: 60px;
+  width: 60px;
+  object-fit: contain;
+}
+
+.btn.btn-transparent {
+  color: var(--color-text-base);
+}
+.btn.btn-transparent:hover {
+  color: var(--color-accent-warning);
+  background-color: var(--card-color);
+  border: 1px solid var(--color-accent-danger);
+}
+
+.btn.btn-dark {
+  background-color: var(--color-bg-primary);
+}
+
+.card.bg-card {
+  background-color: var(--card-color);
+  margin: 10px;
+}
+
+.card.border-gray {
+  border: 1px solid var(--color-border);
+}
+
+.right {
+  display: none;
+}
+
+@include media-breakpoint-up(sm) { 
+  .card.card-login {
+    max-width: map-get($grid-breakpoints, sm);
+    margin: auto;
+  }
+}
+
+@include media-breakpoint-up(md) { 
+
+}
+
+@include media-breakpoint-up(lg) { 
+
+}
+
+@include media-breakpoint-up(xl) { 
+
+}
+
+@include media-breakpoint-up(xxl) { 
+
+}

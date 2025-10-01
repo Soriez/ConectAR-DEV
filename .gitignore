@@ -34,3 +34,6 @@ coverage/
 .turbo/
 .pnp.js
 .pnp.cjs
+
+# etc
+package-lock.json

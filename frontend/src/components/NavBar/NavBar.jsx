@@ -70,11 +70,11 @@ const NavBar = () => {
             >
                 {/* Cabecera del Menú Mobile (Logo y botón de cerrar) */}
                 <div className="bg-gray-900 h-16 flex justify-between items-center px-4 sm:px-6 lg:px-8">
-                    <a href="#" className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-gray-900 border border-gray-700 rounded-sm flex items-center justify-center">
-                            <span className="text-sm font-bold text-white">LOGO</span> 
+                    <NavLink to={'/'} className="flex-shrink-0">
+                        <div className="w-16 h-16 bg-gray-900 border border-gray-700 rounded-sm flex items-center justify-center">
+                            <img src="/public/imgs/logo.jpeg" alt="Logo de conectar dev" /> 
                         </div>
-                    </a>
+                    </NavLink>
                     <button
                         onClick={() => setActiva(false)}
                         className="p-2 rounded hover:bg-white/10 transition"

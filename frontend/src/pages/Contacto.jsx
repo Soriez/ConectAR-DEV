@@ -56,7 +56,7 @@ const Contacto = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-payne's_gray-500 to-jet-500">
+      <div className="min-h-screen bg-gradient-to-b from-gray-700 to-gray-900">
       {/* 
         SECCIÓN HERO / INTRODUCCIÓN 
         Presenta la página y el botón para mostrar el formulario
@@ -64,7 +64,7 @@ const Contacto = () => {
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-3xl mx-auto text-center">
           {/* Icono decorativo */}
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-azure-500 rounded-full mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500 rounded-full mb-6">
             <Mail className="w-8 h-8 text-white" />
           </div>
 
@@ -74,7 +74,7 @@ const Contacto = () => {
           </h1>
 
           {/* Descripción */}
-          <p className="text-lg text-sky_blue-100 mb-8">
+          <p className="text-lg text-sky-200 mb-8">
             Estamos aquí para ayudarte. Ya sea que tengas preguntas sobre nuestros servicios, 
             necesites soporte técnico o quieras discutir un proyecto, nuestro equipo está 
             listo para asistirte.
@@ -83,7 +83,7 @@ const Contacto = () => {
           {/* Botón para mostrar/ocultar formulario */}
           <button
             onClick={() => setShowForm(!showForm)}
-            className="bg-azure-500 hover:bg-azure-600 text-white font-semibold px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
             aria-expanded={showForm}
             aria-controls="contact-form-section"
           >
@@ -125,12 +125,12 @@ const Contacto = () => {
             {faqData.map((faq) => (
               <div
                 key={faq.id}
-                className="bg-payne's_gray-600 rounded-lg overflow-hidden shadow-md transition-all duration-300 hover:shadow-lg"
+                className="bg-gray-800 rounded-lg overflow-hidden shadow-md transition-all duration-300 hover:shadow-lg"
               >
                 {/* Botón de pregunta (header del accordion) */}
                 <button
                   onClick={() => toggleFaq(faq.id)}
-                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-payne's_gray-700 transition-colors duration-200"
+                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-700 transition-colors duration-200"
                   aria-expanded={openFaq === faq.id}
                   aria-controls={`faq-answer-${faq.id}`}
                 >
@@ -141,7 +141,7 @@ const Contacto = () => {
 
                   {/* Icono de chevron que rota cuando se abre */}
                   <ChevronDown
-                    className={`w-5 h-5 text-azure-500 flex-shrink-0 transition-transform duration-300 ${
+                    className={`w-5 h-5 text-blue-500 flex-shrink-0 transition-transform duration-300 ${
                       openFaq === faq.id ? 'rotate-180' : ''
                     }`}
                   />
@@ -157,7 +157,7 @@ const Contacto = () => {
                   }`}
                 >
                   <div className="px-6 pb-4 pt-2">
-                    <p className="text-sky_blue-100 leading-relaxed">
+                    <p className="text-blue-200 leading-relaxed">
                       {faq.respuesta}
                     </p>
                   </div>

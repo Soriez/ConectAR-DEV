@@ -44,7 +44,7 @@ const Contacto = () => {
   ];
   
   // Estado para controlar qué pregunta del FAQ está abierta (solo una a la vez)
-  const [openfaQ, setOpenFaq] = useState(null)
+  const [openFaq, setOpenFaq] = useState(null)
     
   // Función para alternar la apertura/cierre de preguntas FAQ
   // @param {number} id - ID de la pregunta a abrir/cerrar

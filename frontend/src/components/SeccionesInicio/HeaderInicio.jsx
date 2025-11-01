@@ -27,7 +27,7 @@ const HeaderInicio = () => {
                     className='rounded-md border-gray-600 border bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 pl-2 py-1 mr-1 min-w-0 grow'
                 />
                 </div>
-                <BotonPrincipal texto={'Buscar Talento'} />
+                <BotonPrincipal text={'Buscar Talento'} />
                 
             </form>
             </div>

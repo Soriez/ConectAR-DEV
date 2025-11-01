@@ -56,7 +56,7 @@ const Contacto = () => {
   };
 
   return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-700 to-gray-900">
+      <div className="bg-gradient-to-b from-gray-700 to-gray-900 pb-0">
       {/* 
         SECCIÓN HERO / INTRODUCCIÓN 
         Presenta la página y el botón para mostrar el formulario
@@ -113,7 +113,7 @@ const Contacto = () => {
         SECCIÓN FAQ (Preguntas Frecuentes)
         Accordion con 6 preguntas predefinidas
       */}
-      <section className="container mx-auto px-4 py-16 mb-16">
+      <section className="container mx-auto px-4 py-16 pb-16">
         <div className="max-w-3xl mx-auto">
           {/* Título de la sección FAQ */}
           <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">

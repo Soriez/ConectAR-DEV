@@ -36,7 +36,7 @@ const NavBar = () => {
                 <div className="hidden md:flex items-center space-x-4">
                     <NavLink 
                         to={'/iniciar-sesion'} 
-                        className="text-white hover:text-blue-400 px-3 py-2 text-sm font-medium transition duration-150 ease-in-out"
+                        className="whitespace-nowrap text-white hover:text-blue-400 px-3 py-2 text-sm font-medium transition duration-150 ease-in-out"
                     >
                         Iniciar Sesión
                     </NavLink>

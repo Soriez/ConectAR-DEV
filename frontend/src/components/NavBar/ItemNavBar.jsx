@@ -1,12 +1,19 @@
-import { NavLink } from "react-router"
+import { NavLink, useLocation, useNavigate } from "react-router"
 
 
 const ItemNavBar = ( { link, isMobile, setOpen } ) => {
     // Clases CSS comunes para todos los enlaces
     const commonClasses = "text-white hover:text-blue-400 transition-colors duration-150 ease-in-out cursor-pointer";
+    // Hook para obtener la ubicación actual (pathname)
+    const location = useLocation();
+    // Hook para navegar programáticamente
+    const navigate = useNavigate();
 
       
      //Función que maneja el click en cada enlace del navbar
+    // Si tiene scrollTo Y estamos en la home (/): hace scroll
+    // Si tiene scrollTo Y NO estamos en home: navega a home y luego hace scroll
+    // Si NO tiene scrollTo: navega normalmente
      //@param {Event} e - Evento del click
      
      //cambios para agregar scrol hasta las secciones 
@@ -16,14 +23,16 @@ const ItemNavBar = ( { link, isMobile, setOpen } ) => {
         if(link.scrollTo){
             e.preventDefault();// Prevenimos la navegación por defecto de React Router
              // Buscamos el elemento HTML con el ID especificado en scrollTo
-             const elemento = document.getElementById(link.scrollTo)
-             //si encontramos el elemento, hacemos el scroll suave hacia él
-             if(elemento){
-                elemento.scrollIntoView({
-                    behavior: 'smooth',// Animación suave del scroll
-                    block: 'start' // El elemento se posiciona al inicio del viewport
-                    }
-                )
+             if(location.pathname === '/'){
+                const elemento = document.getElementById(link.scrollTo)
+                //si encontramos el elemento, hacemos el scroll suave hacia él
+                if(elemento){
+                    elemento.scrollIntoView({
+                        behavior: 'smooth',// Animación suave del scroll
+                        block: 'start' // El elemento se posiciona al inicio del viewport
+                        }
+                    )
+                }
             }
         }
         // Si estamos en mobile y el menú está abierto, lo cerramos después del click

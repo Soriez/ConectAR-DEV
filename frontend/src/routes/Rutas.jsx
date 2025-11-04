@@ -5,7 +5,7 @@ import Freelancers from '../pages/Freelancers'
 import ComoFunciona from '../pages/ComoFunciona'
 import Contacto from '../pages/Contacto'
 import IniciarSesion from '../pages/IniciarSesion'
-import Registrar from '../pages/Registrar'
+import Registrarse from '../pages/Registrarse'
 import NoEncontrado from '../pages/NoEncontrado'
 
 const Rutas = () => {
@@ -20,10 +20,6 @@ const Rutas = () => {
             element: <Freelancers />
         },
         {
-            path: '/como-funciona',
-            element: <ComoFunciona />
-        },
-        {
             path: '/contacto',
             element: <Contacto />
         },
@@ -33,7 +29,7 @@ const Rutas = () => {
         },
         {
             path: '/registrarse',
-            element: <Registrar />
+            element: <Registrarse />
         },
         {
             path: '*',

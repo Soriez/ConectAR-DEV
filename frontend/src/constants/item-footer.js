@@ -36,11 +36,9 @@ export const FOOTER_DATA = {
         titulo: "Empresa",
         enlaces: [
             { id: 'nosotros', texto: "Sobre Nosotros", url: "/empresa/sobre-nosotros" },
-            { id: 'como', texto: "Cómo Funciona", url: "/empresa/como-funciona" },
             { id: 'empresas', texto: "Para Empresas", url: "/empresas" },
             { id: 'freelancers', texto: "Para Freelancers", url: "/freelancers" },
-            { id: 'blog', texto: "Blog", url: "/blog" },
-            { id: 'ayuda', texto: "Ayuda", url: "/ayuda" },
+            { id: 'ayuda', texto: "Ayuda", url: "/contacto" },
         ]
     },
 
@@ -48,7 +46,6 @@ export const FOOTER_DATA = {
     contacto: {
         titulo: "Contacto",
         datos: [
-            { tipo: 'ubicacion', valor: "Buenos Aires, Argentina", icono: 'map-pin' },
             { tipo: 'email', valor: "hola@conectar-dev.com", url: "mailto:hola@conectar-dev.com", icono: 'mail' },
             { tipo: 'telefono', valor: "+54 9 11 2345-6789", url: "tel:+5491123456789", icono: 'phone' },
         ],

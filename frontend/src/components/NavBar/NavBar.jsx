@@ -4,103 +4,128 @@ import ItemNavBar from './ItemNavBar'
 import { Menu, X } from 'lucide-react'
 import { NavLink } from 'react-router'
 
-
+/**
+ * @component
+ * @description Barra de Navegación principal. Implementa el patrón de menú hamburguesa (mobile) y barra horizontal (desktop).
+ * Utiliza el estado 'activa' para controlar la visibilidad del menú móvil y 'sticky' para fijar la navegación.
+ * @returns {JSX.Element} El elemento NavBar.
+ */
 const NavBar = () => {
 
     const [activa, setActiva] = useState(false)
-    // Para indicar qué página está activa
+    // Estado para controlar si el menú móvil está abierto o cerrado.
 
-    
-
-  return (
-    <nav className="bg-gray-900 text-white shadow-lg sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
+    return (
+        // Contenedor principal: Sticky, con z-index alto para flotar sobre el contenido
+        <nav className="bg-gray-900 text-white shadow-xl sticky top-0 z-50">
+            
+            {/* Contenedor centralizado (Desktop y Mobile Header) */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center"> {/* Altura ajustada a h-20 */}
                 
-                {/* 1. Logo (siempre visible en desktop y mobile cuando el menú está cerrado) */}
+                {/* 1. Logo */}
                 <div className="flex items-center space-x-4">
-                    <NavLink to={'/'} className="flex-shrink-0">
-                        <div className="w-16 h-16 bg-gray-900 border border-gray-700 rounded-sm flex items-center justify-center">
-                            <img src="/public/imgs/logo.jpeg" alt="Logo de conectar dev" /> 
+                    <NavLink to={'/'} className="shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm">
+                        {/* Logo estilizado y responsivo */}
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-900 border border-blue-500 rounded-full flex items-center justify-center overflow-hidden">
+                            {/* Ajuste: Usar object-cover para que la imagen se vea bien */}
+                            <img src="/public/imgs/logo.jpeg" alt="Logo de conectar dev" className="w-full h-full object-cover" /> 
                         </div>
                     </NavLink>
                 </div>
 
                 {/* 2. Links de Navegación (Solo Desktop - Centrados) */}
-                <ul className="hidden md:flex gap-8 text-lg flex-1 justify-center">
+                <ul className="hidden md:flex gap-4 lg:gap-8 flex-1 justify-center"> {/* Gap ajustado para mejor espaciado en desktop */}
                     {links.map((link) => (
-                        <ItemNavBar link={link} key={link.id} />
+                        <ItemNavBar link={link} isMobile={false} key={link.id} />
                     ))}
                 </ul>
 
                 {/* 3. Botones de Acción (Solo Desktop - Derecha) */}
                 <div className="hidden md:flex items-center space-x-4">
+                    {/* Botón Iniciar Sesión (Transparente) */}
                     <NavLink 
                         to={'/iniciar-sesion'} 
-                        className="whitespace-nowrap text-white hover:text-blue-400 px-3 py-2 text-sm font-medium transition duration-150 ease-in-out"
+                        className="whitespace-nowrap text-white hover:text-blue-400 px-3 py-2 text-base font-medium transition duration-150 ease-in-out focus:ring-2 focus:ring-blue-500 rounded-md"
                     >
                         Iniciar Sesión
                     </NavLink>
                     
+                    {/* Botón Registrarse (Primario) */}
                     <NavLink 
-                        to={'/registrar'} 
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md shadow-md transition duration-150 ease-in-out"
+                        to={'/registrarse'} 
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-md shadow-lg transition duration-150 ease-in-out whitespace-nowrap focus:ring-2 focus:ring-white"
                     >
                         Registrarse
                     </NavLink>
                 </div>
 
-                {/* 4. Botón Hamburguesa (Solo Mobile - para abrir/cerrar el menú) */}
+                {/* 4. Botón Hamburguesa (Solo Mobile) */}
                 <button
                     onClick={() => setActiva(!activa)}
-                    className="md:hidden p-2 rounded hover:bg-white/10 transition"
+                    className="md:hidden p-2 rounded hover:bg-white/20 transition focus:outline-none focus:ring-2 focus:ring-white"
                     aria-expanded={activa}
                     aria-controls="mobile-menu"
+                    aria-label={activa ? "Cerrar menú" : "Abrir menú"}
                 >
-                    {activa ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
+                    {activa ? <X size={28} className="text-white" /> : <Menu size={28} className="text-white" />} {/* Icono más grande */}
                 </button>
             </div>
 
-            {/* Menú Mobile Desplegable - ESTE ES EL BLOQUE QUE HEMOS MEJORADO */}
+            {/* Menú Mobile Desplegable - Bloque que se desliza */}
             <div
                 id="mobile-menu"
-                className={`md:hidden absolute top-0 left-0 w-full bg-gray-800 transition-transform duration-300 ease-in-out transform ${
-                    activa ? "translate-x-0" : "-translate-x-full" // Animación de entrada/salida lateral
-                } h-screen overflow-y-auto`} // Permite scroll si el contenido es demasiado largo
-                style={{ zIndex: 40 }} // Asegurarse de que esté por encima del contenido principal, pero debajo del navbar si es sticky
+                className={`
+                    md:hidden 
+                    fixed top-0 left-0 
+                    w-full max-w-xs sm:max-w-sm                        /* Ancho limitado para mejor UX en tablets pequeñas */
+                    bg-gray-800 
+                    transition-transform duration-300 ease-in-out 
+                    transform 
+                    ${activa ? "translate-x-0" : "-translate-x-full"}  /* Animación de entrada/salida lateral */
+                    h-full min-h-screen overflow-y-auto                 /* Ocupa toda la altura y permite scroll */
+                    shadow-2xl z-40                                    /* Sombra para que destaque */
+                `} 
             >
                 {/* Cabecera del Menú Mobile (Logo y botón de cerrar) */}
-                <div className="bg-gray-900 h-16 flex justify-between items-center px-4 sm:px-6 lg:px-8">
-                    <NavLink to={'/'} className="flex-shrink-0">
-                        <div className="w-16 h-16 bg-gray-900 border border-gray-700 rounded-sm flex items-center justify-center">
-                            <img src="/public/imgs/logo.jpeg" alt="Logo de conectar dev" /> 
+                <div className="bg-gray-900 h-20 flex justify-between items-center px-4 sm:px-6"> {/* Altura alineada con el navbar principal */}
+                    <NavLink to={'/'} className="shrink-0">
+                        <div className="w-12 h-12 bg-gray-900 border border-blue-500 rounded-full flex items-center justify-center overflow-hidden">
+                            <img src="/public/imgs/logo.jpeg" alt="Logo de conectar dev" className="w-full h-full object-cover" /> 
                         </div>
                     </NavLink>
                     <button
                         onClick={() => setActiva(false)}
-                        className="p-2 rounded hover:bg-white/10 transition"
+                        className="p-2 rounded hover:bg-white/20 transition focus:outline-none focus:ring-2 focus:ring-white"
                         aria-label="Cerrar menú"
                     >
-                        <X size={24} className="text-white" />
+                        <X size={28} className="text-white" />
                     </button>
                 </div>
 
                 {/* Contenido del Menú Mobile (Enlaces y botones) */}
-                <ul className="flex flex-col items-center gap-4 py-8"> {/* Aumentado el padding vertical */}
+                <ul className="flex flex-col items-start gap-0 py-4">
+                    {/* Enlaces de Navegación */}
                     {links.map((link) => (
-                        <ItemNavBar link={link} isMobile={true} setActiva={setActiva} key={link.id} />
+                        <ItemNavBar 
+                            link={link} 
+                            isMobile={true} 
+                            setOpen={setActiva} // Renombrada de setActiva a setOpen para mayor claridad
+                            key={link.id} 
+                        />
                     ))}
-                    {/* Botones de acción en la versión móvil */}
-                    <li className="w-full text-center mt-6 border-t border-gray-700 pt-6"> {/* Más espacio y borde superior */}
+                    
+                    {/* Botones de acción en la versión móvil (Separador visual) */}
+                    <li className="w-full text-center mt-4 border-t border-gray-700 pt-4">
                         <NavLink 
                             to={'/iniciar-sesion'}
-                            className="block text-lg font-medium text-white hover:text-blue-400 py-3" // Más padding vertical
+                            className="block text-xl font-medium text-white hover:text-blue-400 py-3 px-6 text-left" 
                             onClick={() => setActiva(false)}
                         >
                             Iniciar Sesión
                         </NavLink>
                         <NavLink 
-                            to={'/registrar'}
-                            className="block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 mx-8 rounded-md shadow-md my-3" // Más padding y margen horizontal
+                            to={'/registrarse'}
+                            className="block bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-3 px-6 mx-4 rounded-md shadow-lg my-4 text-center"
                             onClick={() => setActiva(false)}
                         >
                             Registrarse
@@ -109,7 +134,7 @@ const NavBar = () => {
                 </ul>
             </div>
         </nav>
-  )
+    )
 }
 
 export default NavBar

@@ -42,5 +42,27 @@ export const freelancersDestacadosData = [
     "habilidadesExtra": 1,
     "tarifaHora": "30",
     "moneda": "/hora"
+  },
+  {
+    "id": 5,
+    "nombre": "Diego Fernandez",
+    "especialidad": "Mobile Developer",
+    "edad": 28,
+    "descripcionCorta": "Desarrollador móvil especialista en apps nativas e híbridas",
+    "habilidades": ["React Native", "Kotlin", "iOS"],
+    "habilidadesExtra": 1,
+    "tarifaHora": "22",
+    "moneda": "/hora"
+  },
+  {
+    "id": 6,
+    "nombre": "Sofia Martinez",
+    "especialidad": "Data Scientist",
+    "edad": 19,
+    "descripcionCorta": "Científica de datos con experiencia en ML y análisis predictivo",
+    "habilidades": ["Python", "Machine Learning", "SQL"],
+    "habilidadesExtra": 1,
+    "tarifaHora": "30",
+    "moneda": "/hora"
   }
 ]

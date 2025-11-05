@@ -9,7 +9,7 @@ import { NavLink, useLocation, useNavigate } from "react-router"
  * @param {function} props.setOpen - Función para cerrar el menú móvil al hacer clic.
  * @returns {JSX.Element} El elemento <li> que contiene el NavLink.
  */
-const ItemNavBar = ( { link, isMobile, setOpen, setActiva } ) => {
+const ItemNavBar = ( { link, isMobile, setOpen } ) => {
     // Clases CSS comunes para todos los enlaces
     const commonClasses = "text-white hover:text-blue-400 transition-colors duration-150 ease-in-out cursor-pointer";
     // Hook para obtener la ubicación actual (pathname)
@@ -35,7 +35,6 @@ const ItemNavBar = ( { link, isMobile, setOpen, setActiva } ) => {
             if(location.pathname === '/'){
                 // Buscamos el elemento HTML con el ID especificado en scrollTo
                  const elemento = document.getElementById(link.scrollTo)
-                 navigate(`/#${link.scrollTo}`);
                 //si encontramos el elemento, hacemos el scroll suave hacia él
                 if(elemento){
                     elemento.scrollIntoView({
@@ -47,7 +46,7 @@ const ItemNavBar = ( { link, isMobile, setOpen, setActiva } ) => {
             // Si estamos EN OTRA PÁGINA (/contacto, /freelancers, etc)
             }else{
             // 1. Navega primero a la home, usando el ID de scroll de forma dinámica
-            navigate(`/#${link.scrollTo}`);
+            navigate('/');
             
             // 2. Espera 100ms para dar tiempo a que la página Home se monte.
             // 3. Luego busca el elemento (¡Ahora sí estará en el DOM!) y hace scroll.

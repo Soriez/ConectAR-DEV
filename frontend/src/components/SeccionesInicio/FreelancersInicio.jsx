@@ -6,6 +6,7 @@ import FreelancerCard from '../Cards/FreelancerInicioCard'
 import BotonSecundario from '../Botones/BotonSecundario'
 import { ChevronLeft, ChevronRight } from 'lucide-react'; 
 
+
 /**
  * @component
  * @description Sección de inicio que muestra un listado de Freelancers Destacados en un CARRUSEL horizontal responsivo.
@@ -120,7 +121,9 @@ const FreelancersInicio = () => {
 
                 {/* Botón de ver a todos los freelancers */}
                 <div className='mt-8 sm:mt-12 px-4 sm:px-6 lg:px-8'>
-                    <BotonSecundario text={'Ver Todos los Freelancers'}/>
+                    <BotonSecundario 
+                        link={'/freelancers'}
+                        text={'Ver Todos los Freelancers'}/>
                 </div>
             </div>
         </section>

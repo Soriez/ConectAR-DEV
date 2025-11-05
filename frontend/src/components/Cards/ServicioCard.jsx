@@ -19,27 +19,33 @@ const Card = ( { data } ) => {
     <li className={`
         /* Estilos Base de la Tarjeta */
         bg-gray-800 
-        rounded-xl                        
+        rounded-xl 
         text-center 
-        p-4                               
-        shadow-lg                         
-        flex flex-col h-full              /* Mantenido por si el padre puede forzar la altura */
-
-        /* Responsividad: Ajustes de la tarjeta */
-        sm:p-4                            
-        md:p-8                            
+        shadow-lg 
+        flex flex-col h-full 
+        
+        /* Reducido para darle más espacio al texto */
+        px-3                      /* Valor base: p-x reducido de 16px a 12px */
+        sm:px-3                   /* Valor sm: p-x reducido */
+        md:px-4                   /* Valor md: p-x reducido de 32px a 16px */
+        
+        /* Mantenemos el control de Padding Vertical para el borde */
+        pt-4 
+        pb-2 
+        sm:pb-2 
+        md:pb-4                        
     `}>
         
         {/* Contenedor del Icono: Altura fija, no crece */}
         <div className={`
             text-4xl sm:text-5xl md:text-6xl 
-            p-2 sm:p-4 mb-4                   
+            p-2 sm:p-4
         `}>
           <FontAwesomeIcon 
             icon={['fas', data.icon]} 
             style={{color: data.color, backgroundColor: data.bgColor}}
             className='
-              p-3 sm:p-4 rounded-xl         
+              p-3 rounded-xl         
               shadow-lg                     
             '
           />
@@ -47,10 +53,10 @@ const Card = ( { data } ) => {
         
         {/* Título: Altura fija */}
         <div className="
-            text-white 
+           text-white 
             font-extrabold 
-            py-2 
-            text-lg sm:text-xl md:text-2xl  
+            py-1 sm:py-2 
+            text-lg sm:text-xl md:text-2xl
         ">
             {data.title}
         </div>
@@ -58,14 +64,12 @@ const Card = ( { data } ) => {
         {/* descipción */}
         <div className='grow min-h-24 flex-col justify-start'>
             <div className="
-                text-gray-400 
-                py-2 
-                px-2 sm:px-4             
-                text-sm sm:text-base            
+               text-gray-400 
+                pt-2 pb-0
+                text-sm sm:text-base
                 leading-relaxed 
-                overflow-hidden                 /* CLAVE: Oculta el texto que se desborda */
-                h-auto                          /* Permite que el texto fluya hasta el max-h */
-                max-h-26                  /* CLAVE: Define una altura máxima fija (ajustar según el número de líneas deseado) */
+                h-auto
+                max-h-26
             ">
                 {data.description}
             </div>

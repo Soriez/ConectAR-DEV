@@ -1,4 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Link } from 'react-router'
 
 /**
  * @component
@@ -9,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 const HeaderInicio = () => {
   return (
     // Contenedor principal: Utiliza flex-col en móvil y grid-cols-2 en md+. Padding y centrado responsivo.
-    <div className='md:grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 px-4 container mx-auto py-8 sm:py-16'>
+    <section className='md:grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 px-4 container mx-auto py-8 sm:py-16' id='header'>
         
         {/* Sección 1 / de la izquierda: Título, Descripción y CTA Cards */}
         <div className='mb-8 md:mb-0 flex flex-col justify-center items-center md:items-start text-center md:text-left'>
@@ -43,9 +44,11 @@ const HeaderInicio = () => {
                         </div>
                     </div>
                     <div className="grid">
-                        <button className="cursor-pointer bg-yellow-400 hover:bg-yellow-500 transition-colors text-gray-900 font-bold rounded-lg py-2 text-base">
+                        <Link 
+                            to={'/freelancers'}
+                            className="text-center cursor-pointer bg-yellow-400 hover:bg-yellow-500 transition-colors text-gray-900 font-bold rounded-lg py-2 text-base">
                             Buscar Freelancers
-                        </button>
+                        </Link>
                     </div>
                 </div>
                 
@@ -62,9 +65,11 @@ const HeaderInicio = () => {
                         </div>
                     </div>
                     <div className="grid">
-                        <button className="cursor-pointer text-white bg-blue-600 hover:bg-blue-700 transition-colors font-bold rounded-lg py-2 text-base">
+                        <Link 
+                            to={'/registrarse'}
+                            className="text-center cursor-pointer text-white bg-blue-600 hover:bg-blue-700 transition-colors font-bold rounded-lg py-2 text-base">
                             Registrate Gratis
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -80,7 +85,7 @@ const HeaderInicio = () => {
                 className="w-full h-auto max-w-xl rounded-xl shadow-2xl"
             />
         </div>
-    </div>
+    </section>
   )
 }
 

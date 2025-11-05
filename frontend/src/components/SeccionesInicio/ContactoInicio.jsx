@@ -84,7 +84,9 @@ const ContactoInicio = () => {
                             </div>
                         </div>
                         <div className='mt-6'>
-                            <BotonPrincipal text={'¿Tenés dudas? Consultanos →'}/>
+                            <BotonPrincipal 
+                                link={'/contacto'}
+                                text={'¿Tenés dudas? Consultanos →'}/>
                         </div>
                     </div>
                 </div>

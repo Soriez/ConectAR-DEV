@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 // NOTA: El objeto customColors se ha eliminado. 
-// Las clases de Tailwind (dark-blue, custom-blue, etc.) 
+// Las clases de Tailwind (blue-800, custom-blue, etc.) 
 // DEBEN estar definidas en frontend/tailwind.config.js.
 
 // Componente helper para alternar la visibilidad de la contraseña
 const PasswordToggle = ({ isVisible, onClick }) => (
     <button 
         type="button" 
-        className="absolute right-[14px] top-1/2 -translate-y-1/2 bg-transparent border-0 cursor-pointer p-1 flex items-center z-10 transition-opacity duration-300 hover:opacity-70" 
+        className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-transparent border-0 cursor-pointer p-1 flex items-center z-10 transition-opacity duration-300 hover:opacity-70" 
         onClick={onClick}
     >
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -89,14 +89,14 @@ const Registrar = () => {
 
     return (
         // ✅ LIMPIO: Clases directas de Tailwind
-        <div className="min-h-screen flex flex-col lg:flex-row bg-dark-blue text-white overflow-x-hidden">
+        <div className="min-h-screen flex flex-col lg:flex-row bg-blue-800  text-white overflow-x-hidden">
             {/* Panel Izquierdo - Formulario */}
-            <div className="w-full lg:w-5/12 bg-dark-blue flex items-center justify-center p-4 lg:p-8">
+            <div className="w-full lg:w-5/12 bg-blue-800 flex items-center justify-center p-4 lg:p-8">
                 <div className="w-full max-w-[480px]"> 
                     
                     {/* Header y Títulos */}
                     <div className="text-center mb-4">
-                        <div className="inline-flex items-center justify-center w-[60px] h-[60px] bg-gradient-to-br from-custom-blue to-blue-dark rounded-xl shadow-[0_4px_12px_rgba(74,158,255,0.3)] mb-3">
+                        <div className="inline-flex items-center justify-center w-[60px] h-[60px] bg-linear-to-br from-custom-blue to-blue-dark rounded-xl shadow-[0_4px_12px_rgba(74,158,255,0.3)] mb-3">
                             <span className="text-[28px] font-bold text-white">CA</span>
                         </div>
                         <h1 className="text-[28px] font-bold text-white mb-1">ConectAR-Dev</h1>
@@ -116,7 +116,7 @@ const Registrar = () => {
                             <label htmlFor="fullName" className="block text-[14px] font-medium text-white mb-2">Nombre Completo</label>
                             <div className="relative flex items-center">
                                 {/* SVG Icono (Usuario) */}
-                                <svg className="absolute left-[14px] z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 10C12.7614 10 15 7.76142 15 5C15 2.23858 12.7614 0 10 0C7.23858 0 5 2.23858 5 5C5 7.76142 7.23858 10 10 10Z" fill="#8B94A8"/><path d="M10 12.5C5.16667 12.5 1.25 14.8333 1.25 17.5V20H18.75V17.5C18.75 14.8333 14.8333 12.5 10 12.5Z" fill="#8B94A8"/></svg>
+                                <svg className="absolute left-3.5 z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 10C12.7614 10 15 7.76142 15 5C15 2.23858 12.7614 0 10 0C7.23858 0 5 2.23858 5 5C5 7.76142 7.23858 10 10 10Z" fill="#8B94A8"/><path d="M10 12.5C5.16667 12.5 1.25 14.8333 1.25 17.5V20H18.75V17.5C18.75 14.8333 14.8333 12.5 10 12.5Z" fill="#8B94A8"/></svg>
                                 <input 
                                     type="text" 
                                     id="fullName" 
@@ -135,7 +135,7 @@ const Registrar = () => {
                             <label htmlFor="email" className="block text-[14px] font-medium text-white mb-2">Email</label>
                             <div className="relative flex items-center">
                                 {/* SVG Icono (Email) */}
-                                <svg className="absolute left-[14px] z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M18 4H2C0.9 4 0.01 4.9 0.01 6L0 14C0 15.1 0.9 16 2 16H18C19.1 16 20 15.1 20 14V6C20 4.9 19.1 4 18 4ZM18 8L10 11.5L2 8V6L10 9.5L18 6V8Z" fill="#8B94A8"/></svg>
+                                <svg className="absolute left-3.5 z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M18 4H2C0.9 4 0.01 4.9 0.01 6L0 14C0 15.1 0.9 16 2 16H18C19.1 16 20 15.1 20 14V6C20 4.9 19.1 4 18 4ZM18 8L10 11.5L2 8V6L10 9.5L18 6V8Z" fill="#8B94A8"/></svg>
                                 <input 
                                     type="email" 
                                     id="email" 
@@ -154,7 +154,7 @@ const Registrar = () => {
                             <label htmlFor="password" className="block text-[14px] font-medium text-white mb-2">Contraseña</label>
                             <div className="relative flex items-center">
                                 {/* SVG Icono (Candado) */}
-                                <svg className="absolute left-[14px] z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 7H14V5C14 2.24 11.76 0 9 0C6.24 0 4 2.24 4 5V7H3C1.9 7 1 7.9 1 9V17C1 18.1 1.9 19 3 19H15C16.1 19 17 18.1 17 17V9C17 7.9 16.1 7 15 7ZM9 14C7.9 14 7 13.1 7 12C7 10.9 7.9 10 9 10C10.1 10 11 10.9 11 12C11 13.1 10.1 14 9 14ZM12 7H6V5C6 3.34 7.34 2 9 2C10.66 2 12 3.34 12 5V7Z" fill="#8B94A8"/></svg>
+                                <svg className="absolute left-3.5 z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 7H14V5C14 2.24 11.76 0 9 0C6.24 0 4 2.24 4 5V7H3C1.9 7 1 7.9 1 9V17C1 18.1 1.9 19 3 19H15C16.1 19 17 18.1 17 17V9C17 7.9 16.1 7 15 7ZM9 14C7.9 14 7 13.1 7 12C7 10.9 7.9 10 9 10C10.1 10 11 10.9 11 12C11 13.1 10.1 14 9 14ZM12 7H6V5C6 3.34 7.34 2 9 2C10.66 2 12 3.34 12 5V7Z" fill="#8B94A8"/></svg>
                                 <input 
                                     type={showPassword ? 'text' : 'password'} 
                                     id="password" 
@@ -174,7 +174,7 @@ const Registrar = () => {
                             <label htmlFor="confirmPassword" className="block text-[14px] font-medium text-white mb-2">Confirmar Contraseña</label>
                             <div className="relative flex items-center">
                                 {/* SVG Icono (Candado) */}
-                                <svg className="absolute left-[14px] z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 7H14V5C14 2.24 11.76 0 9 0C6.24 0 4 2.24 4 5V7H3C1.9 7 1 7.9 1 9V17C1 18.1 1.9 19 3 19H15C16.1 19 17 18.1 17 17V9C17 7.9 16.1 7 15 7ZM9 14C7.9 14 7 13.1 7 12C7 10.9 7.9 10 9 10C10.1 10 11 10.9 11 12C11 13.1 10.1 14 9 14ZM12 7H6V5C6 3.34 7.34 2 9 2C10.66 2 12 3.34 12 5V7Z" fill="#8B94A8"/></svg>
+                                <svg className="absolute left-3.5 z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 7H14V5C14 2.24 11.76 0 9 0C6.24 0 4 2.24 4 5V7H3C1.9 7 1 7.9 1 9V17C1 18.1 1.9 19 3 19H15C16.1 19 17 18.1 17 17V9C17 7.9 16.1 7 15 7ZM9 14C7.9 14 7 13.1 7 12C7 10.9 7.9 10 9 10C10.1 10 11 10.9 11 12C11 13.1 10.1 14 9 14ZM12 7H6V5C6 3.34 7.34 2 9 2C10.66 2 12 3.34 12 5V7Z" fill="#8B94A8"/></svg>
                                 <input 
                                     type={showConfirmPassword ? 'text' : 'password'} 
                                     id="confirmPassword" 
@@ -244,7 +244,7 @@ const Registrar = () => {
                         {/* Botón Crear Cuenta */}
                         <button type="submit" 
                             // ✅ LIMPIO: Clases directas
-                            className="w-full bg-gradient-to-br from-custom-blue to-blue-dark border-0 text-white px-6 py-3.5 rounded-lg text-base font-semibold transition-all duration-300 shadow-[0_4px_12px_rgba(74,158,255,0.3)] cursor-pointer hover:-translate-y-0.5 active:translate-y-0 mb-3"
+                            className="w-full bg-linear-to-br from-custom-blue to-blue-dark border-0 text-white px-6 py-3.5 rounded-lg text-base font-semibold transition-all duration-300 shadow-[0_4px_12px_rgba(74,158,255,0.3)] cursor-pointer hover:-translate-y-0.5 active:translate-y-0 mb-3"
                         >
                             Crear Cuenta
                         </button>
@@ -272,11 +272,11 @@ const Registrar = () => {
             </div>
 
             {/* Panel Derecho - Contenido Estático */}
-            <div className="hidden lg:flex lg:w-7/12 bg-gradient-to-br from-dark-blue to-darker-blue relative">
+            <div className="hidden lg:flex lg:w-7/12 bg-linear-to-br from-blue-800 to-darker-blue relative">
                 {/* Asumimos que las clases de estilo de patrón y brillo están en tu CSS global */}
                 <div className="absolute inset-0 bg-grid-pattern"></div> 
                 <div className="absolute inset-0 bg-glow"></div>
-                <div className="absolute inset-0 bg-gradient-to-br from-dark-blue/90 to-darker-blue/70"></div>
+                <div className="absolute inset-0 bg-linear-to-br from-blue-800/90 to-darker-blue/70"></div>
 
                 <div className="relative z-10 flex items-center justify-center p-20">
                     <div>

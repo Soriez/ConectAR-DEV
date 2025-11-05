@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 // Componente helper para alternar la visibilidad de la contraseña
 const PasswordToggle = ({ isVisible, onClick }) => {
@@ -15,7 +15,7 @@ const PasswordToggle = ({ isVisible, onClick }) => {
     return (
         <button
             type="button"
-            className="toggle-password absolute right-[14px] top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 flex items-center text-light-gray transition-colors duration-300 hover:text-white"
+            className="toggle-password absolute right-3.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 flex items-center text-light-gray transition-colors duration-300 hover:text-white"
             onClick={onClick}
         >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -88,7 +88,7 @@ const IniciarSesion = () => {
 
     return (
         // ✅ LIMPIO: Clases directas de Tailwind sin sintaxis de plantilla (template literal)
-        <div className="container flex min-h-screen bg-dark-blue text-white overflow-x-hidden">
+        <div className="container flex min-h-screen bg-blue-800 text-white overflow-x-hidden">
             {/* Panel Izquierdo - Formulario */}
             <div className="left-panel w-full lg:w-1/2 p-10 flex flex-col justify-center items-center bg-dark-blue">
                 <div className="form-wrapper w-full max-w-sm animate-fadeIn"> 
@@ -190,11 +190,11 @@ const IniciarSesion = () => {
 
             {/* Panel Derecho - Contenido Estático */}
             {/* ✅ LIMPIO: Clases directas */}
-            <div className="right-panel hidden lg:flex lg:w-1/2 relative bg-cover bg-center bg-gradient-to-br from-dark-blue to-darker-blue" 
+            <div className="right-panel hidden lg:flex lg:w-1/2 relative bg-cover bg-center bg-linear-to-br from-dark-blue to-darker-blue" 
                  style={{ backgroundImage: `url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80')` }}>
                 
                 {/* Overlay Oscuro */}
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-900/75 to-gray-900/85"></div>
+                <div className="absolute inset-0 bg-linear-to-br from-gray-900/75 to-gray-900/85"></div>
                 
                 <div className="right-content relative z-10 w-full h-full flex flex-col justify-end p-16 text-white">
                     <h2 className="text-4xl font-bold leading-tight mb-4">

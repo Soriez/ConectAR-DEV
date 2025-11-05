@@ -10,17 +10,6 @@ import { NavLink, useLocation, useNavigate } from "react-router"
  * @returns {JSX.Element} El elemento <li> que contiene el NavLink.
  */
 const ItemNavBar = ( { link, isMobile, setOpen } ) => {
-<<<<<<< HEAD
-
-    // Clases base para el texto y la interacción, comunes a ambos modos.
-    const commonClasses = "text-white hover:text-blue-400 transition-colors duration-150 ease-in-out cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50";
-
-    /**
-     * @function handleClick
-     * @description Cierra el menú móvil si el componente está en modo móvil.
-     */
-    const handleClick = () => {
-=======
     // Clases CSS comunes para todos los enlaces
     const commonClasses = "text-white hover:text-blue-400 transition-colors duration-150 ease-in-out cursor-pointer";
     // Hook para obtener la ubicación actual (pathname)
@@ -67,7 +56,6 @@ const ItemNavBar = ( { link, isMobile, setOpen } ) => {
             }
         }
         // Si estamos en mobile y el menú está abierto, lo cerramos después del click
->>>>>>> 8f9c7fdc06e5b2b1cde591300539e57ee03c619f
         if (isMobile && setOpen) {
             setOpen(false);
         }

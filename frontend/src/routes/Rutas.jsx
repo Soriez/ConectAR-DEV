@@ -28,8 +28,8 @@ const Rutas = () => {
             element: <IniciarSesion />
         },
         {
-            path: '/registrar',
-            element: <Registrar />
+            path: '/registrarse',
+            element: <Registrarse />
         },
         {
             path: '*',

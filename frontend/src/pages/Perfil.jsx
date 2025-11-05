@@ -409,7 +409,7 @@ const FreelancerProfile = ({ freelancerId = "leonel-rasjido" }) => {
 /* ============================
    Wrapper exportable
    ============================ */
-const Freelancers = () => {
+const Perfil = () => {
   // Cambiá este ID para reutilizar el componente con otro perfil
   return <FreelancerProfile freelancerId="leonel-rasjido" />;
 };

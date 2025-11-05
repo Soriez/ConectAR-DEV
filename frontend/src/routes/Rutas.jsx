@@ -1,12 +1,11 @@
 import React from 'react'
 import { useRoutes } from 'react-router'
 import Inicio from '../pages/Inicio'
-import Servicios from '../pages/Servicios'
 import Freelancers from '../pages/Freelancers'
 import ComoFunciona from '../pages/ComoFunciona'
 import Contacto from '../pages/Contacto'
 import IniciarSesion from '../pages/IniciarSesion'
-import Registrar from '../pages/Registrar'
+import Registrarse from '../pages/Registrarse'
 import NoEncontrado from '../pages/NoEncontrado'
 
 const Rutas = () => {
@@ -17,16 +16,8 @@ const Rutas = () => {
             element: <Inicio />
         },
         {
-            path: '/servicios',
-            element: <Servicios />
-        },
-        {
             path: '/freelancers',
             element: <Freelancers />
-        },
-        {
-            path: '/como-funciona',
-            element: <ComoFunciona />
         },
         {
             path: '/contacto',
@@ -38,7 +29,7 @@ const Rutas = () => {
         },
         {
             path: '/registrarse',
-            element: <Registrar />
+            element: <Registrarse />
         },
         {
             path: '*',

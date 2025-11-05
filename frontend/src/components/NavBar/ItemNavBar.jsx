@@ -1,6 +1,14 @@
 import { NavLink, useLocation, useNavigate } from "react-router"
 
-
+/**
+ * @component
+ * @description Ítem individual de navegación para la barra. También maneja la lógica de cerrar el menú en móvil.
+ * @param {object} props - Propiedades del componente.
+ * @param {object} props.link - Objeto con 'href' y 'name' del enlace.
+ * @param {boolean} props.isMobile - Indica si el componente está renderizado en el layout móvil (true) o desktop (false).
+ * @param {function} props.setOpen - Función para cerrar el menú móvil al hacer clic.
+ * @returns {JSX.Element} El elemento <li> que contiene el NavLink.
+ */
 const ItemNavBar = ( { link, isMobile, setOpen } ) => {
     // Clases CSS comunes para todos los enlaces
     const commonClasses = "text-white hover:text-blue-400 transition-colors duration-150 ease-in-out cursor-pointer";
@@ -53,13 +61,41 @@ const ItemNavBar = ( { link, isMobile, setOpen } ) => {
         }
     };
 
+    // Estilos específicos para NavLink (usando una función para manejar el estado 'isActive')
+    const navLinkClass = ({ isActive }) => {
+        // Estilos base de interacción y responsividad
+        let finalClasses = `${commonClasses} font-medium`;
+
+        if (isMobile) {
+            // Estilos específicos para el MODO MÓVIL (Menú completo)
+            finalClasses += ` block w-full text-xl py-3 border-b border-gray-700/50`;
+        } else {
+            // Estilos específicos para el MODO DESKTOP (Barra horizontal)
+            finalClasses += ` text-sm px-3 py-2 rounded-md hover:bg-gray-700/50`;
+        }
+
+        // Estilo cuando el enlace está activo
+        if (isActive) {
+            if (isMobile) {
+                 // Ítem activo en móvil: Fondo azul más oscuro para contraste total
+                finalClasses += ` !text-blue-400 !font-bold bg-gray-900/50`;
+            } else {
+                // Ítem activo en desktop: Resaltado con color azul
+                finalClasses += ` !text-blue-400 bg-gray-700/70`; 
+            }
+        }
+        
+        return finalClasses;
+    };
     
   return (
-    <li className={isMobile ? "w-full text-center py-2" : ""}>
+    // El <li> sólo necesita un manejo de ancho y padding en móvil si no está ya en la clase navLink
+    <li className={isMobile ? "w-full" : "flex items-center"}>
         <NavLink
             to={link.href}
-            className={`${commonClasses} ${isMobile ? "block text-lg " : "text-sm  px-3 py-2 rounded-md"}`}
-            onClick={ handleClick }//Agregamos el manejador de click personalizado
+            // Utilizamos la función navLinkClass para aplicar estilos basados en el estado 'isActive'
+            className={navLinkClass} 
+            onClick={ handleClick }
         >
             {link.name}
         </NavLink>

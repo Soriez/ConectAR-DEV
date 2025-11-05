@@ -2,7 +2,7 @@ import { useRef } from 'react'; // Importamos useRef para la navegación con bot
 import TextoGray from '../Textos/TextoGray'
 import TextoSubtitulo from '../Textos/TextoSubtitulo'
 import { freelancersDestacadosData } from '../../constants/item-freelancers-cards'
-import FreelancerCard from '../Cards/FreelancerCard'
+import FreelancerCard from '../Cards/FreelancerInicioCard'
 import BotonSecundario from '../Botones/BotonSecundario'
 import { ChevronLeft, ChevronRight } from 'lucide-react'; 
 

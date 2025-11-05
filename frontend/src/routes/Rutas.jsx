@@ -7,6 +7,7 @@ import Contacto from '../pages/Contacto'
 import IniciarSesion from '../pages/IniciarSesion'
 import Registrarse from '../pages/Registrarse'
 import NoEncontrado from '../pages/NoEncontrado'
+import Perfil from '../pages/Perfil'
 
 const Rutas = () => {
   return useRoutes(
@@ -35,6 +36,10 @@ const Rutas = () => {
             path: '*',
             element: <NoEncontrado />
         },
+        {
+            path: '/perfil',
+            element: <Perfil />
+        }
     ]
   )
 }

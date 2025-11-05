@@ -1,0 +1,78 @@
+/**
+ * Estilos personalizados para el formulario de contacto
+ * Incluye animaciones CSS para el spinner y transiciones suaves
+ */
+
+/* 
+  Animación de rotación para el spinner (icono Loader)
+  Rota 360 grados infinitamente
+*/
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 
+  Clase utility para aplicar la animación de spin
+  Tailwind ya incluye animate-spin, pero esto es un backup
+*/
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* 
+  Ocultar visualmente pero mantener accesible para screen readers
+  Clase 'sr-only' (screen reader only)
+*/
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* 
+  Transición suave para mostrar/ocultar elementos
+  Usado en el FAQ accordion y en el formulario
+*/
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* 
+  Animación de entrada para el mensaje de éxito
+  Aparece con un efecto de fade-in y escala
+*/
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 
+  Aplicar animación de entrada a elementos con esta clase
+*/
+.animate-fadeInScale {
+  animation: fadeInScale 0.4s ease-out;
+}
+
+/* 
+  Efecto hover suave para botones
+  Ya manejado por Tailwind con hover:scale-105
+*/

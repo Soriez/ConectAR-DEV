@@ -3,6 +3,7 @@ import links from '../../constants/item-nav'
 import ItemNavBar from './ItemNavBar'
 import { Menu, X } from 'lucide-react'
 import { NavLink } from 'react-router'
+import DesktopNavBar from './DesktopNavBar'
 
 /**
  * @component
@@ -10,7 +11,7 @@ import { NavLink } from 'react-router'
  * Utiliza el estado 'activa' para controlar la visibilidad del menú móvil y 'sticky' para fijar la navegación.
  * @returns {JSX.Element} El elemento NavBar.
  */
-const NavBar = () => {
+const NavBar = ( { isLoggedIn } ) => {
 
     // Estado para controlar si el menú móvil está abierto o cerrado.
     const [activa, setActiva] = useState(false)
@@ -43,21 +44,7 @@ const NavBar = () => {
 
                 {/* 3. Botones de Acción (Solo Desktop - Derecha) */}
                 <div className="hidden md:flex items-center space-x-4">
-                    {/* Botón Iniciar Sesión (Transparente) */}
-                    <NavLink 
-                        to={'/iniciar-sesion'} 
-                        className="whitespace-nowrap text-white hover:text-blue-400 px-3 py-2 text-base font-medium transition duration-150 ease-in-out focus:ring-2 focus:ring-blue-500 rounded-md"
-                    >
-                        Iniciar Sesión
-                    </NavLink>
-                    
-                    {/* Botón Registrarse (Primario) */}
-                    <NavLink 
-                        to={'/registrarse'} 
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-md shadow-lg transition duration-150 ease-in-out whitespace-nowrap focus:ring-2 focus:ring-white"
-                    >
-                        Registrarse
-                    </NavLink>
+                    <DesktopNavBar isLoggedIn={isLoggedIn}/>
                 </div>
 
                 {/* 4. Botón Hamburguesa (Solo Mobile) */}

@@ -5,9 +5,15 @@ import Rutas from "./routes/Rutas"
 
 
 const App = () => {
+
+    //Variable para cambiar de vista de visitante a vista usuario
+    const isLoggedIn = true
+    // true = usuario
+    // false = visitante
+
     return (
         <>
-            <NavBar />
+            <NavBar isLoggedIn={isLoggedIn}/>
             <ScrollToTop />
 
             <main>

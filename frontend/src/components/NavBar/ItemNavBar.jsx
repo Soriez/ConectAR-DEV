@@ -52,7 +52,6 @@ const ItemNavBar = ( { link, isMobile, setOpen } ) => {
                 setTimeout(() => {
                     element.scrollIntoView({ behavior: 'smooth' });
                 }, 100);// 100ms de delay para asegurar que el DOM esté listo
-
             }
         }
         // Si estamos en mobile y el menú está abierto, lo cerramos después del click

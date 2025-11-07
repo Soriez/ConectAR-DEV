@@ -13,15 +13,16 @@ import TextoSubtitulo from '../Textos/TextoSubtitulo'
 const ServiciosInicio = () => {
   return (
     // Contenedor principal de la sección. Usamos padding vertical responsivo y el ID para navegación.
-    <section className='bg-white py-12 sm:py-16 md:py-20' id='servicios'>
+    <section className='py-12 sm:py-16 md:py-20' id='servicios'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8 text-center'>
         
         {/* Cabecera de la Sección */}
         <div className='mb-8 sm:mb-12'>
-            <TextoSubtitulo text={'Servicios'}/>
+            <TextoSubtitulo text={'Servicios'} textColor={'text-white'}/>
             <TextoGray 
                 text={'Conectate con freelancers Argentinos expertos en todas las áreas de tecnología. Desde desarrollo hasta inteligencia artificial, encontrá el talento que necesitas.'}
                 // Centramos y limitamos el ancho de la descripción en desktop
+                textNumber={'300'}
                 className="max-w-3xl mx-auto mt-2 text-base sm:text-lg" 
             />
         </div>
@@ -52,12 +53,13 @@ const ServiciosInicio = () => {
         <div className='mt-8 sm:mt-12'> {/* Margen superior para separarlo del grid */}
             <TextoGray 
                 text={'¿No encontrás lo que buscás? También tenemos expertos en otras tecnologías.'}
+                textNumber={'300'}
                 className="mb-4 text-base sm:text-lg" /* Ajustamos el tamaño del texto */
             />
-            <div className='text-center text-blue-600 hover:text-blue-700 transition-colors font-bold text-lg sm:text-xl md:text-2xl py-2'>
+            <div className='text-center text-yellow-400 hover:text-yellow-300 transition-colors font-bold text-lg sm:text-xl md:text-2xl py-2'>
                 <Link
                     to={'/freelancers'}
-                    className='focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-2' /* Añadimos focus para accesibilidad */
+                    className='focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-md p-2 ring-1' /* Añadimos focus para accesibilidad */
                 >
                     Ver todos los Servicios
                 </Link>

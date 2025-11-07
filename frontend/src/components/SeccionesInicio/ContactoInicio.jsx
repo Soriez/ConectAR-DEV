@@ -13,7 +13,7 @@ import BotonPrincipal from '../Botones/BotonPrincipal';
 const ContactoInicio = () => {
     return (
         // Sección principal con fondo claro y padding vertical responsivo
-        <section className='bg-gray-50 py-16 sm:py-20 md:py-24 bg-linear-to-br from-white to-blue-900 from-35%' id='como-funciona'>
+        <section className='py-16 sm:py-20 md:py-24' id='como-funciona'>
             <div className='container mx-auto px-4 sm:px-6 lg:px-8 text-center'>
                 
                 {/* 1. Título y Subtítulo centrales de la sección*/}
@@ -31,8 +31,8 @@ const ContactoInicio = () => {
                 <div className='relative max-w-7xl mx-auto'>
                     
                     {/* Líneas de Conexión (Solo visible en desktop) */}
-                    <div className='hidden lg:block absolute inset-0'>
                         {/* Líneas horizontales de conexión entre tarjetas */}
+                    <div className='hidden lg:block absolute inset-0'>
                         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                             <line x1="12.5" y1="25" x2="37.5" y2="25" stroke="#D1D5DB" strokeWidth="2" />
                             <line x1="37.5" y1="25" x2="62.5" y2="25" stroke="#D1D5DB" strokeWidth="2" />

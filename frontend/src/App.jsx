@@ -7,7 +7,7 @@ import Rutas from "./routes/Rutas"
 const App = () => {
 
     //Variable para cambiar de vista de visitante a vista usuario
-    const isLoggedIn = true
+    const isLoggedIn = false
     // true = usuario
     // false = visitante
 

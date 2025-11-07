@@ -307,35 +307,40 @@ const Registrar = () => {
                     {/* Ajustado z-20 para estar sobre el overlay y alineado */}
                     <div className="w-full max-w-[800px] px-16 py-20 z-20 text-center lg:text-left"> 
                         
-                        {/* --- ⬇️ TEXTO MEJORADO ⬇️ --- */}
+                        {/* Texto ajustado a la paleta */}
                         <h1 className="text-[56px] font-bold leading-[1.2] mb-6 text-white">
-                            Calidad y Confianza.<br/>
-                            100% Talento<br/>
-                            <span className="text-yellow-400">Argentino.</span>
+                            Conecta.<br/>
+                            Desarrolla.<br/>
+                            {/* Acento ajustado a text-yellow-400 */}
+                            <span className="text-yellow-400">Crece.</span>
                         </h1>
                         
+                        {/* Texto secundario ajustado a text-slate-300 */}
                         <p className="text-[18px] text-slate-300 leading-[1.6] mb-12">
-                            Únete a la única plataforma de freelancers IT 100% verificada de Argentina. Conecta de forma segura con profesionales expertos y lleva tus proyectos al siguiente nivel.
+                            ConectAR-Dev te conecta con las mejores<br/>
+                            oportunidades tecnológicas en Argentina y<br/>
+                            Latinoamérica
                         </p>
-                        {/* --- ⬆️ FIN DEL TEXTO MEJORADO ⬆️ --- */}
 
-
-                        {/* --- STATS CON ICONOS --- */}
+                        {/* --- ⬇️ CÓDIGO NUEVO AGREGADO ⬇️ --- 
+                        (Clases de color y sombra ajustadas a Tailwind nativo)
+                        */}
                         <div className="stats flex gap-8 flex-wrap mt-12 justify-center lg:justify-start">
                             
                             {/* Stat 1: Desarrolladores */}
-                            <div className="stat-item flex items-center gap-3">
+                            <div className="stat-item flex items-center gap-2">
                                 <FontAwesomeIcon icon={faUsers} className="text-yellow-400" />
                                 <span className="stat-text text-sm font-medium text-slate-200">+3,200 desarrolladores</span>
                             </div>
                             
                             {/* Stat 2: Proyectos */}
-                            <div className="stat-item flex items-center gap-3">
+                            <div className="stat-item flex items-center gap-2">
                                 <FontAwesomeIcon icon={faBriefcase} className="text-blue-500" />
                                 <span className="stat-text text-sm font-medium text-slate-200">+850 proyectos activos</span>
                             </div>
                             
                         </div>
+                        {/* --- ⬆️ FIN DEL CÓDIGO AGREGADO ⬆️ --- */}
 
                     </div>
                 </div>

@@ -18,7 +18,7 @@ const NavBar = () => {
 
     return (
         // Contenedor principal: Sticky, con z-index alto para flotar sobre el contenido
-        <nav className="bg-gray-900 text-white shadow-xl sticky top-0 z-50">
+        <nav className="bg-gray-800 text-white shadow-xl sticky top-0 z-50">
             
             {/* Contenedor centralizado (Desktop y Mobile Header) */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center"> {/* Altura ajustada a h-20 */}

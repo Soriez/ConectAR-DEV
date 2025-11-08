@@ -14,7 +14,7 @@ const Footer = () => {
 
     return (
         // Contenedor principal del footer
-        <footer className="bg-gray-800 text-white pt-10 pb-4 shadow-2xl">
+        <footer className="bg-gray-900 text-white pt-10 pb-4 shadow-2xl">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 {/* SECCIÓN PRINCIPAL: Múltiples Columnas */}

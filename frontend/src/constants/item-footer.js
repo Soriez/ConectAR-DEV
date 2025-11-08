@@ -50,5 +50,12 @@ export const FOOTER_DATA = {
         ],
         // El bloque de "Orgullo Argentino" (puede ser un componente separado)
         claim: "Orgullo Argentino"
+    },
+    legales:{
+        enlaces:[
+            { id: 'terminos de servicio', texto: "Términos de servicio", url: "/terminos-y-servicios" },
+            { id: 'politica de privacidad', texto: "Política de Privacidad", url: "/politicas-de-privacidad" },
+            { id: 'cookies', texto: "Cookies", url: "/cookies" }
+        ]
     }
 };

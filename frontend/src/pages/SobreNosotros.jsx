@@ -90,20 +90,19 @@ const SobreNosotros = () => {
         ===== HERO SECTION ===== 
         Sección principal con título y descripción
       */}
-      <section className="relative bg-gradient-to-br from-blue-600 to-blue-800 text-white py-20 md:py-32">
+      <section className="relative bg-linear-to-b from-gray-100 to-blue-100 text-gray-900 py-20 md:py-32">
         {/* Patrón de fondo decorativo (opcional) */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        
+
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             
             {/* Título principal */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
-              Sobre <span className="text-yellow-400">ConectAR-Dev</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight text-gray-900">
+              Sobre <span className="text-blue-600">ConectAR-Dev</span>
             </h1>
             
             {/* Descripción */}
-            <p className="text-lg md:text-xl text-blue-100 leading-relaxed">
+            <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
               Somos la plataforma que une el talento tecnológico argentino con las empresas 
               que buscan excelencia. Nacimos con la misión de potenciar la industria IT nacional 
               y crear oportunidades reales para freelancers y organizaciones.
@@ -116,48 +115,50 @@ const SobreNosotros = () => {
         ===== MISIÓN Y VISIÓN ===== 
         Dos columnas responsivas con misión y visión
       */}
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-          
-          {/* Contenedor Misión */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-blue-600">
-            {/* Icono decorativo */}
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
-              <Target className="w-8 h-8 text-blue-600" />
+      <section className="bg-linear-to-b from-blue-100 to-blue-200">
+        <div className='container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24'>
+            <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+            
+            {/* Contenedor Misión */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-blue-600">
+                {/* Icono decorativo */}
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
+                <Target className="w-8 h-8 text-blue-600" />
+                </div>
+                
+                {/* Título */}
+                <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
+                Nuestra Misión
+                </h2>
+                
+                {/* Descripción */}
+                <p className="text-gray-700 leading-relaxed text-lg">
+                Conectar a los mejores profesionales IT de Argentina con proyectos desafiantes 
+                y empresas innovadoras. Facilitamos el encuentro entre talento y oportunidad, 
+                garantizando calidad, confianza y crecimiento mutuo en cada colaboración.
+                </p>
             </div>
-            
-            {/* Título */}
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
-              Nuestra Misión
-            </h2>
-            
-            {/* Descripción */}
-            <p className="text-gray-700 leading-relaxed text-lg">
-              Conectar a los mejores profesionales IT de Argentina con proyectos desafiantes 
-              y empresas innovadoras. Facilitamos el encuentro entre talento y oportunidad, 
-              garantizando calidad, confianza y crecimiento mutuo en cada colaboración.
-            </p>
-          </div>
 
-          {/* Contenedor Visión */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-yellow-500">
-            {/* Icono decorativo */}
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-6">
-              <Eye className="w-8 h-8 text-yellow-600" />
+            {/* Contenedor Visión */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-yellow-500">
+                {/* Icono decorativo */}
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-6">
+                <Eye className="w-8 h-8 text-yellow-600" />
+                </div>
+                
+                {/* Título */}
+                <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
+                Nuestra Visión
+                </h2>
+                
+                {/* Descripción */}
+                <p className="text-gray-700 leading-relaxed text-lg">
+                Ser la plataforma líder de conexión entre freelancers tecnológicos y empresas 
+                en Argentina y Latinoamérica. Aspiramos a construir un ecosistema donde el talento 
+                local sea reconocido mundialmente y cada profesional alcance su máximo potencial.
+                </p>
             </div>
-            
-            {/* Título */}
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
-              Nuestra Visión
-            </h2>
-            
-            {/* Descripción */}
-            <p className="text-gray-700 leading-relaxed text-lg">
-              Ser la plataforma líder de conexión entre freelancers tecnológicos y empresas 
-              en Argentina y Latinoamérica. Aspiramos a construir un ecosistema donde el talento 
-              local sea reconocido mundialmente y cada profesional alcance su máximo potencial.
-            </p>
-          </div>
+            </div>
         </div>
       </section>
 
@@ -165,7 +166,7 @@ const SobreNosotros = () => {
         ===== NUESTROS VALORES ===== 
         Grid de 4 tarjetas con los valores principales
       */}
-      <section className="bg-white py-16 md:py-24">
+      <section className="bg-linear-to-b from-blue-200 to-blue-300 py-16 md:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Título de la sección */}
@@ -213,7 +214,7 @@ const SobreNosotros = () => {
         ===== NUESTRO EQUIPO ===== 
         Grid de 5 tarjetas con fotos y roles del equipo
       */}
-      <section className="bg-gray-50 py-16 md:py-24">
+      <section className="bg-linear-to-b from-blue-300 to-blue-400 py-16 md:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Título de la sección */}
@@ -261,7 +262,7 @@ const SobreNosotros = () => {
         ===== SECCIÓN FINAL (REUTILIZADA) ===== 
         Bloque de beneficios con call-to-action
       */}
-      <section className="bg-white py-16 md:py-24">
+      <section className="bg-linear-to-b from-blue-400 to-gray-800 py-16 md:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className='mt-16 sm:mt-20'>
             <div className='max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-xl shadow-2xl border-t-4 border-blue-600'>

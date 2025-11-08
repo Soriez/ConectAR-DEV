@@ -1,4 +1,4 @@
-import { Target, Eye, Heart, Shield, Users, Lightbulb } from 'lucide-react';
+import { Target, Eye } from 'lucide-react';
 import BotonPrincipal from '../components/Botones/BotonPrincipal';
 import { sobre_nosotros_data } from '../constants/item-sobre-nosotros';
 

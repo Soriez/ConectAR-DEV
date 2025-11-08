@@ -97,7 +97,7 @@ const Footer = () => {
                     text-gray-500 
                     space-y-2 sm:space-y-0             /* Espacio vertical en móviles */
                 `}>
-                    <p className="order-2 sm:order-1">© 2024 ConectAR-Dev. Todos los derechos reservados.</p>
+                    <p className="order-2 sm:order-1">© 2025 ConectAR-Dev. Todos los derechos reservados.</p>
                     <div className="space-x-4 order-1 sm:order-2">
                         {/* Se mantiene el tamaño de texto pequeño, ideal para esta sección */}
                         <a href="/terminos" className="hover:text-white transition-colors">Términos de Servicio</a>

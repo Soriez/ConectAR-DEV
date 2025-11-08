@@ -34,12 +34,16 @@ const Rutas = () => {
             element: <Registrarse />
         },
         {
-            path: '*',
-            element: <NoEncontrado />
-        },
-        {
             path: '/perfil',
             element: <Perfil />
+        },
+        {
+            path:'/sobre-nosotros',
+            element: <SobreNosotros/>
+        },
+        {
+            path: '*',
+            element: <NoEncontrado />
         }
     ]
   )

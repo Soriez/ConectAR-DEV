@@ -9,6 +9,7 @@ import NoEncontrado from '../pages/NoEncontrado'
 import Perfil from '../pages/Perfil'
 import ServiciosInicio from '../components/SeccionesInicio/ServiciosInicio'
 import ContactoInicio from '../components/SeccionesInicio/ContactoInicio'
+import SobreNosotros from '../pages/SobreNosotros'
 
 const Rutas = () => {
   return useRoutes(

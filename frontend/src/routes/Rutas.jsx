@@ -10,6 +10,7 @@ import Perfil from '../pages/Perfil'
 import ServiciosInicio from '../components/SeccionesInicio/ServiciosInicio'
 import ContactoInicio from '../components/SeccionesInicio/ContactoInicio'
 import SobreNosotros from '../pages/SobreNosotros'
+import TerminosServicios from '../pages/TerminosServicios'
 
 const Rutas = () => {
   return useRoutes(
@@ -41,6 +42,10 @@ const Rutas = () => {
         {
             path:'/sobre-nosotros',
             element: <SobreNosotros/>
+        },
+        {
+            path:'/terminos-y-servicios',
+            element:<TerminosServicios/>
         },
         {
             path: '*',

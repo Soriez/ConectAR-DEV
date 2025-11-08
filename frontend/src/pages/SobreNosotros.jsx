@@ -257,48 +257,6 @@ const SobreNosotros = () => {
           </div>
         </div>
       </section>
-
-      {/* 
-        ===== SECCIÓN FINAL (REUTILIZADA) ===== 
-        Bloque de beneficios con call-to-action
-      */}
-      <section className="bg-linear-to-b from-blue-400 to-gray-800 py-16 md:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className='mt-16 sm:mt-20'>
-            <div className='max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-xl shadow-2xl border-t-4 border-blue-600'>
-              <h4 className='text-xl sm:text-2xl font-bold text-gray-800 mb-6'>
-                ¿Por qué elegir ConectAR-Dev?
-              </h4>
-              <div className='flex flex-col sm:flex-row justify-around items-center space-y-6 sm:space-y-0 text-center'>
-                
-                {/* Beneficio 1 */}
-                <div>
-                  <p className='text-blue-600 text-3xl font-extrabold mb-1'>100%</p>
-                  <p className='text-sm text-gray-600 font-medium'>Talento Argentino Verificado</p>
-                </div>
-                
-                {/* Beneficio 2 */}
-                <div>
-                  <p className='text-yellow-500 text-3xl font-extrabold mb-1'>IT</p>
-                  <p className='text-sm text-gray-600 font-medium'>Especialización Exclusiva en Tecnología</p>
-                </div>
-
-                {/* Beneficio 3 */}
-                <div>
-                  <p className='text-yellow-500 text-3xl mb-1'>⭐⭐⭐</p>
-                  <p className='text-sm text-gray-600 font-medium'>Calidad Mundial Argentina</p>
-                </div>
-              </div>
-              <div className='mt-6'>
-                <BotonPrincipal 
-                  link={'/contacto'}
-                  text={'¿Tenés dudas? Consultanos →'}/>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
     </div>
   );
 };

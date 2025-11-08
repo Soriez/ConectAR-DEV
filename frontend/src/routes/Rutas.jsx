@@ -12,6 +12,7 @@ import ContactoInicio from '../components/SeccionesInicio/ContactoInicio'
 import SobreNosotros from '../pages/SobreNosotros'
 import TerminosServicios from '../pages/TerminosServicios'
 import TerminosPrivacidad from '../pages/TerminosPrivacidad'
+import PoliticaCookies from '../pages/PoliticaCookies'
 
 const Rutas = () => {
   return useRoutes(
@@ -51,6 +52,10 @@ const Rutas = () => {
         {
             path:'/politicas-de-privacidad',
             element:<TerminosPrivacidad/>
+        },
+        {
+            path:'/politicas-de-cookies',
+            element:<PoliticaCookies/>
         },
         {
             path: '*',

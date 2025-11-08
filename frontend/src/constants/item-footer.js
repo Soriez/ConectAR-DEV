@@ -55,7 +55,7 @@ export const FOOTER_DATA = {
         enlaces:[
             { id: 'terminos de servicio', texto: "Términos de servicio", url: "/terminos-y-servicios" },
             { id: 'politica de privacidad', texto: "Política de Privacidad", url: "/politicas-de-privacidad" },
-            { id: 'cookies', texto: "Cookies", url: "/cookies" }
+            { id: 'cookies', texto: "Cookies", url: "/politicas-de-cookies" }
         ]
     }
 };

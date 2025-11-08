@@ -9,8 +9,7 @@ const TerminosPrivacidad = () => {
         </h2>
 
         <p className="text-gray-600 mb-12">
-          A continuación se detallan los términos y condiciones que regulan el uso de nuestro sitio y servicios.  
-          Por favor, lee atentamente cada punto antes de continuar.
+          Ultima actualización: 8 de Noviembre 2025.
         </p>
 
         <div className="space-y-8 text-left">

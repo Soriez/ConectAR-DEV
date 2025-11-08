@@ -2,7 +2,7 @@
 const TerminosServicios = () => {
 
   return (
-    <section className="bg-linear-to-b from-blue-50 via-blue-100 to-blue-200 py-20 px-6">
+    <section className="bg-linear-to-b from-blue-300 via-blue-400 to-blue-500 py-20 px-6">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-10">
           Términos y Servicios 

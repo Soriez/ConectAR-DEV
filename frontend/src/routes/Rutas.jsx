@@ -11,6 +11,7 @@ import ServiciosInicio from '../components/SeccionesInicio/ServiciosInicio'
 import ContactoInicio from '../components/SeccionesInicio/ContactoInicio'
 import SobreNosotros from '../pages/SobreNosotros'
 import TerminosServicios from '../pages/TerminosServicios'
+import TerminosPrivacidad from '../pages/TerminosPrivacidad'
 
 const Rutas = () => {
   return useRoutes(
@@ -46,6 +47,10 @@ const Rutas = () => {
         {
             path:'/terminos-y-servicios',
             element:<TerminosServicios/>
+        },
+        {
+            path:'/politicas-de-privacidad',
+            element:<TerminosPrivacidad/>
         },
         {
             path: '*',

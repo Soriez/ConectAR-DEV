@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 
 // Componente helper para alternar la visibilidad de la contraseña
 const PasswordToggle = ({ isVisible, onClick }) => {
@@ -162,12 +162,12 @@ const IniciarSesion = () => {
                         </button>
 
                         {/* Enlace Olvidaste Contraseña */}
-                        <a href="#" 
+                        <NavLink to={'/recuperar-cuenta'}
                            // ✅ LIMPIO: Clases directas
                            className="link text-center text-sm text-custom-blue block mb-6 transition-colors duration-300 hover:text-blue-dark hover:underline"
                         >
                             ¿Olvidaste tu contraseña?
-                        </a>
+                        </NavLink>
 
                         {/* Separador */}
                         <p className="separator text-center text-sm text-light-gray my-6">

@@ -7,8 +7,7 @@ import IniciarSesion from '../pages/IniciarSesion'
 import Registrarse from '../pages/Registrarse'
 import NoEncontrado from '../pages/NoEncontrado'
 import Perfil from '../pages/Perfil'
-import ServiciosInicio from '../components/SeccionesInicio/ServiciosInicio'
-import ContactoInicio from '../components/SeccionesInicio/ContactoInicio'
+import RecuperarCuenta from '../pages/RecuperarCuenta'
 
 const Rutas = () => {
   return useRoutes(
@@ -40,6 +39,10 @@ const Rutas = () => {
         {
             path: '/perfil',
             element: <Perfil />
+        },
+        {
+            path: '/recuperar-cuenta',
+            element: <RecuperarCuenta />
         }
     ]
   )

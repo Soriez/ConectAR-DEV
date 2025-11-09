@@ -284,10 +284,6 @@ const Registrar = () => {
                                 Iniciar Sesión
                             </button>
 
-                            {/* Olvidaste contraseña */}
-                            <p className="text-center">
-                                <a href="#" className="text-blue-500 text-[14px] no-underline transition-all duration-300 hover:text-blue-400 hover:underline">¿Olvidaste tu contraseña?</a>
-                            </p>
                         </form>
                     </div>
                 </div>

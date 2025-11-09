@@ -12,18 +12,18 @@ const App = () => {
     // false = visitante
 
     return (
-        <>
+        <div className="flex flex-col min-h-screen">
             <NavBar isLoggedIn={isLoggedIn}/>
             <ScrollToTop />
 
             <main>
-                <Rutas />
+                <Rutas/>
             </main>
 
             <footer>
                 <Footer />
             </footer>
-        </>
+        </div>
     )
 }
 

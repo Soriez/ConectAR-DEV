@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import userRoutes from './routes/userRoutes.js';
 // Importación necesaria para poder traer variables del .env
 import 'dotenv/config';
+import cors from 'cors'
 
 
 // Crear la aplicación de Express
@@ -13,6 +14,13 @@ const PORT = 8080;
 
 // Middleware para manejar JSON
 app.use(express.json());
+
+//Configuración para permitir solicitudes desde el forntend
+app.use(cors({
+  origin: process.env.VITE_FRONTEND_URI,
+  methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
+  credentials: true,
+}))
 
 
 // Ruta básica para probar

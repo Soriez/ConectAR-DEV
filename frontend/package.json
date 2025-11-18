@@ -17,6 +17,7 @@
     "@fortawesome/react-fontawesome": "^3.1.0",
     "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/vite": "^4.1.16",
+    "axios": "^1.13.2",
     "lucide-react": "^0.552.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

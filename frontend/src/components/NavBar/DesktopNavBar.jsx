@@ -4,14 +4,14 @@ import { useState } from "react"
 import { NavLink } from "react-router"
 
 
-const DesktopNavBar = ( { isLoggedIn } ) => {
+const DesktopNavBar = ( { isLoggedIn, user, handleLogout } ) => {
     // Para abrir o cerrar el menú hamburguesa
     const [isMenuOpen, setIsMenuOpen] = useState(false)
 
     // Función para simular el cierre de sesión
-    const handleLogout = () => {
-        // Aquí iría la lógica real de cerrar sesión
-        alert('Cerrando sesión...');
+    const handleLogoutClick = () => {
+        handleLogout()
+        setIsMenuOpen(false)
     };
     // Estilos genéricos para los elementos del menú
     const menuLinkClasses = "block px-4 py-2 text-base font-medium hover:bg-yellow-300 transition duration-150 ease-in-out hover:text-black mx-3 rounded-md";
@@ -36,8 +36,9 @@ const DesktopNavBar = ( { isLoggedIn } ) => {
                     aria-expanded={isMenuOpen}
                     aria-haspopup="true"
                 >
-                    {/* Icono de Cierre (X) y Letra P (reemplaza con tu diseño de la imagen) */}
-                    <FontAwesomeIcon icon={faUser} />
+                    <div className="w-full h-full bg-blue-500 text-white rounded-full flex items-center justify-center">
+                        {user?.nombre ? user.nombre[0].toUpperCase() : <FontAwesomeIcon icon={faUser} />}
+                    </div>
                 </button>
                 
                 {/* Menú que se desplegará con el boton del menú hamburguesa */}
@@ -66,7 +67,7 @@ const DesktopNavBar = ( { isLoggedIn } ) => {
 
                         {/* Grupo Inferior */}
                         {/* Cerrar sesión */}
-                        <button onClick={handleLogout} className={`${menuLinkClasses} w-[90%] text-left`}>
+                        <button onClick={handleLogoutClick} className={`${menuLinkClasses} w-[90%] text-left`}>
                             Salir de mi cuenta
                         </button>
                     </div>

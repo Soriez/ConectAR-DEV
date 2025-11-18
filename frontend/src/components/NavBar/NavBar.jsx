@@ -4,6 +4,7 @@ import ItemNavBar from './ItemNavBar'
 import { Menu, X } from 'lucide-react'
 import { NavLink } from 'react-router'
 import DesktopNavBar from './DesktopNavBar'
+import { useAuth } from '../../context'; 
 
 /**
  * @component
@@ -11,7 +12,9 @@ import DesktopNavBar from './DesktopNavBar'
  * Utiliza el estado 'activa' para controlar la visibilidad del menú móvil y 'sticky' para fijar la navegación.
  * @returns {JSX.Element} El elemento NavBar.
  */
-const NavBar = ( { isLoggedIn } ) => {
+const NavBar = () => {
+
+    const { isAuthenticated, user, logout } = useAuth()
 
     // Estado para controlar si el menú móvil está abierto o cerrado.
     const [activa, setActiva] = useState(false)
@@ -44,7 +47,11 @@ const NavBar = ( { isLoggedIn } ) => {
 
                 {/* 3. Botones de Acción (Solo Desktop - Derecha) */}
                 <div className="hidden md:flex items-center space-x-4">
-                    <DesktopNavBar isLoggedIn={isLoggedIn}/>
+                    <DesktopNavBar 
+                        isLoggedIn={isAuthenticated} 
+                        user={user} 
+                        handleLogout={logout}
+                    />
                 </div>
 
                 {/* 4. Botón Hamburguesa (Solo Mobile) */}
@@ -104,20 +111,31 @@ const NavBar = ( { isLoggedIn } ) => {
                     
                     {/* Botones de acción en la versión móvil (Separador visual) */}
                     <li className="w-full text-center mt-4 border-t border-gray-700 pt-4">
-                        <NavLink 
-                            to={'/iniciar-sesion'}
-                            className="block text-xl font-medium text-white hover:text-blue-400 py-3 px-6 text-center" 
-                            onClick={() => setActiva(false)}
-                        >
-                            Iniciar Sesión
-                        </NavLink>
-                        <NavLink 
-                            to={'/registrarse'}
-                            className="block bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-3 px-6 mx-4 rounded-md shadow-lg my-4 text-center"
-                            onClick={() => setActiva(false)}
-                        >
-                            Registrarse
-                        </NavLink>
+                        {isAuthenticated ? (
+                            <button 
+                                onClick={logout}
+                                className="block bg-red-600 hover:bg-red-700 text-white font-bold text-lg py-3 px-6 mx-4 rounded-md shadow-lg my-4 text-center w-[90%]"
+                            >
+                                Cerrar Sesión ({user?.nombre})
+                            </button>
+                        ) : (
+                            <>
+                                <NavLink 
+                                    to={'/iniciar-sesion'}
+                                    className="block text-xl font-medium text-white hover:text-blue-400 py-3 px-6 text-center" 
+                                    onClick={() => setActiva(false)}
+                                >
+                                    Iniciar Sesión
+                                </NavLink>
+                                <NavLink 
+                                    to={'/registrarse'}
+                                    className="block bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-3 px-6 mx-4 rounded-md shadow-lg my-4 text-center"
+                                    onClick={() => setActiva(false)}
+                                >
+                                    Registrarse
+                                </NavLink>
+                            </>
+                        )}
                     </li>
                 </ul>
             </div>

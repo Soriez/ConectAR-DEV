@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router';
-import BotonPrincipal from '../components/Botones/BotonPrincipal';
 
-const RecuperarCuenta = () => {
+const CambiarEmail = () => {
+
     const [message, setMessage] = useState('');
     // 'isMessageVisible' almacena la clase de color (ej: 'bg-red-600') o 'false'
     const [isMessageVisible, setIsMessageVisible] = useState(false); 
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        email: ''
+        email: '',
+        repeatEmail: '',
     });
 
     const handleChange = (e) => {
@@ -26,17 +27,28 @@ const RecuperarCuenta = () => {
         setTimeout(() => setIsMessageVisible(false), 4000);
     };
 
-    const goToLogin = () => {
-        navigate('/iniciar-sesion'); 
+    //Personalizar esto para saber a dónde va cuando se cambia el email
+    const goToDashboard = () => {
+        navigate('/dashboard'); 
     };
 
-    const handleRecuperacion = async (e) => {
+    const handleCambio = async (e) => {
         e.preventDefault(); 
-        const { email } = formData; 
+        const { email, repeatEmail } = formData; 
         
         if (!email) {
-            showCustomMessage('Por favor, ingresa tu correo electrónico.');
+            showCustomMessage('Por favor, ingresa tu correo actual.');
             return;
+        }
+
+        if (!repeatEmail) {
+            showCustomMessage('Por favor, ingresa tu nuevo correo.')
+            return
+        }
+
+        if ( email === repeatEmail ) {
+            showCustomMessage('Por favor, ingrese correos electrónicos distintos.')
+            return
         }
 
         try {
@@ -65,11 +77,8 @@ const RecuperarCuenta = () => {
         }
     };
 
-    // --- RENDERIZADO RESPONSIVE ---
-
-    return (
-        // 1. CONTENEDOR PRINCIPAL
-        <div className='h-screen flex items-center flex-col /* Quitar el flex-col cuando se saquen los botones de abajo */ justify-center p-4 bg-blue-400'>
+  return (
+    <div className='h-screen flex items-center justify-center p-4 bg-blue-400'>
             
             {/* 2. MODAL DE MENSAJE (RESPONSIVE)
                 - 'w-11/12': Ancho del 90% en móviles
@@ -91,15 +100,15 @@ const RecuperarCuenta = () => {
                 {/* 4. TÍTULO (PADDING Y TEXTO RESPONSIVE) */}
                 <div className='border-b border-gray-300 py-4 px-4 sm:px-8 bg-gray-100'>
                     {/* - 'text-2xl sm:text-3xl': Texto más pequeño en móviles */}
-                    <h2 className='text-2xl sm:text-3xl font-bold text-gray-800'>Encuentra tu cuenta</h2>
+                    <h2 className='text-2xl sm:text-3xl font-bold text-gray-800'>Cambia tu email</h2>
                 </div>
                 
                 {/* 5. FORMULARIO (PADDING RESPONSIVE) */}
                 <div className='py-6 px-4 sm:px-8'>
-                    <form onSubmit={handleRecuperacion}>
+                    <form onSubmit={handleCambio}>
                         <div className="mb-5">
                             {/* - 'text-lg sm:text-xl': Texto más pequeño en móviles */}
-                            <label htmlFor="email" className="block text-lg sm:text-xl mb-4 text-gray-700">Ingresa tu correo electrónico para buscar tu cuenta.</label>
+                            <label htmlFor="email" className="block text-lg sm:text-xl mb-4 text-gray-700">Ingresa tu correo electrónico actual para validar que eres tú</label>
                             <div className="relative flex items-center">
                                 <svg className="absolute left-3.5 z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M18 4H2C0.9 4 0.01 4.9 0.01 6L0 14C0 15.1 0.9 16 2 16H18C19.1 16 20 15.1 20 14V6C20 4.9 19.1 4 18 4ZM18 8L10 11.5L2 8V6L10 9.5L18 6V8Z" fill="#9CA3AF"/></svg>
                                 <input 
@@ -109,7 +118,22 @@ const RecuperarCuenta = () => {
                                     onChange={handleChange}
                                     // - Estilos de input oscuros (como en tu original)
                                     className="w-full bg-slate-800 border border-slate-500 text-white pl-12 pr-4 py-3 rounded-lg text-base transition-all duration-300 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500 placeholder:text-slate-500" 
-                                    placeholder="tu@email.com" 
+                                    placeholder="tu@email_viejo.com" 
+                                    required 
+                                />
+                            </div>
+                            {/* - 'text-lg sm:text-xl': Texto más pequeño en móviles */}
+                            <label htmlFor="repeatEmail" className="mt-4 block text-lg sm:text-xl mb-4 text-gray-700">Ingresa el nuevo correo electrónico</label>
+                            <div className="relative flex items-center">
+                                <svg className="absolute left-3.5 z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M18 4H2C0.9 4 0.01 4.9 0.01 6L0 14C0 15.1 0.9 16 2 16H18C19.1 16 20 15.1 20 14V6C20 4.9 19.1 4 18 4ZM18 8L10 11.5L2 8V6L10 9.5L18 6V8Z" fill="#9CA3AF"/></svg>
+                                <input 
+                                    type="email" 
+                                    id="repeatEmail" 
+                                    value={formData.repeatEmail}
+                                    onChange={handleChange}
+                                    // - Estilos de input oscuros (como en tu original)
+                                    className="w-full bg-slate-800 border border-slate-500 text-white pl-12 pr-4 py-3 rounded-lg text-base transition-all duration-300 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500 placeholder:text-slate-500" 
+                                    placeholder="tu@email_nuevo.com" 
                                     required 
                                 />
                             </div>
@@ -125,7 +149,7 @@ const RecuperarCuenta = () => {
                             <button 
                                 type="button" 
                                 className="w-full bg-gray-200 border border-gray-400 text-gray-800 px-6 py-3 rounded-lg text-base font-medium transition-all duration-300 cursor-pointer hover:bg-gray-300 hover:border-gray-500 order-2 md:order-1" 
-                                onClick={goToLogin}
+                                onClick={goToDashboard}
                             >
                                 Cancelar
                             </button>
@@ -134,21 +158,15 @@ const RecuperarCuenta = () => {
                             <button type="submit" 
                                 className="w-full bg-gradient-to-br from-blue-600 to-blue-800 border-0 text-white px-6 py-3.5 rounded-lg text-base font-semibold transition-all duration-300 shadow-lg shadow-blue-600/30 cursor-pointer hover:from-blue-700 hover:to-blue-900 order-1 md:order-2"
                             >
-                                Recuperar Cuenta
+                                Cambiar email
                             </button>
                         </div>
 
                     </form>
                 </div>
             </div>
-
-            {/* Sección de botones de Cambiar email y cambiar contraseña, estas irían en el dashboard cuando esté hecho */}
-            <div className='grid md:grid-cols-2 gap-8 mt-8'>
-                <BotonPrincipal link={'/cambiar-email'} text='Cambiar email'/>
-                <BotonPrincipal link={'/cambiar-password'} text='Cambiar contraseña'/>
-            </div>
         </div>
-    );
+  )
 }
 
-export default RecuperarCuenta;
+export default CambiarEmail

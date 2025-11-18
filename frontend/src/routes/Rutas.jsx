@@ -8,6 +8,8 @@ import Registrarse from '../pages/Registrarse'
 import NoEncontrado from '../pages/NoEncontrado'
 import Perfil from '../pages/Perfil'
 import RecuperarCuenta from '../pages/RecuperarCuenta'
+import CambiarEmail from '../components/CambiarDatos/CambiarEmail'
+import CambiarPassword from '../components/CambiarDatos/CambiarPassword'
 
 const Rutas = () => {
   return useRoutes(
@@ -43,6 +45,14 @@ const Rutas = () => {
         {
             path: '/recuperar-cuenta',
             element: <RecuperarCuenta />
+        },
+        {
+            path: '/cambiar-email',
+            element: <CambiarEmail />
+        },
+        {
+            path: '/cambiar-password',
+            element: <CambiarPassword />
         }
     ]
   )

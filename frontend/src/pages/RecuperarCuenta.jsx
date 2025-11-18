@@ -132,7 +132,7 @@ const RecuperarCuenta = () => {
                             
                             {/* Botón de recuperar (con tu estilo original) */}
                             <button type="submit" 
-                                className="w-full bg-gradient-to-br from-blue-600 to-blue-800 border-0 text-white px-6 py-3.5 rounded-lg text-base font-semibold transition-all duration-300 shadow-lg shadow-blue-600/30 cursor-pointer hover:from-blue-700 hover:to-blue-900 order-1 md:order-2"
+                                className="w-full bg-linear-to from-blue-600 to-blue-800 border-0 text-white px-6 py-3.5 rounded-lg text-base font-semibold transition-all duration-300 shadow-lg shadow-blue-600/30 cursor-pointer hover:from-blue-700 hover:to-blue-900 order-1 md:order-2"
                             >
                                 Recuperar Cuenta
                             </button>

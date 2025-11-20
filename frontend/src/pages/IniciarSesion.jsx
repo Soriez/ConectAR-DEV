@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router';
+// Importamos FontAwesome para replicar el estilo del panel derecho (si lo usaremos)
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUsers, faBriefcase } from '@fortawesome/free-solid-svg-icons';
 
 // Componente helper para alternar la visibilidad de la contraseña
 const PasswordToggle = ({ isVisible, onClick }) => {
-    const EyeOpen = <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>;
-    const EyeOpenCenter = <circle cx="12" cy="12" r="3"></circle>;
+    // Usamos SVG simple con fill ajustado para el color oscuro
+    const EyeOpen = <path d="M10 4C5 4 1.73 7.11 1 10c.73 2.89 4 6 9 6s8.27-3.11 9-6c-.73-2.89-4-6-9-6z"></path>;
+    const EyeOpenCenter = <circle cx="10" cy="10" r="2"></circle>;
     const EyeClosed = (
         <>
             <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
@@ -15,7 +19,8 @@ const PasswordToggle = ({ isVisible, onClick }) => {
     return (
         <button
             type="button"
-            className="toggle-password absolute right-3.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 flex items-center text-light-gray transition-colors duration-300 hover:text-white"
+            // Estilos oscuros y gris sutil para el icono
+            className="toggle-password absolute right-3.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 flex items-center text-slate-400 transition-colors duration-300 hover:text-white"
             onClick={onClick}
         >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -34,6 +39,7 @@ const IniciarSesion = () => {
         password: '',
     });
     const [showPassword, setShowPassword] = useState(false);
+    // Nota: Se eliminaron las funciones de alerta y se reemplazaron por lógica simple de fetch.
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -65,17 +71,14 @@ const IniciarSesion = () => {
             const data = await response.json(); 
 
             if (response.ok) {
-                // Login exitoso
                 const token = data.token; 
                 localStorage.setItem('userToken', token); 
                 alert('¡Inicio de sesión exitoso! Bienvenido a ConectAR-Dev');
-                navigate('/'); // Redirige a la página de inicio
+                navigate('/'); 
             } else {
-                // Error de credenciales
                 alert(`Error al iniciar sesión: ${data.message || 'Credenciales inválidas.'}`);
             }
         } catch (error) {
-            // Error de red (backend caído)
             alert('Error de conexión con el servidor. Asegúrate de que el backend esté activo.');
             console.error('Error de red:', error);
         }
@@ -87,80 +90,70 @@ const IniciarSesion = () => {
     };
 
     return (
-        // ✅ LIMPIO: Clases directas de Tailwind sin sintaxis de plantilla (template literal)
-        <div className="container flex min-h-screen bg-blue-800 text-white overflow-x-hidden">
-            {/* Panel Izquierdo - Formulario */}
-            <div className="left-panel w-full lg:w-1/2 p-10 flex flex-col justify-center items-center bg-dark-blue">
-                <div className="form-wrapper w-full max-w-sm animate-fadeIn"> 
+        // Contenedor principal con bg-slate-900 (equivalente a dark-blue/darker-blue)
+        <div className="min-h-screen flex flex-col lg:flex-row text-white w-full bg-slate-900">
+            
+            {/* 🎯 Panel Izquierdo - Formulario (50%) */}
+            <div className="w-full lg:w-1/2 bg-slate-900 flex items-center justify-center p-4 lg:p-8">
+                <div className="w-full max-w-[480px]"> 
                     
                     {/* Logo y Header */}
-                    <div className="header text-center mb-8">
-                        <div className="logo-container flex items-center justify-center gap-4 mb-6">
-                            <div className="logo-box w-12 h-12 bg-white rounded-lg flex items-center justify-center font-bold text-xl text-black">CA</div>
-                            <div className="brand-info">
-                                <h1 className="text-2xl font-bold text-white m-0 leading-tight">ConectAR-Dev</h1>
-                                <p className="text-xs text-custom-orange m-0 font-medium">Professional Network</p>
-                            </div>
-                        </div>
-                        <p className="header-description text-sm text-light-gray leading-relaxed mb-8">
-                            Conecta con los mejores talentos tecnológicos y encuentra<br/>
-                            proyectos que impulsen tu carrera
-                        </p>
+                    <div className="text-center mb-4">
+                        {/* LOGO - usando una imagen de ejemplo o div simple */}
+                        <img src="imgs/logo.jpeg" alt="" // Asegúrate de que esta ruta sea correcta
+                             className="inline-flex items-center justify-center w-[60px] h-[60px] bg-url rounded-xl shadow-lg shadow-blue-600/50 mb-3"
+                        />
+                        <h1 className="text-[28px] font-bold text-white mb-1">ConectAR-Dev</h1>
+                        {/* Acento ajustado a text-yellow-400 */}
+                        <p className="text-[14px] text-yellow-400 font-medium m-0">Professional Network</p>
                     </div>
 
                     {/* Formulario */}
-                    <h2 className="form-title text-xl font-bold text-white mb-2">Iniciar Sesión</h2>
-                    <p className="form-subtitle text-sm text-light-gray mb-8">Accede a tu cuenta para conectar con oportunidades</p>
+                    <h2 className="text-[24px] font-bold text-white mt-8 mb-2">Iniciar Sesión</h2>
+                    {/* Texto secundario ajustado a text-slate-300 */}
+                    <p className="text-[14px] text-slate-300 mb-6">Accede a tu cuenta para conectar con oportunidades</p>
 
                     <form onSubmit={handleLogin}>
                         
                         {/* Email */}
-                        <div className="form-group mb-6">
-                            <label htmlFor="email" className="block text-sm font-medium text-white mb-2">Email</label>
-                            <input 
-                                type="email" 
-                                id="email" 
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                placeholder="tu@email.com" 
-                                required
-                                autoFocus
-                                // ✅ LIMPIO: Clases directas
-                                className="w-full p-3.5 bg-input-bg border border-input-border rounded-lg text-sm text-white transition-all duration-300 focus:outline-none focus:border-custom-blue placeholder:text-placeholder" 
-                            />
-                        </div>
-
-                        {/* Contraseña */}
-                        <div className="form-group mb-6">
-                            <label htmlFor="password" className="block text-sm font-medium text-white mb-2">Contraseña</label>
-                            <div className="input-wrapper relative">
+                        <div className="mb-4">
+                            <label htmlFor="email" className="block text-[14px] font-medium text-white mb-2">Email</label>
+                            <div className="relative flex items-center">
+                                {/* SVG Icono (Email): fill ajustado a #9CA3AF (gris nativo) */}
+                                <svg className="absolute left-3.5 z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M18 4H2C0.9 4 0.01 4.9 0.01 6L0 14C0 15.1 0.9 16 2 16H18C19.1 16 20 15.1 20 14V6C20 4.9 19.1 4 18 4ZM18 8L10 11.5L2 8V6L10 9.5L18 6V8Z" fill="#9CA3AF"/></svg>
+                                {/* Inputs: bg-slate-800, border-slate-700, focus:border-blue-600, placeholder:text-slate-500 */}
                                 <input 
-                                    type={showPassword ? 'text' : 'password'} 
-                                    id="password" 
-                                    name="password"
-                                    value={formData.password}
+                                    type="email" 
+                                    id="email" 
+                                    value={formData.email}
                                     onChange={handleChange}
-                                    placeholder="••••••••" 
-                                    required
-                                    // ✅ LIMPIO: Clases directas
-                                    className="w-full p-3.5 pr-12 bg-input-bg border border-input-border rounded-lg text-sm text-white transition-all duration-300 focus:outline-none focus:border-custom-blue placeholder:text-placeholder"
-                                />
-                                <PasswordToggle 
-                                    isVisible={!showPassword} 
-                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="w-full bg-slate-800 border border-slate-700 text-white pl-[45px] py-3 rounded-lg text-[14px] transition-all duration-300 focus:outline-none focus:border-blue-600 placeholder:text-slate-500" 
+                                    placeholder="tu@email.com" 
+                                    required 
+                                    autoFocus
                                 />
                             </div>
                         </div>
 
-                        {/* Botón Principal */}
-                        <button type="submit" 
-                            // ✅ LIMPIO: Clases directas
-                            className="btn-primary w-full p-3.5 bg-custom-blue border-none rounded-lg text-base font-semibold text-white cursor-pointer transition-all duration-300 hover:bg-blue-dark hover:-translate-y-px active:translate-y-0 mb-4"
-                        >
-                            Iniciar Sesión
-                        </button>
-
+                        {/* Contraseña */}
+                        <div className="mb-6">
+                            <label htmlFor="password" className="block text-[14px] font-medium text-white mb-2">Contraseña</label>
+                            <div className="relative flex items-center">
+                                {/* SVG Icono (Candado): fill ajustado a #9CA3AF (gris nativo) */}
+                                <svg className="absolute left-3.5 z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 7H14V5C14 2.24 11.76 0 9 0C6.24 0 4 2.24 4 5V7H3C1.9 7 1 7.9 1 9V17C1 18.1 1.9 19 3 19H15C16.1 19 17 18.1 17 17V9C17 7.9 16.1 7 15 7ZM9 14C7.9 14 7 13.1 7 12C7 10.9 7.9 10 9 10C10.1 10 11 10.9 11 12C11 13.1 10.1 14 9 14ZM12 7H6V5C6 3.34 7.34 2 9 2C10.66 2 12 3.34 12 5V7Z" fill="#9CA3AF"/></svg>
+                                <input 
+                                    type={showPassword ? 'text' : 'password'} 
+                                    id="password" 
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    className="w-full bg-slate-800 border border-slate-700 text-white pl-[45px] pr-[50px] py-3 rounded-lg text-[14px] transition-all duration-300 focus:outline-none focus:border-blue-600 placeholder:text-slate-500" 
+                                    placeholder="••••••••" 
+                                    required 
+                                />
+                                <PasswordToggle isVisible={!showPassword} onClick={() => setShowPassword(!showPassword)}/>
+                            </div>
+                        </div>
+                        
                         {/* Enlace Olvidaste Contraseña */}
                         <NavLink to={'/recuperar-cuenta'}
                            // ✅ LIMPIO: Clases directas
@@ -169,50 +162,80 @@ const IniciarSesion = () => {
                             ¿Olvidaste tu contraseña?
                         </NavLink>
 
+                        {/* Botón Principal (Login) */}
+                        {/* Gradiente de blue-600 a blue-800, sombra azul */}
+                        <button type="submit" 
+                            className="w-full bg-gradient-to-br from-blue-600 to-blue-800 border-0 text-white px-6 py-3.5 rounded-lg text-base font-semibold transition-all duration-300 shadow-xl shadow-blue-600/30 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 mb-4"
+                        >
+                            Iniciar Sesión
+                        </button>
+
                         {/* Separador */}
-                        <p className="separator text-center text-sm text-light-gray my-6">
+                        <p className="text-center text-slate-300 text-[14px] my-6">
                             ¿No tienes una cuenta?
                         </p>
 
-                        {/* Botón Secundario */}
+                        {/* Botón Secundario (Crear Cuenta) */}
+                        {/* Fondo transparente, borde gris oscuro, hover bg-slate-800 border-blue-600 */}
                         <button 
                             type="button" 
-                            // ✅ LIMPIO: Clases directas (el style se queda como estaba)
-                            className="btn-secondary w-full p-3.5 bg-transparent border border-input-border rounded-lg text-base font-semibold text-gold-yellow cursor-pointer transition-all duration-300 hover:bg-opacity-10 hover:border-gold-yellow"
+                            className="w-full bg-transparent border border-slate-700 text-white px-6 py-3 rounded-lg text-[14px] font-medium transition-all duration-300 cursor-pointer hover:bg-slate-800 hover:border-blue-600 mb-3" 
                             onClick={goToRegister}
-                            style={{ '--tw-bg-opacity': 0.1, backgroundColor: `rgba(255, 215, 0, 0.1)` }}
                         >
                             Crear Cuenta Nueva
                         </button>
+
                     </form>
                 </div>
             </div>
 
-            {/* Panel Derecho - Contenido Estático */}
-            {/* ✅ LIMPIO: Clases directas */}
-            <div className="right-panel hidden lg:flex lg:w-1/2 relative bg-cover bg-center bg-linear-to-br from-dark-blue to-darker-blue" 
-                 style={{ backgroundImage: `url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80')` }}>
+            {/* Panel Derecho - Contenido Estático (50%) */}
+            {/* Este panel es el mismo que el de Registrar.jsx */}
+            <div className="hidden lg:flex lg:w-1/2 relative p-4 lg:p-8 flex items-center justify-center min-h-screen">
+                {/* Imagen de fondo, cubriendo todo el div */}
+                <img 
+                    src="imgs/imagen-login.jpg" // Asegúrate de que esta ruta sea correcta
+                    alt="Imagen de fondo login"
+                    className="absolute top-0 left-0 w-full h-full z-0 object-cover"
+                />
+                {/* Overlay oscuro semitransparente para mejorar la legibilidad */}
+                <div className="absolute top-0 left-0 w-full h-full bg-black opacity-60 z-10"></div> 
                 
-                {/* Overlay Oscuro */}
-                <div className="absolute inset-0 bg-linear-to-br from-gray-900/75 to-gray-900/85"></div>
-                
-                <div className="right-content relative z-10 w-full h-full flex flex-col justify-end p-16 text-white">
-                    <h2 className="text-4xl font-bold leading-tight mb-4">
-                        Conecta. Desarrolla. <span className="text-custom-orange">Crece.</span>
-                    </h2>
-                    <p className="text-base text-light-gray leading-relaxed mb-8">
-                        ConectAR-Dev te conecta con las mejores oportunidades tecnológicas en Argentina y Latinoamérica
-                    </p>
-                    <div className="stats flex gap-8 flex-wrap">
-                        <div className="stat-item flex items-center gap-2">
-                            <span className="stat-dot w-2 h-2 rounded-full bg-gold-yellow shadow-[0_0_12px_rgba(255,215,0,0.5)]"></span>
-                            <span className="stat-text text-sm font-medium text-white">+3,200 desarrolladores</span>
+                {/* Contenedor de Contenido: Define límites y Padding Interior */}
+                <div className="w-full max-w-[800px] px-16 py-20 z-20 text-center lg:text-left"> 
+                    
+                    {/* --- TEXTO DEL REGISTRO --- */}
+                    <h1 className="text-[56px] font-bold leading-[1.2] mb-6 text-white">
+                        Tu red IT te espera.<br/>
+                        
+                        <span className="text-yellow-400">Iniciá Sesión</span>
+                    </h1>
+                    
+                    <p className="text-[18px] text-slate-300 leading-[1.6] mb-12">
+                            Ingresá para 
+                            retomar tus proyectos y continuar conectando con las mejores 
+                            oportunidades IT en la región.
+                        </p>
+                    {/* --- ⬆️ FIN DEL TEXTO ⬆️ --- */}
+
+
+                    {/* --- STATS CON ICONOS --- */}
+                    <div className="stats flex gap-8 flex-wrap mt-12 justify-center lg:justify-start">
+                        
+                        {/* Stat 1: Desarrolladores */}
+                        <div className="stat-item flex items-center gap-3">
+                            <FontAwesomeIcon icon={faUsers} className="text-yellow-400" />
+                            <span className="stat-text text-sm font-medium text-slate-200">+3,200 desarrolladores</span>
                         </div>
-                        <div className="stat-item flex items-center gap-2">
-                            <span className="stat-dot w-2 h-2 rounded-full bg-custom-orange shadow-[0_0_12px_rgba(255,140,66,0.5)]"></span>
-                            <span className="stat-text text-sm font-medium text-white">+850 proyectos activos</span>
+                        
+                        {/* Stat 2: Proyectos */}
+                        <div className="stat-item flex items-center gap-3">
+                            <FontAwesomeIcon icon={faBriefcase} className="text-blue-500" />
+                            <span className="stat-text text-sm font-medium text-slate-200">+850 proyectos activos</span>
                         </div>
+                        
                     </div>
+
                 </div>
             </div>
         </div>

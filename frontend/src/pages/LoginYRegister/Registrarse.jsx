@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faBriefcase } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
-import { useAuth } from '../context/useAuth'; 
+import { useAuth } from '../../context/useAuth'; 
 
 // Componente helper para alternar la visibilidad de la contraseña (SIN CAMBIOS)
 const PasswordToggle = ({ isVisible, onClick }) => (

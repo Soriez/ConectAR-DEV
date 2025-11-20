@@ -369,9 +369,9 @@ const FreelancerProfile = ({ freelancerId = "leonel-rasjido" }) => {
                       <img
                         src={f.img}
                         alt={`Foto de ${f.name}`}
-                        className="aspect-[4/3] w-full object-cover"
+                        className="aspect- 4/3 w-full object-cover"
                       />
-                      <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-5">
+                      <figcaption className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent p-5">
                         <h3 className="text-2xl font-extrabold text-white drop-shadow">
                           {f.name}
                         </h3>

@@ -10,11 +10,11 @@ const Footer = () => {
     // Desestructurar las columnas que tienen enlaces para mapear
     const { servicios, empresa } = FOOTER_DATA;
     // Desestructurar la info principal y contacto
-    const { principal, contacto } = FOOTER_DATA;
+    const { principal, contacto,legales } = FOOTER_DATA;
 
     return (
         // Contenedor principal del footer
-        <footer className="bg-gray-800 text-white pt-10 pb-4 shadow-2xl">
+        <footer className="bg-gray-900 text-white pt-10 pb-4 shadow-2xl">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 {/* SECCIÓN PRINCIPAL: Múltiples Columnas */}
@@ -100,9 +100,18 @@ const Footer = () => {
                     <p className="order-2 sm:order-1">© 2025 ConectAR-Dev. Todos los derechos reservados.</p>
                     <div className="space-x-4 order-1 sm:order-2">
                         {/* Se mantiene el tamaño de texto pequeño, ideal para esta sección */}
-                        <a href="/terminos" className="hover:text-white transition-colors">Términos de Servicio</a>
+                        <ul>
+                            {legales.enlaces.map(link => (
+                                <li key={link.id}>
+                                    <a href={link.url} className="hover:text-white transition-colors">
+                                        {link.texto}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                        {/* <a href="/terminos" className="hover:text-white transition-colors">Términos de Servicio</a>
                         <a href="/privacidad" className="hover:text-white transition-colors">Política de Privacidad</a>
-                        <a href="/cookies" className="hover:text-white transition-colors">Cookies</a>
+                        <a href="/cookies" className="hover:text-white transition-colors">Cookies</a> */}
                     </div>
                 </div>
             </div>

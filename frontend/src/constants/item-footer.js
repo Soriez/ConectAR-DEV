@@ -35,7 +35,7 @@ export const FOOTER_DATA = {
     empresa: {
         titulo: "Empresa",
         enlaces: [
-            { id: 'nosotros', texto: "Sobre Nosotros", url: "/empresa/sobre-nosotros" },
+            { id: 'nosotros', texto: "Sobre Nosotros", url: "/sobre-nosotros" },
             { id: 'empresas', texto: "Para Empresas", url: "/empresas" },
             { id: 'freelancers', texto: "Para Freelancers", url: "/freelancers" },
             { id: 'ayuda', texto: "Ayuda", url: "/contacto" },
@@ -46,10 +46,16 @@ export const FOOTER_DATA = {
     contacto: {
         titulo: "Contacto",
         datos: [
-            { tipo: 'email', valor: "hola@conectar-dev.com", url: "mailto:hola@conectar-dev.com", icono: 'mail' },
-            { tipo: 'telefono', valor: "+54 9 11 2345-6789", url: "tel:+5491123456789", icono: 'phone' },
+            { tipo: 'email', valor: "hola@conectar-dev.com", url: "mailto:hola@conectar-dev.com", icono: 'mail' }
         ],
         // El bloque de "Orgullo Argentino" (puede ser un componente separado)
         claim: "Orgullo Argentino"
+    },
+    legales:{
+        enlaces:[
+            { id: 'terminos de servicio', texto: "Términos de servicio", url: "/terminos-y-servicios" },
+            { id: 'politica de privacidad', texto: "Política de Privacidad", url: "/politicas-de-privacidad" },
+            { id: 'cookies', texto: "Cookies", url: "/politicas-de-cookies" }
+        ]
     }
 };

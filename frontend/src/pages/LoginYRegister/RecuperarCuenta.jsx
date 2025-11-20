@@ -1,15 +1,14 @@
-import React, { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router';
+import BotonPrincipal from '../../components/Botones/BotonPrincipal';
 
-const CambiarPassword = () => {
-
-  const [message, setMessage] = useState('');
+const RecuperarCuenta = () => {
+    const [message, setMessage] = useState('');
     // 'isMessageVisible' almacena la clase de color (ej: 'bg-red-600') o 'false'
     const [isMessageVisible, setIsMessageVisible] = useState(false); 
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        password: '',
-        newPassword: '',
+        email: ''
     });
 
     const handleChange = (e) => {
@@ -27,28 +26,17 @@ const CambiarPassword = () => {
         setTimeout(() => setIsMessageVisible(false), 4000);
     };
 
-    //Personalizar esto para saber a dónde va cuando se cambia la contraseña
-    const goToDashboard = () => {
-        navigate('/dashboard'); 
+    const goToLogin = () => {
+        navigate('/iniciar-sesion'); 
     };
 
-    const handleCambio = async (e) => {
+    const handleRecuperacion = async (e) => {
         e.preventDefault(); 
-        const { email, newEmail } = formData; 
+        const { email } = formData; 
         
         if (!email) {
-            showCustomMessage('Por favor, ingresa tu correo actual.');
+            showCustomMessage('Por favor, ingresa tu correo electrónico.');
             return;
-        }
-
-        if (!newEmail) {
-            showCustomMessage('Por favor, ingresa tu nuevo correo.')
-            return
-        }
-
-        if ( email === newEmail ) {
-            showCustomMessage('Por favor, ingrese contraseñas distintas.')
-            return
         }
 
         try {
@@ -77,8 +65,12 @@ const CambiarPassword = () => {
         }
     };
 
-  return (
-    <div className='h-screen flex items-center justify-center p-4 bg-blue-400'>
+    // --- RENDERIZADO RESPONSIVE ---
+
+    return (
+        // 1. CONTENEDOR PRINCIPAL 
+        // //Quitar el flex-col cuando se saquen los botones de abajo
+        <div className='h-screen flex items-center flex-col justify-center p-4 bg-blue-400'>
             
             {/* 2. MODAL DE MENSAJE (RESPONSIVE)
                 - 'w-11/12': Ancho del 90% en móviles
@@ -100,40 +92,25 @@ const CambiarPassword = () => {
                 {/* 4. TÍTULO (PADDING Y TEXTO RESPONSIVE) */}
                 <div className='border-b border-gray-300 py-4 px-4 sm:px-8 bg-gray-100'>
                     {/* - 'text-2xl sm:text-3xl': Texto más pequeño en móviles */}
-                    <h2 className='text-2xl sm:text-3xl font-bold text-gray-800'>Cambia tu contraseña</h2>
+                    <h2 className='text-2xl sm:text-3xl font-bold text-gray-800'>Encuentra tu cuenta</h2>
                 </div>
                 
                 {/* 5. FORMULARIO (PADDING RESPONSIVE) */}
                 <div className='py-6 px-4 sm:px-8'>
-                    <form onSubmit={handleCambio}>
+                    <form onSubmit={handleRecuperacion}>
                         <div className="mb-5">
                             {/* - 'text-lg sm:text-xl': Texto más pequeño en móviles */}
-                            <label htmlFor="password" className="block text-lg sm:text-xl mb-4 text-gray-700">Ingresa tu contraseña actual para validar que eres tú</label>
+                            <label htmlFor="email" className="block text-lg sm:text-xl mb-4 text-gray-700">Ingresa tu correo electrónico para buscar tu cuenta.</label>
                             <div className="relative flex items-center">
                                 <svg className="absolute left-3.5 z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M18 4H2C0.9 4 0.01 4.9 0.01 6L0 14C0 15.1 0.9 16 2 16H18C19.1 16 20 15.1 20 14V6C20 4.9 19.1 4 18 4ZM18 8L10 11.5L2 8V6L10 9.5L18 6V8Z" fill="#9CA3AF"/></svg>
                                 <input 
-                                    type="password" 
-                                    id="password" 
-                                    value={formData.password}
+                                    type="email" 
+                                    id="email" 
+                                    value={formData.email}
                                     onChange={handleChange}
                                     // - Estilos de input oscuros (como en tu original)
                                     className="w-full bg-slate-800 border border-slate-500 text-white pl-12 pr-4 py-3 rounded-lg text-base transition-all duration-300 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500 placeholder:text-slate-500" 
-                                    placeholder="••••••••" 
-                                    required 
-                                />
-                            </div>
-                            {/* - 'text-lg sm:text-xl': Texto más pequeño en móviles */}
-                            <label htmlFor="newPassword" className="mt-4 block text-lg sm:text-xl mb-4 text-gray-700">Ingresa la nueva contraseña</label>
-                            <div className="relative flex items-center">
-                                <svg className="absolute left-3.5 z-10 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M18 4H2C0.9 4 0.01 4.9 0.01 6L0 14C0 15.1 0.9 16 2 16H18C19.1 16 20 15.1 20 14V6C20 4.9 19.1 4 18 4ZM18 8L10 11.5L2 8V6L10 9.5L18 6V8Z" fill="#9CA3AF"/></svg>
-                                <input 
-                                    type="password" 
-                                    id="newPassword" 
-                                    value={formData.newPassword}
-                                    onChange={handleChange}
-                                    // - Estilos de input oscuros (como en tu original)
-                                    className="w-full bg-slate-800 border border-slate-500 text-white pl-12 pr-4 py-3 rounded-lg text-base transition-all duration-300 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500 placeholder:text-slate-500" 
-                                    placeholder="••••••••" 
+                                    placeholder="tu@email.com" 
                                     required 
                                 />
                             </div>
@@ -149,31 +126,30 @@ const CambiarPassword = () => {
                             <button 
                                 type="button" 
                                 className="w-full bg-gray-200 border border-gray-400 text-gray-800 px-6 py-3 rounded-lg text-base font-medium transition-all duration-300 cursor-pointer hover:bg-gray-300 hover:border-gray-500 order-2 md:order-1" 
-                                onClick={goToDashboard}
+                                onClick={goToLogin}
                             >
                                 Cancelar
                             </button>
                             
                             {/* Botón de recuperar (con tu estilo original) */}
                             <button type="submit" 
-                                className="w-full bg-linear-to-br from-blue-600 to-blue-800 border-0 text-white px-6 py-3.5 rounded-lg text-base font-semibold transition-all duration-300 shadow-lg shadow-blue-600/30 cursor-pointer hover:from-blue-700 hover:to-blue-900 order-1 md:order-2"
+                                className="w-full bg-linear-to from-blue-600 to-blue-800 border-0 text-white px-6 py-3.5 rounded-lg text-base font-semibold transition-all duration-300 shadow-lg shadow-blue-600/30 cursor-pointer hover:from-blue-700 hover:to-blue-900 order-1 md:order-2"
                             >
-                                Actualizar contraseña
+                                Recuperar Cuenta
                             </button>
                         </div>
 
                     </form>
                 </div>
-                    {/* Enlace Olvidaste Contraseña */}
-                      <NavLink to={'/recuperar-cuenta'}
-                          // ✅ LIMPIO: Clases directas
-                          className="link text-center text-blue-700 text-sm text-custom-blue block mb-6 transition-colors duration-300 hover:text-blue-dark hover:underline"
-                      >
-                          ¿Olvidaste tu contraseña?
-                      </NavLink>
+            </div>
+
+            {/* Sección de botones de Cambiar email y cambiar contraseña, estas irían en el dashboard cuando esté hecho */}
+            <div className='grid md:grid-cols-2 gap-8 mt-8'>
+                <BotonPrincipal link={'/cambiar-email'} text='Cambiar email'/>
+                <BotonPrincipal link={'/cambiar-password'} text='Cambiar contraseña'/>
             </div>
         </div>
-  )
+    );
 }
 
-export default CambiarPassword
+export default RecuperarCuenta;

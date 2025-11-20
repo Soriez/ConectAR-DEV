@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import BotonPrincipal from '../components/Botones/BotonPrincipal';
+import BotonPrincipal from '../../components/Botones/BotonPrincipal';
 
 const RecuperarCuenta = () => {
     const [message, setMessage] = useState('');

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Mail, ChevronDown } from 'lucide-react';
-import ContactForm from '../components/ContactForm/ContactForm';
+import ContactForm from '../../components/ContactForm/ContactForm';
 
 // Componente principal de la página de Contacto
 // Estructura: Hero -> Formulario (toggle) -> FAQ
@@ -56,7 +56,7 @@ const Contacto = () => {
   };
 
   return (
-      <div className="bg-gradient-to-b from-gray-700 to-gray-900 pb-0">
+      <div className="bg-linear-to-b from-gray-700 to-gray-900 pb-0">
       {/* 
         SECCIÓN HERO / INTRODUCCIÓN 
         Presenta la página y el botón para mostrar el formulario
@@ -141,7 +141,7 @@ const Contacto = () => {
 
                   {/* Icono de chevron que rota cuando se abre */}
                   <ChevronDown
-                    className={`w-5 h-5 text-blue-500 flex-shrink-0 transition-transform duration-300 ${
+                    className={`w-5 h-5 text-blue-500 shrink-0 transition-transform duration-300 ${
                       openFaq === faq.id ? 'rotate-180' : ''
                     }`}
                   />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ServiceCard from '../components/Dashboard/ServiceCard';
+import ServiceCard from '../../components/Dashboard/ServiceCard';
 
 const ServiciosDashboard = () => {
   const [services, setServices] = useState([]);

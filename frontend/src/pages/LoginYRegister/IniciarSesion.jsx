@@ -165,7 +165,7 @@ const IniciarSesion = () => {
                         {/* Botón Principal (Login) */}
                         {/* Gradiente de blue-600 a blue-800, sombra azul */}
                         <button type="submit" 
-                            className="w-full bg-gradient-to-br from-blue-600 to-blue-800 border-0 text-white px-6 py-3.5 rounded-lg text-base font-semibold transition-all duration-300 shadow-xl shadow-blue-600/30 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 mb-4"
+                            className="w-full bg-linear-to-br from-blue-600 to-blue-800 border-0 text-white px-6 py-3.5 rounded-lg text-base font-semibold transition-all duration-300 shadow-xl shadow-blue-600/30 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 mb-4"
                         >
                             Iniciar Sesión
                         </button>
@@ -191,7 +191,7 @@ const IniciarSesion = () => {
 
             {/* Panel Derecho - Contenido Estático (50%) */}
             {/* Este panel es el mismo que el de Registrar.jsx */}
-            <div className="hidden lg:flex lg:w-1/2 relative p-4 lg:p-8 flex items-center justify-center min-h-screen">
+            <div className="hidden lg:flex lg:w-1/2 relative p-4 lg:p-8 items-center justify-center min-h-screen">
                 {/* Imagen de fondo, cubriendo todo el div */}
                 <img 
                     src="imgs/imagen-login.jpg" // Asegúrate de que esta ruta sea correcta

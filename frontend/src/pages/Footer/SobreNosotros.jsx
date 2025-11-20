@@ -1,6 +1,6 @@
 import { Target, Eye } from 'lucide-react';
-import BotonPrincipal from '../components/Botones/BotonPrincipal';
-import { sobre_nosotros_data } from '../constants/item-sobre-nosotros';
+import BotonPrincipal from '../../components/Botones/BotonPrincipal';
+import { sobre_nosotros_data } from '../../constants/item-sobre-nosotros';
 
 /**
  * Componente de la página "Sobre Nosotros"

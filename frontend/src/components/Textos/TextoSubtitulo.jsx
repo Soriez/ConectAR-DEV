@@ -8,14 +8,14 @@ import React from 'react'
  * @param {string} props.text - Contenido de texto que se mostrará en el subtítulo.
  * @returns {JSX.Element} El elemento <h2>.
  */
-const TextoSubtitulo = ( { text } ) => {
+const TextoSubtitulo = ( { text, textColor} ) => {
   return (
     <h2 
-      className='
+      className={`
         /* Alineación y Color Base */
         text-center 
         font-extrabold          // Usamos "extrabold" para darle más impacto
-        text-gray-900           // Color gris oscuro, ideal para títulos principales
+        ${textColor}           // Color gris oscuro, ideal para títulos principales
         
         /* Tipografía Responsiva */
         text-3xl                // Base (Móvil): Tamaño grande pero no excesivo
@@ -26,7 +26,7 @@ const TextoSubtitulo = ( { text } ) => {
         mb-4                    // Margen inferior base para separación
         sm:mb-6                 // Más margen en pantallas medianas
         md:mb-8                 // Margen generoso en pantallas grandes
-      '
+      `}
     >
       {text}
     </h2>

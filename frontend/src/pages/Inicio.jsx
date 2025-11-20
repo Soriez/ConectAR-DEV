@@ -6,11 +6,17 @@ import ServiciosInicio from '../components/SeccionesInicio/ServiciosInicio'
 
 const Inicio = () => {
   return (
-    <div className='bg-gray-800'>
-      <HeaderInicio />
-      <ServiciosInicio />
-      <FreelancersInicio />
-      <ContactoInicio />
+    // Opcion gradiente completo
+    <div className='from-blue-950 to-blue-200 bg-linear-to-b'>
+      <div className=''>
+        <HeaderInicio />
+      </div>
+
+      <div className=''>
+        <ServiciosInicio />
+        <FreelancersInicio />
+        <ContactoInicio />
+      </div>
     </div>
   )
 }

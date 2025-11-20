@@ -5,19 +5,25 @@ import Rutas from "./routes/Rutas"
 
 
 const App = () => {
+
+    //Variable para cambiar de vista de visitante a vista usuario
+    const isLoggedIn = false
+    // true = usuario
+    // false = visitante
+
     return (
-        <>
-            <NavBar />
+        <div className="flex flex-col min-h-screen">
+            <NavBar isLoggedIn={isLoggedIn}/>
             <ScrollToTop />
 
             <main>
-                <Rutas />
+                <Rutas/>
             </main>
 
             <footer>
                 <Footer />
             </footer>
-        </>
+        </div>
     )
 }
 

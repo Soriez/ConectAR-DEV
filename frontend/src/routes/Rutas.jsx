@@ -13,6 +13,9 @@ import SobreNosotros from '../pages/SobreNosotros'
 import TerminosServicios from '../pages/TerminosServicios'
 import TerminosPrivacidad from '../pages/TerminosPrivacidad'
 import PoliticaCookies from '../pages/PoliticaCookies'
+import RecuperarCuenta from '../pages/RecuperarCuenta'
+import CambiarEmail from '../components/CambiarDatos/CambiarEmail'
+import CambiarPassword from '../components/CambiarDatos/CambiarPassword'
 
 const Rutas = () => {
   return useRoutes(
@@ -59,7 +62,17 @@ const Rutas = () => {
         },
         {
             path: '*',
-            element: <NoEncontrado />
+            element: <NoEncontrado />,
+            path: '/recuperar-cuenta',
+            element: <RecuperarCuenta />
+        },
+        {
+            path: '/cambiar-email',
+            element: <CambiarEmail />
+        },
+        {
+            path: '/cambiar-password',
+            element: <CambiarPassword />
         }
     ]
   )

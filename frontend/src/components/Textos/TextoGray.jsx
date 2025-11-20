@@ -7,13 +7,13 @@
  * @param {string} props.text - Contenido de texto que se mostrará en el párrafo.
  * @returns {JSX.Element} El elemento <p>.
  */
-const TextoGray = ( { text } ) => {
+const TextoGray = ( { text, textNumber } ) => {
   return (
     <p 
-      className='
+      className={`
         /* Alineación y Color */
         text-center 
-        text-gray-600 
+        text-gray-${textNumber}
         
         /* Tipografía Responsiva */
         text-sm           // Base (Móvil): Texto pequeño para ahorrar espacio.
@@ -26,7 +26,7 @@ const TextoGray = ( { text } ) => {
         
         /* Utilidades UX (si está disponible en tu versión de Tailwind/CSS) */
         text-balance      // Mejora la legibilidad equilibrando las líneas de texto.
-      '
+      `}
     >
       {text}
     </p>

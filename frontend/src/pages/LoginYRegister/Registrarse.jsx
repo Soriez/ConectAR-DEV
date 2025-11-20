@@ -33,7 +33,6 @@ const Registrar = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        // 💥 ELIMINAMOS userType del estado
         terms: false,
     });
     const [showPassword, setShowPassword] = useState(false);
@@ -53,11 +52,28 @@ const Registrar = () => {
         }));
     };
 
+    // Función para validar el formato de email
+    // Un patrón simple que verifica al menos un caracter antes del @, un @, al menos un caracter, un punto y al menos dos caracteres después del punto.
+    const isValidEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/; 
+        return emailRegex.test(email);
+    };
+    
     const handleRegister = async (e) => {
         e.preventDefault();
         
         const { nombre, apellido, email, password, confirmPassword, terms } = formData;
-        
+        // 1. Validación de Formato de Email
+        if (!isValidEmail(email)) {
+            showCustomMessage('Por favor, ingresa un formato de email válido (ej: tu@dominio.com).');
+            return;
+        }
+
+        // 2. Validación de Longitud de Contraseña
+        if (password.length < 8 || password.length > 13) {
+            showCustomMessage('La contraseña debe tener entre 8 y 13 caracteres.');
+            return;
+        }
         if (password !== confirmPassword) {
             showCustomMessage('Las contraseñas no coinciden.');
             return;
@@ -193,6 +209,8 @@ const Registrar = () => {
                                         className="w-full bg-slate-800 border border-slate-700 text-white pl-[45px] pr-[50px] py-3 rounded-lg text-[14px] transition-all duration-300 focus:outline-none focus:border-blue-600 placeholder:text-slate-500" 
                                         placeholder="••••••••" 
                                         required 
+                                        minLength={8} 
+                                        maxLength={13}
                                     />
                                     <PasswordToggle isVisible={showPassword} onClick={() => setShowPassword(!showPassword)}/>
                                 </div>
@@ -211,6 +229,8 @@ const Registrar = () => {
                                         className="w-full bg-slate-800 border border-slate-700 text-white pl-[45px] pr-[50px] py-3 rounded-lg text-[14px] transition-all duration-300 focus:outline-none focus:border-blue-600 placeholder:text-slate-500" 
                                         placeholder="••••••••" 
                                         required 
+                                        minLength={8}
+                                        maxLength={13}
                                     />
                                     <PasswordToggle isVisible={showConfirmPassword} onClick={() => setShowConfirmPassword(!showConfirmPassword)}/>
                                 </div>
@@ -279,9 +299,9 @@ const Registrar = () => {
                             <span className="text-yellow-400">Argentino.</span>
                         </h1>
                         
-                        <p className="text-[18px] text-slate-300 leading-[1.6] mb-12">
-                            Unite a la única plataforma de freelancers IT 100%  Argentina. Conectá de forma segura con profesionales expertos y lleva tus proyectos al siguiente nivel.
-                        </p>
+                        <div className="text-[18px] text-slate-300 leading-[1.6] mb-12">
+                            <p>Unite a la única plataforma de freelancers IT 100% Argentina. Conectá de forma segura con profesionales expertos y lleva tus proyectos al siguiente nivel.</p>
+                        </div>
                         
                         <div className="stats flex gap-8 flex-wrap mt-12 justify-center lg:justify-start">
                             <div className="stat-item flex items-center gap-3">
@@ -300,5 +320,6 @@ const Registrar = () => {
         </div>
     );
 };
+
 
 export default Registrar;

@@ -6,7 +6,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
 
   // SIMULACIÓN: Esto vendría de tu contexto de usuario o base de datos
-  const userRole = 'client'; // Cambia a 'client' para probar que se oculte "Opiniones"
+  const userRole = 'freelancer'; // Cambia a 'client' para probar que se oculte "Opiniones"
   const isFreelancer = userRole === 'freelancer';
 
   const menuItems = [

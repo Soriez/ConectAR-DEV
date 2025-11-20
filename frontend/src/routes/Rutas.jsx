@@ -19,6 +19,8 @@ import CambiarPassword from '../components/CambiarDatos/CambiarPassword'
 import PerfilDashboard from '../pages/PerfilDashboard'
 import ServiciosDashboard from '../pages/ServiciosDashboard'
 import DashboardLayout from '../layouts/DashboardLayout'
+import ConfiguracionDashboard from '../components/Dashboard/ConfiguracionDashboard'
+import OpinionesDashboard from '../components/Dashboard/OpinionesDashboard'
 
 const Rutas = () => {
   return useRoutes(
@@ -93,11 +95,11 @@ const Rutas = () => {
         },
         {
            path: 'configuracion', 
-           element: <div>Configuración en construcción</div> 
+           element: <ConfiguracionDashboard/>
         },
         {
             path: 'opiniones',
-            element: <div>Opiniones en construcción</div>
+            element: <OpinionesDashboard/>
         }
       ]
     }

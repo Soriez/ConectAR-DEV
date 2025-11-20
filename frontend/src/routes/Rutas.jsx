@@ -7,6 +7,12 @@ import IniciarSesion from '../pages/IniciarSesion'
 import Registrarse from '../pages/Registrarse'
 import NoEncontrado from '../pages/NoEncontrado'
 import Perfil from '../pages/Perfil'
+import ServiciosInicio from '../components/SeccionesInicio/ServiciosInicio'
+import ContactoInicio from '../components/SeccionesInicio/ContactoInicio'
+import SobreNosotros from '../pages/SobreNosotros'
+import TerminosServicios from '../pages/TerminosServicios'
+import TerminosPrivacidad from '../pages/TerminosPrivacidad'
+import PoliticaCookies from '../pages/PoliticaCookies'
 import RecuperarCuenta from '../pages/RecuperarCuenta'
 import CambiarEmail from '../components/CambiarDatos/CambiarEmail'
 import CambiarPassword from '../components/CambiarDatos/CambiarPassword'
@@ -35,14 +41,28 @@ const Rutas = () => {
             element: <Registrarse />
         },
         {
-            path: '*',
-            element: <NoEncontrado />
-        },
-        {
             path: '/perfil',
             element: <Perfil />
         },
         {
+            path:'/sobre-nosotros',
+            element: <SobreNosotros/>
+        },
+        {
+            path:'/terminos-y-servicios',
+            element:<TerminosServicios/>
+        },
+        {
+            path:'/politicas-de-privacidad',
+            element:<TerminosPrivacidad/>
+        },
+        {
+            path:'/politicas-de-cookies',
+            element:<PoliticaCookies/>
+        },
+        {
+            path: '*',
+            element: <NoEncontrado />,
             path: '/recuperar-cuenta',
             element: <RecuperarCuenta />
         },

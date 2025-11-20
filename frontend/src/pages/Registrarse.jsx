@@ -241,7 +241,7 @@ const Registrar = () => {
 
                             {/* Botón Crear Cuenta (Primario) */}
                             <button type="submit" 
-                                className="w-full bg-gradient-to-br from-blue-600 to-blue-800 border-0 text-white px-6 py-3.5 rounded-lg text-base font-semibold transition-all duration-300 shadow-xl shadow-blue-600/30 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 mb-3"
+                                className="w-full bg-linear-to-br from-blue-600 to-blue-800 border-0 text-white px-6 py-3.5 rounded-lg text-base font-semibold transition-all duration-300 shadow-xl shadow-blue-600/30 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 mb-3"
                             >
                                 Crear Cuenta
                             </button>

@@ -16,6 +16,9 @@ import PoliticaCookies from '../pages/PoliticaCookies'
 import RecuperarCuenta from '../pages/RecuperarCuenta'
 import CambiarEmail from '../components/CambiarDatos/CambiarEmail'
 import CambiarPassword from '../components/CambiarDatos/CambiarPassword'
+import PerfilDashboard from '../pages/PerfilDashboard'
+import ServiciosDashboard from '../pages/ServiciosDashboard'
+import DashboardLayout from '../layouts/DashboardLayout'
 
 const Rutas = () => {
   return useRoutes(
@@ -62,7 +65,9 @@ const Rutas = () => {
         },
         {
             path: '*',
-            element: <NoEncontrado />,
+            element: <NoEncontrado />
+        },
+        {
             path: '/recuperar-cuenta',
             element: <RecuperarCuenta />
         },
@@ -73,7 +78,29 @@ const Rutas = () => {
         {
             path: '/cambiar-password',
             element: <CambiarPassword />
+        },
+        {
+      path: '/dashboard',
+      element: <DashboardLayout />, // Esto carga el Sidebar + Outlet
+      children: [
+        { 
+           index: true, // Esto significa que /dashboard carga el Perfil
+           element: <PerfilDashboard/> 
+        },
+        { 
+           path: 'servicios', // /dashboard/servicios
+           element: <ServiciosDashboard /> 
+        },
+        {
+           path: 'configuracion', 
+           element: <div>Configuración en construcción</div> 
+        },
+        {
+            path: 'opiniones',
+            element: <div>Opiniones en construcción</div>
         }
+      ]
+    }
     ]
   )
 }

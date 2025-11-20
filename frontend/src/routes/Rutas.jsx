@@ -2,11 +2,13 @@ import React from 'react'
 import { useRoutes } from 'react-router'
 import Inicio from '../pages/Inicio'
 import Freelancers from '../pages/Freelancers'
-import ComoFunciona from '../pages/ComoFunciona'
 import Contacto from '../pages/Contacto'
 import IniciarSesion from '../pages/IniciarSesion'
 import Registrarse from '../pages/Registrarse'
 import NoEncontrado from '../pages/NoEncontrado'
+import Perfil from '../pages/Perfil'
+import ServiciosInicio from '../components/SeccionesInicio/ServiciosInicio'
+import ContactoInicio from '../components/SeccionesInicio/ContactoInicio'
 
 const Rutas = () => {
   return useRoutes(
@@ -35,6 +37,10 @@ const Rutas = () => {
             path: '*',
             element: <NoEncontrado />
         },
+        {
+            path: '/perfil',
+            element: <Perfil />
+        }
     ]
   )
 }

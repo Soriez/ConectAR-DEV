@@ -1,14 +1,14 @@
 import Footer from "./components/Footer/Footer"
 import NavBar from "./components/NavBar/NavBar"
+import ScrollToTop from "./components/ScrollToTop"
 import Rutas from "./routes/Rutas"
 
 
 const App = () => {
     return (
         <>
-            <header>
-                <NavBar />
-            </header>
+            <NavBar />
+            <ScrollToTop />
 
             <main>
                 <Rutas />

@@ -12,8 +12,9 @@ import { NavLink } from 'react-router'
  */
 const NavBar = () => {
 
-    const [activa, setActiva] = useState(false)
     // Estado para controlar si el menú móvil está abierto o cerrado.
+    const [activa, setActiva] = useState(false)
+
 
     return (
         // Contenedor principal: Sticky, con z-index alto para flotar sobre el contenido
@@ -36,7 +37,7 @@ const NavBar = () => {
                 {/* 2. Links de Navegación (Solo Desktop - Centrados) */}
                 <ul className="hidden md:flex gap-4 lg:gap-8 flex-1 justify-center"> {/* Gap ajustado para mejor espaciado en desktop */}
                     {links.map((link) => (
-                        <ItemNavBar link={link} isMobile={false} key={link.id} />
+                        <ItemNavBar link={link} isMobile={false} key={link.id} setActiva={setActiva}/>
                     ))}
                 </ul>
 
@@ -118,7 +119,7 @@ const NavBar = () => {
                     <li className="w-full text-center mt-4 border-t border-gray-700 pt-4">
                         <NavLink 
                             to={'/iniciar-sesion'}
-                            className="block text-xl font-medium text-white hover:text-blue-400 py-3 px-6 text-left" 
+                            className="block text-xl font-medium text-white hover:text-blue-400 py-3 px-6 text-center" 
                             onClick={() => setActiva(false)}
                         >
                             Iniciar Sesión

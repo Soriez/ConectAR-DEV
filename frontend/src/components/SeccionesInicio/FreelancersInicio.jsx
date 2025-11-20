@@ -2,9 +2,10 @@ import { useRef } from 'react'; // Importamos useRef para la navegación con bot
 import TextoGray from '../Textos/TextoGray'
 import TextoSubtitulo from '../Textos/TextoSubtitulo'
 import { freelancersDestacadosData } from '../../constants/item-freelancers-cards'
-import FreelancerCard from '../Cards/FreelancerCard'
+import FreelancerCard from '../Cards/FreelancerInicioCard'
 import BotonSecundario from '../Botones/BotonSecundario'
 import { ChevronLeft, ChevronRight } from 'lucide-react'; 
+
 
 /**
  * @component
@@ -120,7 +121,9 @@ const FreelancersInicio = () => {
 
                 {/* Botón de ver a todos los freelancers */}
                 <div className='mt-8 sm:mt-12 px-4 sm:px-6 lg:px-8'>
-                    <BotonSecundario text={'Ver Todos los Freelancers'}/>
+                    <BotonSecundario 
+                        link={'/freelancers'}
+                        text={'Ver Todos los Freelancers'}/>
                 </div>
             </div>
         </section>

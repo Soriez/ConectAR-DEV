@@ -31,10 +31,10 @@ const ItemNavBar = ( { link, isMobile, setOpen } ) => {
         if(link.scrollTo){
             e.preventDefault();// Prevenimos la navegación por defecto de React Router
 
-             //Caso 1: Ya estamos en la home, solo hacemos scroll
-             if(location.pathname === '/'){
+            //Caso 1: Ya estamos en la home, solo hacemos scroll
+            if(location.pathname === '/'){
                 // Buscamos el elemento HTML con el ID especificado en scrollTo
-                const elemento = document.getElementById(link.scrollTo)
+                 const elemento = document.getElementById(link.scrollTo)
                 //si encontramos el elemento, hacemos el scroll suave hacia él
                 if(elemento){
                     elemento.scrollIntoView({
@@ -45,15 +45,25 @@ const ItemNavBar = ( { link, isMobile, setOpen } ) => {
                 }
             // Si estamos EN OTRA PÁGINA (/contacto, /freelancers, etc)
             }else{
-                 // 1. Navega primero a la home
-                navigate('/#servicios');
-                // 2. Espera 100ms a que cargue
-                // 3. Luego hace scroll al elemento
-                setTimeout(() => {
-                    element.scrollIntoView({ behavior: 'smooth' });
-                }, 100);// 100ms de delay para asegurar que el DOM esté listo
-
-            }
+            // 1. Navega primero a la home, usando el ID de scroll de forma dinámica
+            navigate('/');
+            
+            // 2. Espera 100ms para dar tiempo a que la página Home se monte.
+            // 3. Luego busca el elemento (¡Ahora sí estará en el DOM!) y hace scroll.
+            setTimeout(() => {
+                // 👇 BUSCAMOS EL ELEMENTO AQUÍ, después de la navegación
+                const elementoDestino = document.getElementById(link.scrollTo); 
+                
+                if (elementoDestino) {
+                    elementoDestino.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start' 
+                    });
+                } else {
+                    // console.error(`No se encontró el elemento con ID: ${link.scrollTo}`);
+                }
+            }, 100);// 100ms de delay para asegurar que el DOM esté listo
+        }
         }
         // Si estamos en mobile y el menú está abierto, lo cerramos después del click
         if (isMobile && setOpen) {
@@ -75,7 +85,7 @@ const ItemNavBar = ( { link, isMobile, setOpen } ) => {
         }
 
         // Estilo cuando el enlace está activo
-        if (isActive) {
+        if (isActive && !link.scrollTo) {
             if (isMobile) {
                  // Ítem activo en móvil: Fondo azul más oscuro para contraste total
                 finalClasses += ` !text-blue-400 !font-bold bg-gray-900/50`;

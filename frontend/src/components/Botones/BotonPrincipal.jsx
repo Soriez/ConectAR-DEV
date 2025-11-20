@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router"
 
 /**
  * @component
@@ -6,10 +7,21 @@
  * @param {string} props.text - Texto que se mostrará dentro del botón.
  * @returns {JSX.Element} El elemento botón.
  */
-const BotonPrincipal = ( { text } ) => {
+const BotonPrincipal = ( { link, text } ) => {
+
+  const navigate = useNavigate()
+
+  const handleClick = () => {
+    if( link ) {
+      navigate(link)
+    }
+  }
+
+
   return (
     // Contenedor principal del botón
     <button 
+      onClick={handleClick}
       className={`
         /* Estilos base */
         bg-blue-500              /* Fondo azul por defecto */

@@ -3,6 +3,8 @@ import links from '../../constants/item-nav'
 import ItemNavBar from './ItemNavBar'
 import { Menu, X } from 'lucide-react'
 import { NavLink } from 'react-router'
+import DesktopNavBar from './DesktopNavBar'
+import { useAuth } from '../../context'; 
 
 /**
  * @component
@@ -12,13 +14,15 @@ import { NavLink } from 'react-router'
  */
 const NavBar = () => {
 
+    const { isAuthenticated, user, logout } = useAuth()
+
     // Estado para controlar si el menú móvil está abierto o cerrado.
     const [activa, setActiva] = useState(false)
 
 
     return (
         // Contenedor principal: Sticky, con z-index alto para flotar sobre el contenido
-        <nav className="bg-gray-900 text-white shadow-xl sticky top-0 z-50">
+        <nav className="bg-gray-800 text-white shadow-xl sticky top-0 z-50">
             
             {/* Contenedor centralizado (Desktop y Mobile Header) */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center"> {/* Altura ajustada a h-20 */}
@@ -43,21 +47,11 @@ const NavBar = () => {
 
                 {/* 3. Botones de Acción (Solo Desktop - Derecha) */}
                 <div className="hidden md:flex items-center space-x-4">
-                    {/* Botón Iniciar Sesión (Transparente) */}
-                    <NavLink 
-                        to={'/iniciar-sesion'} 
-                        className="whitespace-nowrap text-white hover:text-blue-400 px-3 py-2 text-base font-medium transition duration-150 ease-in-out focus:ring-2 focus:ring-blue-500 rounded-md"
-                    >
-                        Iniciar Sesión
-                    </NavLink>
-                    
-                    {/* Botón Registrarse (Primario) */}
-                    <NavLink 
-                        to={'/registrarse'} 
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-md shadow-lg transition duration-150 ease-in-out whitespace-nowrap focus:ring-2 focus:ring-white"
-                    >
-                        Registrarse
-                    </NavLink>
+                    <DesktopNavBar 
+                        isLoggedIn={isAuthenticated} 
+                        user={user} 
+                        handleLogout={logout}
+                    />
                 </div>
 
                 {/* 4. Botón Hamburguesa (Solo Mobile) */}
@@ -117,20 +111,31 @@ const NavBar = () => {
                     
                     {/* Botones de acción en la versión móvil (Separador visual) */}
                     <li className="w-full text-center mt-4 border-t border-gray-700 pt-4">
-                        <NavLink 
-                            to={'/iniciar-sesion'}
-                            className="block text-xl font-medium text-white hover:text-blue-400 py-3 px-6 text-center" 
-                            onClick={() => setActiva(false)}
-                        >
-                            Iniciar Sesión
-                        </NavLink>
-                        <NavLink 
-                            to={'/registrarse'}
-                            className="block bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-3 px-6 mx-4 rounded-md shadow-lg my-4 text-center"
-                            onClick={() => setActiva(false)}
-                        >
-                            Registrarse
-                        </NavLink>
+                        {isAuthenticated ? (
+                            <button 
+                                onClick={logout}
+                                className="block bg-red-600 hover:bg-red-700 text-white font-bold text-lg py-3 px-6 mx-4 rounded-md shadow-lg my-4 text-center w-[90%]"
+                            >
+                                Cerrar Sesión ({user?.nombre})
+                            </button>
+                        ) : (
+                            <>
+                                <NavLink 
+                                    to={'/iniciar-sesion'}
+                                    className="block text-xl font-medium text-white hover:text-blue-400 py-3 px-6 text-center" 
+                                    onClick={() => setActiva(false)}
+                                >
+                                    Iniciar Sesión
+                                </NavLink>
+                                <NavLink 
+                                    to={'/registrarse'}
+                                    className="block bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-3 px-6 mx-4 rounded-md shadow-lg my-4 text-center"
+                                    onClick={() => setActiva(false)}
+                                >
+                                    Registrarse
+                                </NavLink>
+                            </>
+                        )}
                     </li>
                 </ul>
             </div>

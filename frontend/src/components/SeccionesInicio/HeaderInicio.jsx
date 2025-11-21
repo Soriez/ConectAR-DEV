@@ -10,7 +10,7 @@ import { Link } from 'react-router'
 const HeaderInicio = () => {
   return (
     // Contenedor principal: Utiliza flex-col en móvil y grid-cols-2 en md+. Padding y centrado responsivo.
-    <section className='md:grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 px-4 container mx-auto py-8 sm:py-16' id='header'>
+    <section className='md:grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 px-4 container mx-auto py-8 sm:py-16 lg:h-screen' id='header'>
         
         {/* Sección 1 / de la izquierda: Título, Descripción y CTA Cards */}
         <div className='mb-8 md:mb-0 flex flex-col justify-center items-center md:items-start text-center md:text-left'>
@@ -77,10 +77,10 @@ const HeaderInicio = () => {
         </div>
         
         {/* Sección 2 / de la derecha: Imagen */}
-        <div className='hidden md:flex justify-center items-center'> {/* La imagen solo es visible en md+ */}
+        <div className='hidden lg:flex justify-center items-center'> {/* La imagen solo es visible en md+ */}
             {/* // TODO hacemos que en celular la imágen se vea al fondo o abajo o se deja así? */}
             <img 
-                src="/public/imgs/logo.jpeg" 
+                src="imgs/imagen-header-inicio.jpg" 
                 alt="Ilustración de desarrolladores argentinos" 
                 className="w-full h-auto max-w-xl rounded-xl shadow-2xl"
             />

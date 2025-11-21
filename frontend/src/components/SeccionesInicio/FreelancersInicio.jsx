@@ -29,7 +29,7 @@ const FreelancersInicio = () => {
     
     return (
         //Contenedor principal
-        <section className='bg-gray-50 py-12 sm:py-16 md:py-20'>
+        <section className='py-12 sm:py-16 md:py-20'>
             <div className='container mx-auto text-center'>
                 
                 {/* Cabecera de la Sección, Título y Subtitulo */}

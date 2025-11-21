@@ -38,7 +38,7 @@ const Rutas = () => {
             element: <NoEncontrado />
         },
         {
-            path: '/perfil',
+            path: '/perfil/:id',
             element: <Perfil />
         }
     ]

@@ -1,5 +1,5 @@
 import { Target, Eye } from 'lucide-react';
-import { sobre_nosotros_data } from '../constants/item-sobre-nosotros';
+import { sobre_nosotros_data } from '../../constants/item-sobre-nosotros';
 
 /**
  * Componente de la página "Sobre Nosotros"

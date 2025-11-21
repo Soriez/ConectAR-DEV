@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import BotonPrincipal from '../components/Botones/BotonPrincipal';
+import BotonPrincipal from '../../components/Botones/BotonPrincipal';
 
 const RecuperarCuenta = () => {
     const [message, setMessage] = useState('');
@@ -68,8 +68,9 @@ const RecuperarCuenta = () => {
     // --- RENDERIZADO RESPONSIVE ---
 
     return (
-        // 1. CONTENEDOR PRINCIPAL
-        <div className='h-screen flex items-center flex-col /* Quitar el flex-col cuando se saquen los botones de abajo */ justify-center p-4 bg-blue-400'>
+        // 1. CONTENEDOR PRINCIPAL 
+        // //Quitar el flex-col cuando se saquen los botones de abajo
+        <div className='h-screen flex items-center flex-col justify-center p-4 bg-blue-400'>
             
             {/* 2. MODAL DE MENSAJE (RESPONSIVE)
                 - 'w-11/12': Ancho del 90% en móviles

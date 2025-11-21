@@ -3,7 +3,7 @@ import { Search, Filter, Star, ChevronLeft, ChevronRight, Check, Globe, Briefcas
 import { NavLink } from 'react-router';
 
 // Importamos los datos locales desde el archivo que acabamos de crear
-import dbData from '../data/freelancers.json'; 
+import dbData from '../../data/freelancers.json'; 
 
 /* ========================================================================
    UTILS & ENRICHMENT

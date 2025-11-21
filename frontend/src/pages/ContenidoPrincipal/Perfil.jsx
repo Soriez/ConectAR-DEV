@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router";
-import dbFreelancers from "../data/freelancers.json";
+import dbFreelancers from "../../data/freelancers.json";
 
 /* ============================
    Utils

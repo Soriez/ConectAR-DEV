@@ -46,7 +46,7 @@ const Rutas = () => {
             element: <Registrarse/>
         },
         {
-            path: '/perfil',
+            path: '/perfil/:id',
             element: <Perfil />
         },
         {

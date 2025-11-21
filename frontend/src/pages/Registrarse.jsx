@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faBriefcase } from '@fortawesome/free-solid-svg-icons';
@@ -280,7 +280,7 @@ const Registrar = () => {
                         </h1>
                         
                         <p className="text-[18px] text-slate-300 leading-[1.6] mb-12">
-                            Unite a la única plataforma de freelancers IT 100%  Argentina. Conectá de forma segura con profesionales expertos y lleva tus proyectos al siguiente nivel.
+                            Unite a la única plataforma de freelancers IT 100% Argentina. Conectá de forma segura con profesionales expertos y lleva tus proyectos al siguiente nivel.
                         </p>
                         
                         <div className="stats flex gap-8 flex-wrap mt-12 justify-center lg:justify-start">

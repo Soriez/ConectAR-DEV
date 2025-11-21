@@ -1,15 +1,4 @@
-import User from '../models/User.js'; // Importamos el modelo
-import bcrypt from 'bcrypt';         // Importamos el paquete
-import jwt from 'jsonwebtoken';
-
-
-// --- Función Auxiliar para Generar JWT ---
-// Usa el JWT_SECRET que debes poner en tu .env
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.VITE_JWT_SECRET, {
-    expiresIn: '1d', // El token es válido por 1 día
-  });
-};
+import { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuario, obtenerFreelancers, obtenerTodosLosUsuarios, usuarioExiste, verificarPasword } from '../models/user.model.js';
 
 
 // ! POST /api/users/register
@@ -21,25 +10,19 @@ export const registerUser = async (req, res) => {
     const { nombre, apellido, email, password, isFreelancer } = req.body;
 
     // 1. Verificar si el usuario ya existe (opcional, pero buena práctica)
-    const userExists = await User.findOne({ email });
+    const userExists = await usuarioExiste(email)
     if (userExists) {
       return res.status(400).json({ message: "El email ya está en uso" });
     }
 
-    // 2. ¡IMPORTANTE! Hashear la contraseña (como vimos antes)
+    // 1. saltRounds se usa para hashear la contraseña
     const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const newUser = new User({
-      nombre, apellido, email, 
-      password: hashedPassword, // ¡Guardamos el hash!
-      isFreelancer
-    });
-
-    const savedUser = await newUser.save();
+    // le pido al modelo que guarde el usuario
+    const savedUser = await guardarUsuario( nombre, apellido, email, password, isFreelancer, saltRounds)
     
     // 3. Generar y enviar el token después del registro exitoso
-    const token = generateToken(savedUser._id);
+    const token = await generateToken(savedUser._id);
 
     // 4. Respondemos al frontend con el token y datos
     res.status(201).json({
@@ -62,6 +45,7 @@ export const registerUser = async (req, res) => {
 // ! POST /api/users/login
 
 // ? Loguear a un usuario y generar JWT (token)
+// ? Obtengo UN usuario mediante el EMAIL
 
 export const loginUser = async (req, res) => {
     try {
@@ -69,14 +53,17 @@ export const loginUser = async (req, res) => {
 
         // 1. Buscar el usuario. Usamos .select('+password') para que Mongoose 
         // incluya el hash de la contraseña, que por defecto está excluido.
-        const user = await User.findOne({ email }).select('+password');
-
+        const user = await buscarUsuarioConPassword( email )
+        if( !user ) {
+          res.status(404).json({ mensaje: 'No existe un usuario registrado con el email ingresado'})
+        }
         // 2. Verificar si el usuario existe y si la contraseña es correcta
         // Usamos bcrypt.compare para comparar el texto plano con el hash
-        if (user && (await bcrypt.compare(password, user.password))) {
+        const verificacion = await verificarPasword( password, user )
+        if (user && verificacion) {
             
             // 3. Generar el token
-            const token = generateToken(user._id);
+            const token = await generateToken(user._id);
 
             // 4. Respuesta exitosa
             res.status(200).json({
@@ -105,7 +92,7 @@ export const getAllUsers = async (req, res) => {
   try {
     // .find() sin argumentos trae todo
     // Gracias a `select: false` en tu schema, ¡el password no vendrá!
-    const users = await User.find();
+    const users = await obtenerTodosLosUsuarios()
 
     res.status(200).json(users);
 
@@ -118,25 +105,25 @@ export const getAllUsers = async (req, res) => {
 
 // ? Trae UN usuario mediante el ID
 
-export const getUserById = async (req, res) => {
-  try {
-    // 1. Obtenemos el ID de los parámetros de la URL (req.params)
-    const { id } = req.params;
+// export const getUserById = async (req, res) => {
+//   try {
+//     // 1. Obtenemos el ID de los parámetros de la URL (req.params)
+//     const { id } = req.params;
 
-    const user = await User.findById(id);
+//     const user = await User.findById(id);
 
-    // 2. Verificamos si el usuario existe
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
+//     // 2. Verificamos si el usuario existe
+//     if (!user) {
+//       return res.status(404).json({ message: "Usuario no encontrado" });
+//     }
 
-    // 3. Respondemos con el usuario
-    res.status(200).json(user);
+//     // 3. Respondemos con el usuario
+//     res.status(200).json(user);
 
-  } catch (error) {
-    res.status(500).json({ message: "Error al obtener el usuario", error: error.message });
-  }
-};
+//   } catch (error) {
+//     res.status(500).json({ message: "Error al obtener el usuario", error: error.message });
+//   }
+// };
 
 // ! GET /api/users/freelancers
 
@@ -145,7 +132,7 @@ export const getUserById = async (req, res) => {
 export const getAllFreelancers = async (req, res) => {
   try {
     // 🔍 Filtro: Buscamos documentos donde isFreelancer sea explícitamente true
-    const freelancers = await User.find({ isFreelancer: true });
+    const freelancers = await obtenerFreelancers()
 
     res.status(200).json(freelancers);
 
@@ -166,49 +153,41 @@ export const getAllFreelancers = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    const userIdToUpdate = req.params.id; // ID del perfil que se intenta actualizar (de la URL)
-    
-    // El middleware 'protect' adjunta los datos del usuario logueado en req.user
-    // El ID del usuario logueado lo obtenemos de aquí:
-    // Convertimos a string por seguridad en la comparación
-    const authenticatedUserId = req.user._id.toString(); 
-
-    // -----------------------------------------------------------------
-    // !!! 1. VERIFICACIÓN DE AUTORIZACIÓN (SEGURIDAD) !!!
-    // Se asegura que el usuario logueado solo pueda modificar su propio perfil
-    // -----------------------------------------------------------------
-    if (userIdToUpdate !== authenticatedUserId) {
-      // 403 Forbidden: No tienes los permisos para acceder a este recurso.
-      return res.status(403).json({ 
-        message: "Acceso denegado. Solo puedes actualizar tu propia cuenta." 
-      });
-    }
-
+    // ⭐ USAR EL ID DEL USUARIO AUTENTICADO DIRECTAMENTE ⭐
+    // Esto elimina la necesidad de comparar req.params.id con req.user._id.
+    // Si el token es válido, solo permitimos modificar el ID asociado al token.
+    const authenticatedUserId = req.user._id; 
+    console.log(authenticatedUserId);
     // Obtenemos los campos a actualizar del cuerpo de la petición
     const updates = req.body;
 
     // -----------------------------------------------------------------
-    // 2. HASH DE CONTRASEÑA (si se está actualizando)
-    // Es NECESARIO porque findByIdAndUpdate omite el middleware pre('save')
+    // 1. NO ES NECESARIA LA VERIFICACIÓN DE AUTORIZACIÓN:
+    //    Si el usuario tiene un token válido, solo actualizaremos SU cuenta.
     // -----------------------------------------------------------------
+    /* // Código anterior que causaba error de comparación:
+    const userIdToUpdate = req.params.id; 
+    if (userIdToUpdate !== authenticatedUserId.toString()) {
+       return res.status(403).json({ 
+         message: "Acceso denegado. Solo puedes actualizar tu propia cuenta." 
+       });
+    }
+    */
+    // -----------------------------------------------------------------
+
+    // 2. HASH DE CONTRASEÑA (si se está actualizando)
     if (updates.password) {
-      // Usar el mismo número de saltRounds que en el registro (ej: 10)
-      updates.password = await bcrypt.hash(updates.password, 10);
+      // Importa 'bcrypt' si aún no lo has hecho
+      updates.password = await bcrypt.hash(updates.password, 10); 
     }
 
-    // 3. Buscamos y actualizamos
-    const updatedUser = await User.findByIdAndUpdate(
-      userIdToUpdate, 
-      updates,
-      { 
-        new: true,               // Devuelve el documento actualizado
-        runValidators: true,     // Ejecuta las validaciones del esquema (ej: 'required', formato email)
-        omitUndefined: true      // Ignora campos undefined si los pasas
-      } 
-    ).select('-password'); // Excluimos la contraseña del objeto retornado
+    // 3. Buscamos y actualizamos usando el ID del usuario logueado
+    const updatedUser = await actualizarUsuario(authenticatedUserId, updates)
 
-    // 4. Verificamos si el usuario fue encontrado (aunque la verificación de arriba ya lo haría, es buena práctica)
+    // 4. Verificamos si el usuario fue encontrado (aunque el token sea válido, es buena práctica)
     if (!updatedUser) {
+      // Este caso es muy raro, solo si el usuario fue borrado entre el token y la petición
+      console.log(updateUser);
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
@@ -219,7 +198,6 @@ export const updateUser = async (req, res) => {
     });
 
   } catch (error) {
-    // Si falla la validación o cualquier otro error de DB
     res.status(500).json({ 
       message: "Error al actualizar el usuario", 
       error: error.message 

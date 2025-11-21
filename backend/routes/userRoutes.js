@@ -7,10 +7,10 @@ import {
     registerUser, 
     loginUser,
     getAllUsers, 
-    getUserById, 
+    // getUserById, 
     updateUser, 
     getAllFreelancers
-} from '../controllers/userController.js';
+} from '../controllers/user.controller.js';
 
 const router = express.Router();
 // --- Definimos las rutas CRUD ---
@@ -33,7 +33,7 @@ router.get('/', getAllUsers);
 
 // (R) READ - Obtener un usuario por ID
 // Petición GET a /api/users/:id
-router.get('/:id', getUserById);
+// router.get('/:id', getUserById);
 
 // (U) UPDATE - Actualizar un usuario por ID
 // Petición PUT a /api/users/:id

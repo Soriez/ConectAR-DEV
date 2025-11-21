@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import User, { buscarUsuarioSinPassword } from '../models/user.model.js';
 
 // Middleware que protege las rutas
 export const protect = async (req, res, next) => {
@@ -20,7 +20,7 @@ export const protect = async (req, res, next) => {
       
       // 4. Buscar el usuario asociado al ID dentro del token (sin el password)
       // Guardamos el usuario en la request para que el controlador lo pueda usar
-      req.user = await User.findById(decoded.id).select('-password'); 
+      req.user = await buscarUsuarioSinPassword( decoded )
 
       // 5. ¡Todo bien! Pasar al siguiente middleware o controlador
       next();

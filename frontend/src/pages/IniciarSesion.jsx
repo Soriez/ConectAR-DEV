@@ -3,6 +3,8 @@ import { NavLink, useNavigate } from 'react-router';
 // Importamos FontAwesome para replicar el estilo del panel derecho (si lo usaremos)
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faBriefcase } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
+import { useAuth } from '../context/useAuth'; 
 
 // Componente helper para alternar la visibilidad de la contraseña
 const PasswordToggle = ({ isVisible, onClick }) => {
@@ -32,7 +34,10 @@ const PasswordToggle = ({ isVisible, onClick }) => {
 
 
 const IniciarSesion = () => {
-    const navigate = useNavigate(); 
+    const { BASE_URL, login } = useAuth(); 
+    const [message, setMessage] = useState('');
+    const [isMessageVisible, setIsMessageVisible] = useState(false);
+    const navigate = useNavigate();
     
     const [formData, setFormData] = useState({
         email: '',
@@ -49,7 +54,14 @@ const IniciarSesion = () => {
         }));
     };
 
+    const showCustomMessage = (text, isError = true) => {
+        setMessage(text);
+        setIsMessageVisible(isError ? 'bg-red-600' : 'bg-blue-600');
+        setTimeout(() => setIsMessageVisible(false), 4000);
+    };
+
     // Lógica para enviar datos al Backend (versión con fetch asíncrono)
+    // CÓDIGO ACTUALIZADO: Usando axios y contexto
     const handleLogin = async (e) => {
         e.preventDefault();
         
@@ -57,30 +69,33 @@ const IniciarSesion = () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(email)) {
-            alert('Por favor ingresa un email válido.');
+            showCustomMessage('Por favor ingresa un email válido.'); // Usamos el modal de mensaje
             return;
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+            // ⭐️ Petición con Axios a la URL base + ruta de login
+            const response = await axios.post(`${BASE_URL}/login`, {
+                email,
+                password
             });
 
-            const data = await response.json(); 
+            const { token, user } = response.data;
+            
+            // ⭐️ Usar la función 'login' del contexto para manejar la sesión
+            login(token, user); 
+            
+            showCustomMessage('¡Inicio de sesión exitoso! Redirigiendo...', false);
+            
+            setTimeout(() => {
+                navigate('/'); // Redirigir a la página principal
+            }, 1000);
 
-            if (response.ok) {
-                const token = data.token; 
-                localStorage.setItem('userToken', token); 
-                alert('¡Inicio de sesión exitoso! Bienvenido a ConectAR-Dev');
-                navigate('/'); 
-            } else {
-                alert(`Error al iniciar sesión: ${data.message || 'Credenciales inválidas.'}`);
-            }
         } catch (error) {
-            alert('Error de conexión con el servidor. Asegúrate de que el backend esté activo.');
-            console.error('Error de red:', error);
+            // Manejo de errores con el modal de mensaje
+            const errorMsg = error.response?.data?.message || 'Error de conexión con el servidor.';
+            showCustomMessage(`Error: ${errorMsg}`);
+            console.error('Error de red/login:', error);
         }
     };
 
@@ -93,6 +108,13 @@ const IniciarSesion = () => {
         // Contenedor principal con bg-slate-900 (equivalente a dark-blue/darker-blue)
         <div className="min-h-screen flex flex-col lg:flex-row text-white w-full bg-slate-900">
             
+            {/* Modal de Mensajes */}
+            <div 
+                className={`fixed top-5 left-1/2 transform -translate-x-1/2 p-3 rounded-lg text-white font-semibold shadow-lg transition-opacity duration-300 ${isMessageVisible ? `opacity-100 z-50 ${isMessageVisible}` : 'opacity-0 z-0'}`}
+            >
+                {message}
+            </div>
+
             {/* 🎯 Panel Izquierdo - Formulario (50%) */}
             <div className="w-full lg:w-1/2 bg-slate-900 flex items-center justify-center p-4 lg:p-8">
                 <div className="w-full max-w-[480px]"> 

@@ -1,6 +1,9 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import userRoutes from './routes/userRoutes.js';
+import opinionRoutes from './routes/opinionRoutes.js';
+import servicioRoutes from './routes/servicioRoutes.js';
+import tipoServicioRoutes from './routes/tipoServicioRoutes.js';
 // Importación necesaria para poder traer variables del .env
 import 'dotenv/config';
 import cors from 'cors'
@@ -15,7 +18,7 @@ const PORT = 8080;
 // Middleware para manejar JSON
 app.use(express.json());
 
-//Configuración para permitir solicitudes desde el forntend
+//Configuración para permitir solicitudes desde el frontend
 app.use(cors({
   origin: process.env.VITE_FRONTEND_URI,
   methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
@@ -25,7 +28,7 @@ app.use(cors({
 
 // Ruta básica para probar
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     message: '¡Hola! Tu servidor está funcionando 🎉',
     fecha: new Date()
   });
@@ -34,6 +37,15 @@ app.get('/', (req, res) => {
 // --- RUTAS ---
 //Ruta de usuarios
 app.use('/api/users/', userRoutes)
+
+//Ruta de opiniones
+app.use('/api/opinions/', opinionRoutes)
+
+//Ruta de servicios
+app.use('/api/services/', servicioRoutes)
+
+//Ruta de tipos de servicios
+app.use('/api/types/', tipoServicioRoutes)
 
 // Conectar a MongoDB
 const startServer = async () => {

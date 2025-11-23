@@ -4,70 +4,55 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
 const userSchema = new Schema({
-  // --- Datos de Cuenta (Todos los usuarios) ---
-  nombre: {
-    type: String,
-    required: [true, 'El nombre es obligatorio'],
-    trim: true
-  },
-  apellido: {
-    type: String,
-    required: [true, 'El apellido es obligatorio'],
-    trim: true
-  },
-  email: {
-    type: String,
-    required: [true, 'El email es obligatorio'],
-    unique: true, // Asegura que no haya dos emails iguales
-    lowercase: true,
-    trim: true,
-    // Valida que sea un formato de email simple
-    match: [/\S+@\S+\.\S+/, 'Por favor, usa un email válido']
-  },
-  password: {
-    type: String,
-    required: [true, 'La contraseña es obligatoria'],
-    select: false // ¡CLAVE! No envía el hash de la contraseña en las queries por defecto
-  },
-  isFreelancer: {
+  // --- Datos Existentes ---
+  nombre: { type: String, required: true, trim: true },
+  apellido: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true, select: false },
+
+  // --- Rol y Estado ---
+  isFreelancer: { type: Boolean, default: false },
+
+  // Para la pasarela de pago y ordenamiento
+  isPremium: {
     type: Boolean,
-    required: true,
-    default: false // Por defecto, un usuario no es freelancer al registrarse
+    default: false
   },
 
-  // --- Perfil de Freelancer (Opcional) ---
-  linkedin: {
-    type: String,
-    trim: true
-  },
-  portfolio: {
-    type: String,
-    trim: true
-  },
-  descripcion: {
-    type: String,
-    trim: true
-  },
+  // --- Perfil Freelancer ---
+  linkedin: { type: String, trim: true },
+  portfolio: { type: String, trim: true },
+  descripcion: { type: String, trim: true },
   tarifa: {
     type: Number,
-    // Solo es requerido si es freelancer
-    required: function() { return this.isFreelancer; },
     default: 0
+    // Nota: Quitamos el 'required' condicional si te da problemas al registrar usuarios normales, 
+    // o manéjalo con cuidado en el controller.
   },
-  isDisponible: {
-    type: Boolean,
-    default: true
-  },
-  opiniones: [
-    // Esto te permite guardar los IDs de las opiniones
-    // que estarán en *otra* colección (Modelo 'Opinion')
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Opinion'
-    }
-  ]
+  isDisponible: { type: Boolean, default: true },
+
+  // --- Estadísticas para el Dashboard ---
+  cantVisitas: { type: Number, default: 0 },
+  cantAccesosLinkedin: { type: Number, default: 0 },
+  cantAccesosPortfolio: { type: Number, default: 0 },
+
+  // --- Relaciones ---
+
+  // 1. Opiniones RECIBIDAS (Para mostrar en el perfil del freelancer)
+  // Cambio: De String a Array de ObjectIds
+  opiniones: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Opinion'
+  }],
+
+  // 2. [NUEVO] Servicios que ofrece
+  // Necesitas crear el modelo 'Service' o 'Servicio'
+  servicios: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Servicio'
+  }]
+
 }, {
-  // Añade automáticamente los campos: createdAt y updatedAt
   timestamps: true
 });
 
@@ -84,29 +69,29 @@ const obtenerTodosLosUsuarios = async () => {
 }
 
 //Función para obtener un usuario en específico mediante su email
-const usuarioExiste = async ( email ) => {
+const usuarioExiste = async (email) => {
   const userExist = await User.findOne({ email })
-  if(userExist) {
+  if (userExist) {
     return true
   }
 }
 
-const verificarPasword = async ( password, user ) => {
+const verificarPasword = async (password, user) => {
   // Verificar si el usuario existe y si la contraseña es correcta
   // Usamos bcrypt.compare para comparar el texto plano con el hash
   const verificacion = await bcrypt.compare(password, user.password)
   return verificacion
 }
 
-const buscarUsuarioConPassword = async ( email ) => {
+const buscarUsuarioConPassword = async (email) => {
   const usuario = await User.findOne({ email }).select('+password');
   return usuario
 }
 
 //Función para guardar en la base de datos un NUEVO usuario
-const guardarUsuario = async ( nombre, apellido, email, password, isFreelancer, saltRounds ) => {
+const guardarUsuario = async (nombre, apellido, email, password, isFreelancer, saltRounds) => {
 
-  const hashedPassword = await hashearPassword( password, saltRounds )
+  const hashedPassword = await hashearPassword(password, saltRounds)
 
   const newUser = new User({
     nombre, apellido, email,
@@ -121,18 +106,18 @@ const guardarUsuario = async ( nombre, apellido, email, password, isFreelancer, 
 //Función para actualizar los datos de un usuario
 const actualizarUsuario = async (authenticatedUserId, updates) => {
   const updatedUser = await User.findByIdAndUpdate(
-      authenticatedUserId, // ¡USAMOS EL ID SEGURO DEL TOKEN!
-      updates,
-      { 
-        new: true,               
-        runValidators: true,    
-        omitUndefined: true      
-      } 
-    ).select('-password');
-    return updatedUser
+    authenticatedUserId, // ¡USAMOS EL ID SEGURO DEL TOKEN!
+    updates,
+    {
+      new: true,
+      runValidators: true,
+      omitUndefined: true
+    }
+  ).select('-password');
+  return updatedUser
 }
 
-const hashearPassword = async ( password, saltRounds ) => {
+const hashearPassword = async (password, saltRounds) => {
   const passwordHasheada = await bcrypt.hash(password, saltRounds);
   return passwordHasheada
 }
@@ -150,13 +135,48 @@ const obtenerFreelancers = async () => {
   return freelancers
 }
 
-const buscarUsuarioSinPassword = async ( decoded ) => {
+const buscarUsuarioSinPassword = async (decoded) => {
   return await User.findById(decoded.id).select('-password');
 }
 
+// --- NUEVAS FUNCIONES DE ESTADO ---
 
+// 1. Convertir a Freelancer
+const convertirAFreelancer = async (userId, linkedin, portfolio, descripcion, tarifa) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    {
+      isFreelancer: true,
+      linkedin,
+      portfolio,
+      descripcion,
+      tarifa,
+      isDisponible: true // Por defecto disponible al hacerse freelancer
+    },
+    { new: true, runValidators: true }
+  ).select('-password');
+};
+
+// 2. Cambiar Disponibilidad (Disponible / Ocupado)
+const cambiarDisponibilidad = async (userId, estado) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { isDisponible: estado },
+    { new: true }
+  ).select('-password');
+};
+
+// 3. Convertir a Premium
+const convertirAPremium = async (userId) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { isPremium: true },
+    { new: true }
+  ).select('-password');
+};
 
 module.exports = {
+  User,
   obtenerTodosLosUsuarios,
   usuarioExiste,
   guardarUsuario,
@@ -166,5 +186,7 @@ module.exports = {
   buscarUsuarioConPassword,
   obtenerFreelancers,
   buscarUsuarioSinPassword,
-
+  convertirAFreelancer,
+  cambiarDisponibilidad,
+  convertirAPremium
 }

@@ -3,13 +3,16 @@ import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
 
 // 1. Importamos el controlador
-import { 
-    registerUser, 
+import {
+    registerUser,
     loginUser,
-    getAllUsers, 
+    getAllUsers,
     // getUserById, 
-    updateUser, 
-    getAllFreelancers
+    updateUser,
+    getAllFreelancers,
+    becomeFreelancer,
+    toggleAvailability,
+    upgradeToPremium
 } from '../controllers/user.controller.js';
 
 const router = express.Router();
@@ -39,6 +42,18 @@ router.get('/', getAllUsers);
 // Petición PUT a /api/users/:id
 router.put('/:id', protect, updateUser);
 
+
+// (U) UPDATE - Convertirse en Freelancer
+// PUT a /api/users/become-freelancer
+router.put('/become-freelancer', protect, becomeFreelancer);
+
+// (U) UPDATE - Cambiar Disponibilidad
+// PUT a /api/users/availability
+router.put('/availability', protect, toggleAvailability);
+
+// (U) UPDATE - Convertirse en Premium
+// PUT a /api/users/upgrade-premium
+router.put('/upgrade-premium', protect, upgradeToPremium);
 
 // 2. Exportamos el router para que server.js pueda usarlo
 export default router;

@@ -16,11 +16,10 @@ export const getServiceTypes = async (req, res) => {
 // ? Un Freelancer agrega un servicio a su perfil
 export const createService = async (req, res) => {
     try {
-        const { tipoServicioId, precio, descripcion, tiempoEstimado } = req.body;
+        const { tipoServicio: tipoServicioId, precio, descripcion } = req.body;
 
         // Obtenemos el ID del freelancer desde el token (gracias al middleware 'protect')
         const freelancerId = req.user._id;
-
         // Validaciones básicas
         if (!tipoServicioId || !precio || !descripcion) {
             return res.status(400).json({ message: "Faltan datos obligatorios (tipo, precio o descripción)" });

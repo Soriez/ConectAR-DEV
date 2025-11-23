@@ -7,7 +7,7 @@ import {
     registerUser,
     loginUser,
     getAllUsers,
-    // getUserById, 
+    getUserById,
     updateUser,
     getAllFreelancers,
     becomeFreelancer,
@@ -36,7 +36,7 @@ router.get('/', getAllUsers);
 
 // (R) READ - Obtener un usuario por ID
 // Petición GET a /api/users/:id
-// router.get('/:id', getUserById);
+router.get('/:id', getUserById);
 
 // (U) UPDATE - Actualizar un usuario por ID
 // Petición PUT a /api/users/:id

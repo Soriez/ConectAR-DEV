@@ -1,39 +1,143 @@
-import { Star, User } from 'lucide-react';
+import React, { useState, useEffect, useContext } from 'react';
+import { Star, MessageSquare } from 'lucide-react';
+import axios from 'axios';
+import { AuthContext } from '../../context/AuthContext';
+
+const renderStars = (rating) => {
+  return [...Array(5)].map((_, index) => (
+    <Star
+      key={index}
+      size={16}
+      className={`${index < Math.floor(rating) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-300'}`}
+    />
+  ));
+};
 
 const OpinionesDashboard = () => {
-  // Datos simulados
-  const reviews = [
-    { id: 1, client: 'Ana García', rating: 5, comment: 'Excelente trabajo, muy profesional y puntual.', date: 'Hace 2 días' },
-    { id: 2, client: 'Carlos Mendez', rating: 4, comment: 'Buen resultado final, aunque la comunicación podría mejorar.', date: 'Hace 1 semana' },
-  ];
+  const { user: authUser, isAuthenticated, BASE_URL } = useContext(AuthContext);
+  const [profile, setProfile] = useState(null);
+  const [opinionesRecibidas, setOpinionesRecibidas] = useState([]);
+  const [opinionesRealizadas, setOpinionesRealizadas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('realizadas');
+
+  useEffect(() => {
+    if (!isAuthenticated || !authUser || !authUser._id) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchData = async () => {
+      try {
+        const userRes = await axios.get(`${BASE_URL}/api/users/${authUser._id}`);
+        setProfile(userRes.data);
+
+        const realizadasRes = await axios.get(`${BASE_URL}/api/opinions/realizadas/${authUser._id}`);
+        setOpinionesRealizadas(realizadasRes.data);
+
+        if (userRes.data.isFreelancer) {
+          const recibidasRes = await axios.get(`${BASE_URL}/api/opinions/recibidas/${authUser._id}`);
+          setOpinionesRecibidas(recibidasRes.data);
+        }
+      } catch (err) {
+        console.error('Error al cargar opiniones:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [isAuthenticated, authUser, BASE_URL]);
+
+  if (loading) {
+    return <div className="p-8">Cargando opiniones...</div>;
+  }
+
+  if (!profile) {
+    return <div className="p-8">No se encontró información del usuario.</div>;
+  }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">Opiniones Recibidas</h1>
-      
-      <div className="grid gap-4">
-        {reviews.map((review) => (
-          <div key={review.id} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center text-slate-500">
-                  <User size={20}/>
-                </div>
-                <div>
-                  <h4 className="font-bold text-slate-800">{review.client}</h4>
-                  <span className="text-xs text-slate-500">{review.date}</span>
-                </div>
-              </div>
-              <div className="flex text-yellow-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={16} className={i < review.rating ? 'fill-current' : 'text-slate-200'} />
-                ))}
-              </div>
+      <h1 className="text-2xl font-bold text-slate-800 mb-6">Opiniones</h1>
+
+      {profile.isFreelancer && (
+        <div className="flex gap-4 mb-6 border-b border-slate-200">
+          <button
+            onClick={() => setActiveTab('recibidas')}
+            className={`pb-3 px-4 font-medium transition ${activeTab === 'recibidas'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-slate-500 hover:text-slate-700'
+              }`}
+          >
+            Recibidas ({opinionesRecibidas.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('realizadas')}
+            className={`pb-3 px-4 font-medium transition ${activeTab === 'realizadas'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-slate-500 hover:text-slate-700'
+              }`}
+          >
+            Realizadas ({opinionesRealizadas.length})
+          </button>
+        </div>
+      )}
+
+      {profile.isFreelancer && activeTab === 'recibidas' && (
+        <div className="space-y-4">
+          {opinionesRecibidas.length === 0 ? (
+            <div className="text-center py-12">
+              <MessageSquare className="mx-auto mb-4 text-slate-300" size={64} />
+              <p className="text-slate-500">Aún no has recibido opiniones</p>
             </div>
-            <p className="text-slate-600 text-sm italic">"{review.comment}"</p>
-          </div>
-        ))}
-      </div>
+          ) : (
+            opinionesRecibidas.map((opinion) => (
+              <div key={opinion._id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="font-semibold text-slate-800">
+                      {opinion.autor?.nombre} {opinion.autor?.apellido}
+                    </h3>
+                    <div className="flex gap-1 mt-1">{renderStars(opinion.puntuacion)}</div>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    {new Date(opinion.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="text-slate-600">{opinion.opinion}</p>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {(!profile.isFreelancer || activeTab === 'realizadas') && (
+        <div className="space-y-4">
+          {opinionesRealizadas.length === 0 ? (
+            <div className="text-center py-12">
+              <MessageSquare className="mx-auto mb-4 text-slate-300" size={64} />
+              <p className="text-slate-500">No has realizado opiniones aún</p>
+            </div>
+          ) : (
+            opinionesRealizadas.map((opinion) => (
+              <div key={opinion._id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="font-semibold text-slate-800">
+                      Para: {opinion.destinatario?.nombre} {opinion.destinatario?.apellido}
+                    </h3>
+                    <div className="flex gap-1 mt-1">{renderStars(opinion.puntuacion)}</div>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    {new Date(opinion.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="text-slate-600">{opinion.opinion}</p>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 };

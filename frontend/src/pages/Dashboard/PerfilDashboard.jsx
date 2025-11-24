@@ -49,11 +49,11 @@ const PerfilDashboard = () => {
       <div className="flex justify-between items-center mb-6">
          <h1 className="text-2xl font-bold text-slate-800">Mi Perfil</h1>
          {/* Botón condicional solo si es Freelancer */}
-         {isFreelancer && (
+         {/* {isFreelancer && ( de momento en desuso 
              <button className="text-sm text-blue-600 hover:underline font-medium">
                  Editar Perfil Público
              </button>
-         )}
+         )} */}
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -4,6 +4,7 @@ import userRoutes from './routes/userRoutes.js';
 import opinionRoutes from './routes/opinionRoutes.js';
 import servicioRoutes from './routes/servicioRoutes.js';
 import tipoServicioRoutes from './routes/tipoServicioRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 // Importación necesaria para poder traer variables del .env
 import 'dotenv/config';
 import cors from 'cors'
@@ -46,6 +47,9 @@ app.use('/api/services/', servicioRoutes)
 
 //Ruta de tipos de servicios
 app.use('/api/types/', tipoServicioRoutes)
+
+//Ruta de dashboard 
+app.use('/api/dashboard/', dashboardRoutes)
 
 // Conectar a MongoDB
 const startServer = async () => {

@@ -20,7 +20,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     // Condicional: Condicionales basados en el rol real
     ...(isFreelancer ? [
       { path: '/dashboard/opiniones', label: 'Opiniones', icon: <MessageSquare size={20} /> },
-      { path: '/dashboard/opiniones', label: 'Opiniones', icon: <MessageSquare size={20} /> }
+      { path: '/dashboard/servicios', label: 'Servicios', icon: <Layers size={20} /> },
     ] : []),
   ];
 

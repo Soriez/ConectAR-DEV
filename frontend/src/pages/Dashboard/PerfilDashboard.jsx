@@ -136,11 +136,6 @@ const PerfilDashboard = () => {
       // actualizamos el usuario en el contexto.
       setUser(response.data);
 
-      // 4. Muestra un mensaje de éxito (opcional)
-      console.log(
-        "✅ Habilidades guardadas correctamente:",
-        response.data.skills
-      );
       alert("Habilidades actualizadas con éxito."); // Usa una librería de notificaciones real
     } catch (error) {
       // 5. Manejo de Errores
@@ -173,11 +168,11 @@ const PerfilDashboard = () => {
     <div className="animate-fade-in-up">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-slate-800">Mi Perfil</h1>
-        {isFreelancer && (
+        {/* {isFreelancer && (
           <button className="text-sm text-blue-600 hover:underline font-medium">
             Editar Perfil Público
           </button>
-        )}
+        )} */}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

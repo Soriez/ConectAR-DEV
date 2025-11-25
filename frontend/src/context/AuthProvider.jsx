@@ -104,7 +104,8 @@ export const AuthProvider = ({ children }) => {
                 login,
                 logout,
                 isLoading,
-                BASE_URL
+                BASE_URL,
+                setUser
             }}>
             {children}
         </AuthContext.Provider>

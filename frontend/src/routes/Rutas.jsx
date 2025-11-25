@@ -21,6 +21,7 @@ import ServiciosDashboard from '../pages/Dashboard/ServiciosDashboard'
 import DashboardLayout from '../layouts/DashboardLayout'
 import ConfiguracionDashboard from '../components/Dashboard/ConfiguracionDashboard'
 import OpinionesDashboard from '../components/Dashboard/OpinionesDashboard'
+import FreelancerPremium from '../pages/Formulario/FreelancerPremium'
 
 const Rutas = () => {
     return useRoutes(
@@ -80,6 +81,10 @@ const Rutas = () => {
             {
                 path: '/cambiar-password',
                 element: <CambiarPassword />
+            },
+            {
+                path: '/hacerse-freelancer',
+                element: <FreelancerPremium />
             },
             {
                 path: '/dashboard',

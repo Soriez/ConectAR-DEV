@@ -24,6 +24,7 @@ import PerfilDashboard from '../pages/Dashboard/PerfilDashboard'
 import ServiciosDashboard from '../pages/Dashboard/ServiciosDashboard'
 import ConfiguracionDashboard from '../components/Dashboard/ConfiguracionDashboard'
 import OpinionesDashboard from '../components/Dashboard/OpinionesDashboard'
+import FreelancerPremium from '../pages/Formulario/FreelancerPremium'
 
 // --- COMPONENTE PROTECTOR DE RUTAS ---
 // Este componente verifica si el usuario tiene permiso de freelancer.
@@ -106,6 +107,10 @@ const Rutas = () => {
             },
 
             // --- DASHBOARD (ZONA DE USUARIOS LOGUEADOS) ---
+            {
+                path: '/hacerse-freelancer',
+                element: <FreelancerPremium />
+            },
             {
                 path: '/dashboard',
                 element: <DashboardLayout />,

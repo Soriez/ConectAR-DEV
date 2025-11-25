@@ -46,7 +46,7 @@ export const FOOTER_DATA = {
     contacto: {
         titulo: "Contacto",
         datos: [
-            { tipo: 'email', valor: "hola@conectar-dev.com", url: "mailto:hola@conectar-dev.com", icono: 'mail' }
+            { tipo: 'email', valor: "conectardev.ar@gmail.com", url: "mailto:conectardev.ar@gmail.com", icono: 'mail' }
         ],
         // El bloque de "Orgullo Argentino" (puede ser un componente separado)
         claim: "Orgullo Argentino"

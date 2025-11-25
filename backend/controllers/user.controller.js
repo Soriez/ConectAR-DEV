@@ -1,5 +1,5 @@
 import userModel from '../models/user.model.js';
-const { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuario, obtenerFreelancers, obtenerTodosLosUsuarios, usuarioExiste, verificarPasword, convertirAFreelancer, cambiarDisponibilidad, buscarUsuarioSinPassword, convertirAPremium } = userModel;
+const { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuario, obtenerFreelancers, obtenerTodosLosUsuarios, usuarioExiste, verificarPasword, convertirAFreelancer, cambiarDisponibilidad, buscarUsuarioSinPassword, convertirAPremium, actualizarSkills} = userModel;
 
 
 // ! POST /api/users/register
@@ -262,4 +262,42 @@ export const getUserById = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error al obtener el usuario", error: error.message });
   }
+};
+
+// ! PUT /api/users/:id/skills
+// ? actualiza las skills del usuario 
+
+export const actualizarSkillsUser = async (req, res) => {
+    // 💡 Paso 1: Verificación de Propietario (Lógica de Negocio/Seguridad)
+    // El middleware 'protect' ya ha añadido req.user.
+    // Comparamos el ID del usuario autenticado (req.user._id) con el ID de la ruta (req.params.id)
+    if (req.user._id.toString() !== req.params.id) { 
+        return res.status(403).json({ message: 'Acceso denegado. Solo puedes actualizar tus propias skills.' });
+    }
+    
+    // Paso 2: Validación de Datos
+    const { skills } = req.body; 
+
+    if (!Array.isArray(skills)) {
+        return res.status(400).json({ message: 'El campo skills debe ser un array de tecnologías.' });
+    }
+
+    try {
+        // Paso 3: Llamamos a la función del modelo para la operación de la base de datos
+        const updatedUser = await actualizarSkills(req.params.id, skills);
+
+        // Paso 4: Devolvemos el usuario actualizado
+        res.status(200).json(updatedUser); 
+    } catch (error) {
+        console.error('Error al actualizar skills:', error);
+        
+        // Manejo de errores específicos
+        if (error.name === 'ValidationError') {
+            // Captura el error de validación del modelo (ej: límite de 5 skills)
+            return res.status(400).json({ message: error.message });
+        }
+        
+        // Manejo de errores genéricos
+        res.status(500).json({ message: 'Error interno del servidor al guardar skills.' });
+    }
 };

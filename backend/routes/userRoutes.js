@@ -12,7 +12,8 @@ import {
     getAllFreelancers,
     becomeFreelancer,
     toggleAvailability,
-    upgradeToPremium
+    upgradeToPremium,
+    actualizarSkillsUser
 } from '../controllers/user.controller.js';
 
 const router = express.Router();
@@ -54,6 +55,9 @@ router.put('/availability', protect, toggleAvailability);
 // (U) UPDATE - Convertirse en Premium
 // PUT a /api/users/upgrade-premium
 router.put('/upgrade-premium', protect, upgradeToPremium);
+
+// PUT /api/users/:id/skills
+router.put('/:id/skills', protect, actualizarSkillsUser);
 
 // 2. Exportamos el router para que server.js pueda usarlo
 export default router;

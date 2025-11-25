@@ -95,6 +95,7 @@ const ConfiguracionDashboard = () => {
       )}
 
       {/* --- MODALES (Se mantienen igual, solo lógica visual por ahora) --- */}
+      {/* --- MODAL CAMBIAR CONTRASEÑA --- */}
       {showEmailModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowEmailModal(false)}></div>
@@ -103,7 +104,7 @@ const ConfiguracionDashboard = () => {
               <h2 className="text-lg font-bold">Cambiar correo electrónico</h2>
               <button onClick={() => setShowEmailModal(false)}><X size={20}/></button>
             </div>
-            <p className="text-slate-300 text-sm mb-6">Email actual: <span className="text-white font-bold">{user.email}</span></p>
+            <p className="text-slate-300 text-sm mb-6">¿Estas seguro que deseas cambiar tu email? Tu email actual es: <span className="text-white font-bold">{user.email}</span></p>
             <div className="flex justify-end gap-3">
               <button onClick={() => setShowEmailModal(false)} className="px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-full text-sm">Cancelar</button>
               <button className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-full text-sm">Continuar</button>

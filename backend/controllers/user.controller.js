@@ -268,36 +268,48 @@ export const getUserById = async (req, res) => {
 // ? actualiza las skills del usuario 
 
 export const actualizarSkillsUser = async (req, res) => {
-    // 💡 Paso 1: Verificación de Propietario (Lógica de Negocio/Seguridad)
-    // El middleware 'protect' ya ha añadido req.user.
-    // Comparamos el ID del usuario autenticado (req.user._id) con el ID de la ruta (req.params.id)
-    if (req.user._id.toString() !== req.params.id) { 
-        return res.status(403).json({ message: 'Acceso denegado. Solo puedes actualizar tus propias skills.' });
+    // 🚨 USAMOS req.user._id: El ID seguro y autenticado que viene del token.
+    const userId = req.user._id; 
+    const { skills } = req.body; // Esperamos que el frontend envíe { skills: [...] }
+
+    // Validación básica: El campo 'skills' debe existir y ser un array
+    if (!skills || !Array.isArray(skills)) {
+        return res.status(400).json({ message: 'El campo skills es obligatorio y debe ser un array.' });
     }
     
-    // Paso 2: Validación de Datos
-    const { skills } = req.body; 
-
-    if (!Array.isArray(skills)) {
-        return res.status(400).json({ message: 'El campo skills debe ser un array de tecnologías.' });
+    // Si tienes el chequeo de req.params.id en la ruta, puedes omitir esto.
+    // Si quieres un chequeo de seguridad adicional:
+    if (req.params.id !== userId.toString()) {
+        return res.status(403).json({ message: 'Acceso denegado: No puedes actualizar otro usuario.' });
     }
 
     try {
-        // Paso 3: Llamamos a la función del modelo para la operación de la base de datos
-        const updatedUser = await actualizarSkills(req.params.id, skills);
+        const updatedUser = await actualizarSkills(userId, skills); 
 
-        // Paso 4: Devolvemos el usuario actualizado
-        res.status(200).json(updatedUser); 
-    } catch (error) {
-        console.error('Error al actualizar skills:', error);
+        // Si por alguna razón el modelo no encontró el usuario, lanzará un error (si lo implementamos)
+        // o devolverá null. Es bueno chequear esto.
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+
+        // 🟢 RESPUESTA FINAL DE ÉXITO
+        // El problema es que esta línea falla silenciosamente.
+        // Si el .toJSON() en el modelo no resolvió el problema, 
+        // aquí aseguramos que la respuesta se envía correctamente.
+        return res.status(200).json(updatedUser); 
         
-        // Manejo de errores específicos
+    } catch (error) {
+        // 🔴 Manejo de Errores: Esto captura cualquier fallo interno,
+        // incluyendo el error de validación del límite de 5 skills.
+        console.error('Error REAL al actualizar skills en el controlador:', error.message);
+        
+        // Manejo de error de validación de Mongoose (límite de 5 skills, etc.)
         if (error.name === 'ValidationError') {
-            // Captura el error de validación del modelo (ej: límite de 5 skills)
-            return res.status(400).json({ message: error.message });
+             return res.status(400).json({ message: error.message });
         }
         
-        // Manejo de errores genéricos
-        res.status(500).json({ message: 'Error interno del servidor al guardar skills.' });
+        // Este es el error "desconocido" que ve el frontend
+        return res.status(500).json({ message: 'Error interno del servidor al guardar skills.' });
     }
 };
+

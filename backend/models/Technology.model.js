@@ -15,7 +15,7 @@ const technologySchema = new Schema({
     }
 });
 
-const Tecnologias = mongoose.model('Technology', technologySchema);
+const Tecnologias = mongoose.model('Technology', technologySchema , 'technologies');
 
 // 👇 CORRECCIÓN CLAVE: Usamos 'export default' para que funcione con 'import Tecnologias from...'
 export default Tecnologias;

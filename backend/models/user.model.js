@@ -187,11 +187,20 @@ const convertirAPremium = async (userId) => {
 };
 
 const actualizarSkills = async (userId, newSkills) => {
-  return await User.findByIdAndUpdate(
+  const updatedUser = await User.findByIdAndUpdate(
     userId,
-    { skills: newSkills },
-    { new: true, runValidators: true } // Para que Mongoose verifique el límite de 5
+    { $set: { skills: newSkills } }, // Usamos $set (si ya lo tenías)
+    { new: true, runValidators: true }
   ).select('-password');
+
+  // Si no se encontró el usuario, lanzamos un error claro.
+  if (!updatedUser) {
+    throw new Error('Usuario no encontrado para la actualización de skills.');
+  }
+
+  // 🟢 CORRECCIÓN CLAVE: Usamos .toJSON() para serializar el objeto de Mongoose.
+  // Esto previene errores si hay propiedades virtuales o tipos complejos.
+  return updatedUser.toJSON(); 
 };
 
 module.exports = {

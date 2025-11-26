@@ -83,10 +83,22 @@ const eliminarServicio = async (servicioId, freelancerId) => {
     }
     return servicioEliminado;
 };
+// 4. Actualizar Servicio
+const servicioActualizado = async (servicioId, freelancerId, datosActualizados) => {
+    // findOneAndUpdate asegura que el servicio pertenezca al freelancer (seguridad)
+    const servicioActualizado = await Servicio.findOneAndUpdate(
+        { _id: servicioId, freelancer: freelancerId },
+        datosActualizados,
+        { new: true, runValidators: true } // new: devuelve el dato actualizado
+    ).populate('tipoServicio');
+
+    return servicioActualizado;
+};
 
 module.exports = {
     Servicio,
     guardarServicio,
     obtenerServiciosPorFreelancer,
-    eliminarServicio // <--- ¡Ahora sí se exporta!
+    eliminarServicio,
+    servicioActualizado
 };

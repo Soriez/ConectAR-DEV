@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'; // Usar import si usas ES Modules en Node
+import mongoose from 'mongoose'; 
 const { Schema } = mongoose;
 
 const technologySchema = new Schema({
@@ -15,7 +15,7 @@ const technologySchema = new Schema({
     }
 });
 
+// el tercer argumento ('technologies') debe de conincidir con tu colección en Mongo
 const Tecnologias = mongoose.model('Technology', technologySchema , 'technologies');
 
-// 👇 CORRECCIÓN CLAVE: Usamos 'export default' para que funcione con 'import Tecnologias from...'
 export default Tecnologias;

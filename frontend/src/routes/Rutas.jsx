@@ -124,6 +124,10 @@ const Rutas = () => {
                         path: 'configuracion',
                         element: <ConfiguracionDashboard />
                     },
+                    {
+                        path: 'opiniones',
+                        element: <OpinionesDashboard />
+                    },
 
                     // 🔒 Rutas EXCLUSIVAS para Freelancers
                     // Envolvemos estas rutas con nuestro componente de seguridad
@@ -134,10 +138,6 @@ const Rutas = () => {
                                 path: 'servicios',
                                 element: <ServiciosDashboard />
                             },
-                            {
-                                path: 'opiniones',
-                                element: <OpinionesDashboard />
-                            }
                         ]
                     }
                 ]

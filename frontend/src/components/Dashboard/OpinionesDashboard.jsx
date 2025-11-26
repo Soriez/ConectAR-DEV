@@ -31,13 +31,15 @@ const OpinionesDashboard = () => {
       try {
         const userRes = await axios.get(`${BASE_URL}/api/users/${authUser._id}`);
         setProfile(userRes.data);
-
+        // Cargar opiniones realizadas (para todos)
         const realizadasRes = await axios.get(`${BASE_URL}/api/opinions/realizadas/${authUser._id}`);
         setOpinionesRealizadas(realizadasRes.data);
-
+        // Cargar opiniones recibidas (solo si es freelancer)
         if (userRes.data.isFreelancer) {
           const recibidasRes = await axios.get(`${BASE_URL}/api/opinions/recibidas/${authUser._id}`);
           setOpinionesRecibidas(recibidasRes.data);
+          // Si es freelancer, por defecto mostramos las recibidas primero (opcional)
+          setActiveTab('recibidas');
         }
       } catch (err) {
         console.error('Error al cargar opiniones:', err);

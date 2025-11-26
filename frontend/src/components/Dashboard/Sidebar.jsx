@@ -17,9 +17,11 @@ const Sidebar = ({ isOpen, onClose }) => {
   const menuItems = [
     { path: '/dashboard', label: 'Perfil', icon: <User size={20} />, end: true },
     { path: '/dashboard/configuracion', label: 'Configuración', icon: <Settings size={20} /> },
+    { path: '/dashboard/opiniones', label: 'Opiniones', icon: <MessageSquare size={20} /> },
+   
+    
     // Condicional: Condicionales basados en el rol real
     ...(isFreelancer ? [
-      { path: '/dashboard/opiniones', label: 'Opiniones', icon: <MessageSquare size={20} /> },
       { path: '/dashboard/servicios', label: 'Servicios', icon: <Layers size={20} /> },
     ] : []),
   ];

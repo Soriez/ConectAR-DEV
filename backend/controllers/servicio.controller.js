@@ -1,4 +1,4 @@
-import { guardarServicio, obtenerServiciosPorFreelancer, eliminarServicio } from '../models/servicio.model.js';
+import { guardarServicio, obtenerServiciosPorFreelancer, eliminarServicio, servicioActualizado } from '../models/servicio.model.js';
 import { obtenerTodosLosTipos } from '../models/tipoServicio.model.js';
 
 // ! GET /api/services/types
@@ -76,5 +76,34 @@ export const deleteService = async (req, res) => {
         res.status(200).json({ message: "Servicio eliminado correctamente" });
     } catch (error) {
         res.status(500).json({ message: "Error al eliminar el servicio", error: error.message });
+    }
+};
+
+// ! PUT /api/services/:id 
+export const updateService = async (req, res) => {
+    try {
+        const { id } = req.params; // ID del servicio
+        const freelancerId = req.user._id;
+        const { precio, descripcionPersonalizada } = req.body; // Datos a editar
+
+        // Preparamos el objeto de actualización
+        // Nota: No permitimos cambiar el "tipoServicio" una vez creado, solo precio y descripción
+        const datosActualizados = {};
+        if (precio) datosActualizados.precio = precio;
+        if (descripcionPersonalizada) datosActualizados.descripcionPersonalizada = descripcionPersonalizada;
+
+        const servicioActualizado = await actualizarServicio(id, freelancerId, datosActualizados);
+
+        if (!servicioActualizado) {
+            return res.status(404).json({ message: "Servicio no encontrado o no tienes permiso" });
+        }
+
+        res.status(200).json({ 
+            message: "Servicio actualizado correctamente", 
+            servicio: servicioActualizado 
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: "Error al actualizar el servicio", error: error.message });
     }
 };

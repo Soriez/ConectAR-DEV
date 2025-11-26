@@ -4,7 +4,8 @@ import {
     createService,
     getServicesByFreelancer,
     deleteService,
-    getServiceTypes
+    getServiceTypes,
+    updateService
 } from '../controllers/servicio.controller.js';
 
 const router = express.Router();
@@ -25,5 +26,8 @@ router.post('/', protect, createService);
 
 // Eliminar un servicio
 router.delete('/:id', protect, deleteService);
+
+// Actualizar un servicio (NUEVA RUTA)
+router.put('/:id', protect, updateService);
 
 export default router;

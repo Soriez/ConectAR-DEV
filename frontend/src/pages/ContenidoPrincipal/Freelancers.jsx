@@ -48,12 +48,18 @@ const enrichProfileData = (profile) => {
     // Asignar idiomas (simulado para la demo)
     const idiomas = profile.id % 2 === 0 ? ["Español", "Inglés"] : ["Español"];
 
+    // Nota: Añadimos isPremium y isDisponible si el JSON no lo tiene
+    const isPremium = profile.isPremium || (profile.id % 5 === 0); // Simulación
+    const isDisponible = profile.isDisponible !== undefined ? profile.isDisponible : true; // Simulación
+
     return {
         ...profile,
         titulo,
         servicios,
         especialidad,
         idiomas,
+        isPremium,
+        isDisponible,
         rating: getRating(profile.opiniones)
     };
 };
@@ -89,6 +95,10 @@ const FreelancerCard = ({ data }) => {
                         </div>
                         
                         <div className="flex items-center gap-1">
+                            {/* Indicador Premium (Nuevo) */}
+                            {data.isPremium && (
+                                <span className="text-yellow-500 mr-1" title="Perfil Premium">⭐</span>
+                            )}
                             <div className="flex text-yellow-400">
                                 {[...Array(5)].map((_, i) => (
                                     <Star key={i} size={12} className={i < data.rating ? "fill-current" : "text-slate-200"} />
@@ -162,9 +172,10 @@ const Freelancers = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 24; 
 
-    // --- Filtrado ---
-    const filteredData = useMemo(() => {
-        return ENRICHED_DB.filter(item => {
+    // --- Filtrado y División (NUEVA LÓGICA) ---
+    const { premiumData, generalData, totalResults } = useMemo(() => {
+        // 1. Filtrado
+        let filtered = ENRICHED_DB.filter(item => {
             const term = searchTerm.toLowerCase();
             const matchesSearch = 
                 item.nombre.toLowerCase().includes(term) || 
@@ -179,11 +190,28 @@ const Freelancers = () => {
 
             return matchesSearch && matchesEsp && matchesIdioma && matchesRating && matchesTarifa;
         });
+
+        // 2. División de listas
+        let premium = filtered.filter(item => item.isPremium);
+        let general = filtered.filter(item => !item.isPremium);
+        
+        // 3. Ordenamiento (Solo Premium necesita ordenarse por rating para "Destacados")
+        premium.sort((a, b) => b.rating - a.rating); // Premium: Rating Desc.
+        general.sort((a, b) => b.rating - a.rating); // General: Default Rating Desc.
+
+        return {
+            premiumData: premium,
+            generalData: general,
+            totalResults: filtered.length
+        };
+
     }, [searchTerm, filterEspecialidad, filterIdioma, filterRating, filterTarifaMax]);
 
-    // --- Paginación Lógica ---
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    const paginatedData = filteredData.slice(
+    // --- Paginación Lógica (ACTUALIZADO para usar generalData) ---
+    const totalPages = Math.ceil(generalData.length / itemsPerPage);
+    
+    // Solo paginamos la lista general (no premium)
+    const paginatedGeneralData = generalData.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
@@ -196,6 +224,9 @@ const Freelancers = () => {
     };
 
     const especialidadesList = ["Todas", ...new Set(ENRICHED_DB.map(i => i.especialidad))];
+    
+    // Condición para mostrar el estado vacío
+    const showEmptyState = totalResults === 0;
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-20">
@@ -343,39 +374,63 @@ const Freelancers = () => {
                         
                         <div className="mb-6 flex justify-between items-center">
                             <p className="text-slate-500 text-sm">
-                                Se encontraron <span className="font-bold text-slate-900">{filteredData.length}</span> perfiles
+                                Se encontraron <span className="font-bold text-slate-900">{totalResults}</span> perfiles
                             </p>
                             
-                            {/* Paginación Mini (Arriba) */}
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs font-medium text-slate-400 mr-2 hidden sm:inline">
-                                    Pág {currentPage} de {totalPages}
-                                </span>
-                                <button 
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    disabled={currentPage === 1}
-                                    className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
-                                >
-                                    <ChevronLeft size={16} />
-                                </button>
-                                <button 
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    disabled={currentPage === totalPages}
-                                    className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
-                                >
-                                    <ChevronRight size={16} />
-                                </button>
-                            </div>
+                            {/* Paginación Mini (Arriba - SÓLO para la lista general) */}
+                            {generalData.length > 0 && (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-medium text-slate-400 mr-2 hidden sm:inline">
+                                        Pág {currentPage} de {totalPages}
+                                    </span>
+                                    <button 
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                        className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
+                                    >
+                                        <ChevronLeft size={16} />
+                                    </button>
+                                    <button 
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                        className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
+                                    >
+                                        <ChevronRight size={16} />
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
-                        {paginatedData.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-                                {paginatedData.map((freelancer) => (
-                                    <FreelancerCard key={freelancer.id} data={freelancer} />
-                                ))}
+                        {/* ===== 1. SECCIÓN DE DESTACADOS (NO PAGINADA) ===== */}
+                        {premiumData.length > 0 && (
+                            <div className="mb-10 pb-6 border-b border-slate-200">
+                                <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                    <Star size={20} className="text-yellow-500 fill-yellow-500"/> Freelancers Destacados (Premium)
+                                </h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                                    {premiumData.map((freelancer) => (
+                                        <FreelancerCard key={freelancer.id} data={freelancer} />
+                                    ))}
+                                </div>
                             </div>
-                        ) : (
-                            /* Estado Vacío */
+                        )}
+                        
+                        {/* ===== 2. SECCIÓN GENERAL (PAGINADA) ===== */}
+                        {paginatedGeneralData.length > 0 ? (
+                            <>
+                                {premiumData.length > 0 && (
+                                    <h2 className="text-xl font-bold text-slate-800 mb-4">
+                                        Catálogo General
+                                    </h2>
+                                )}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                                    {paginatedGeneralData.map((freelancer) => (
+                                        <FreelancerCard key={freelancer.id} data={freelancer} />
+                                    ))}
+                                </div>
+                            </>
+                        ) : showEmptyState ? (
+                            /* Estado Vacío si no hay NINGÚN resultado */
                             <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-slate-200">
                                 <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-full mb-4">
                                     <Search className="w-8 h-8 text-slate-300" />
@@ -389,9 +444,12 @@ const Freelancers = () => {
                                     Limpiar todos los filtros
                                 </button>
                             </div>
+                        ) : (
+                            // Si hay premiumData pero no generalData paginada (solo pasa si la lista general no tiene elementos que coincidan con el filtro en la página actual, pero el totalResults ya chequea esto)
+                            null
                         )}
 
-                        {/* Paginación Inferior */}
+                        {/* Paginación Inferior (SÓLO si la lista general tiene más de una página) */}
                         {totalPages > 1 && (
                             <div className="mt-12 flex justify-center">
                                 <div className="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-100">

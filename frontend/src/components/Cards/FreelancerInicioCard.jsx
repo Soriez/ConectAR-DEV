@@ -23,12 +23,12 @@ const FreelancerCard = ( { data } ) => {
     // Esto coincide con el patrón que se ve en el diseño que desea.
     const especialidadPrincipal = descripcionCompleta.split('.')[0] + (descripcionCompleta.includes('.') ? '.' : '...');
     
-    // 3. SKILLS: Usa el campo 'skills' del modelo. Lo forzamos a ser array [] si es nulo.
+    // 3. SKILLS: Usa el campo 'skills' del modelo. Lo forzamos a ser array [] si es nulo (CLAVE).
     const habilidadesList = data.skills || [];
     
     // Usamos valores por defecto para estadísticas que probablemente aún no existen en la DB
     const rating = data.rating || '4.5'; 
-    const numReviews = data.numReviews || 0;
+    const numReviews = data.opiniones ? data.opiniones.length : 0; // Contamos las opiniones si existen
     
     return (
         // Tarjeta Contenedora (<li>)

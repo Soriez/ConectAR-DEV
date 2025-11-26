@@ -99,21 +99,47 @@ export const getAllUsers = async (req, res) => {
 };
 
 // ! GET /api/users/freelancers
-// ? Obtener todos los freelancers
-
+// ? Obtener todos los freelancers (¡CON FILTROS!)
 export const getAllFreelancers = async (req, res) => {
-  try {
-    const freelancers = await obtenerFreelancers()
-    res.status(200).json(freelancers);
-  } catch (error) {
-    console.error('Error al obtener freelancers:', error);
-    res.status(500).json({
-      message: "Error interno del servidor al obtener la lista de freelancers",
-      error: error.message
-    });
-  }
-};
+    try {
+        // 1. Obtener parámetros de consulta. Capturamos isPremium y isDisponible/isAvailable
+        const { isPremium, isDisponible, isAvailable } = req.query;
 
+        // 2. Construir el objeto de filtro para MongoDB
+        const filter = {
+          // El filtro base SIEMPRE debe ser isFreelancer: true
+          isFreelancer : true
+        }
+
+        // 3. Aplicar filtro Premium
+        if (isPremium === 'true') { 
+            filter.isPremium = true;
+        }
+
+        // 4. Aplicar filtro de Disponibilidad
+        // Usamos la variable 'isDisponible' del query, o la variable 'isAvailable' como fallback.
+        const availabilityQuery = isDisponible || isAvailable; 
+
+        if (availabilityQuery === 'true') { 
+            // El campo en el modelo es 'isDisponible'
+            filter.isDisponible = true; 
+        }
+        
+        // 5. Llamar al modelo con el filtro
+        const freelancers = await obtenerFreelancers(filter); 
+
+        // 6. RESPUESTA ROBUSTA: Aseguramos que la respuesta SIEMPRE sea un array o vacío.
+        res.status(200).json(freelancers || []);
+        
+    } catch (error) {
+        // 7. MANEJO DE ERRORES: Devolvemos el mensaje de error real para debugging
+        console.error("Error REAL en getAllFreelancers:", error.message);
+        res.status(500).json({ 
+            message: 'Error interno del servidor al obtener la lista de profesionales.',
+            details: error.message // Útil para ver el error exacto en el frontend
+        });
+    }
+};
 
 
 // ! PUT /api/users/:id o PATCH /api/users/:id
@@ -312,4 +338,3 @@ export const actualizarSkillsUser = async (req, res) => {
         return res.status(500).json({ message: 'Error interno del servidor al guardar skills.' });
     }
 };
-

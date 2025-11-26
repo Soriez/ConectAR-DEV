@@ -141,8 +141,8 @@ const generateToken = (id) => {
   });
 };
 
-const obtenerFreelancers = async () => {
-  const freelancers = await User.find({ isFreelancer: true });
+const obtenerFreelancers = async (filter) => {
+  const freelancers = await User.find(filter);
   return freelancers
 }
 

@@ -15,7 +15,7 @@ const technologySchema = new Schema({
     }
 });
 
-// Nota: Asegúrate que el tercer argumento ('technologies') coincida con tu colección en Mongo
+// el tercer argumento ('technologies') debe de conincidir con tu colección en Mongo
 const Tecnologias = mongoose.model('Technology', technologySchema , 'technologies');
 
 export default Tecnologias;

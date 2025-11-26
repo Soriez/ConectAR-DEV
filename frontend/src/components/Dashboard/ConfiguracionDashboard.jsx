@@ -86,9 +86,11 @@ const ConfiguracionDashboard = () => {
                     <h4 className="font-bold text-orange-800">Hazte Premium</h4>
                     <p className="text-xs text-orange-600 mt-1">Desbloquea funciones exclusivas.</p>
                 </div>
-                <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition">
-                    Ver Planes
-                </button>
+                <a href="/hacerse-premium">
+                  <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition">
+                      Ver Planes
+                  </button>
+                </a>
             </div>
             </div>
         </div>

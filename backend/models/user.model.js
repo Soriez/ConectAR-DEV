@@ -147,43 +147,45 @@ const obtenerFreelancers = async () => {
 }
 
 const buscarUsuarioSinPassword = async (decoded) => {
-  return await User.findById(decoded.id).select('-password');
+  const user = await User.findById(decoded.id).select('-password');
+  return user
 }
 
 // --- NUEVAS FUNCIONES DE ESTADO ---
 
-// 1. Convertir a Freelancer
-const convertirAFreelancer = async (userId, linkedin, portfolio, descripcion, tarifa) => {
-  return await User.findByIdAndUpdate(
+// 1. Convertir a Freelancer (con campos nuevos)
+const convertirAFreelancer = async (userId, linkedin, portfolio) => {
+  const userUpdate = await User.findByIdAndUpdate(
     userId,
     {
       isFreelancer: true,
-      linkedin,
-      portfolio,
-      descripcion,
-      tarifa,
-      isDisponible: true // Por defecto disponible al hacerse freelancer
+      linkedin, // Nuevo campo
+      portfolio, // Nuevo campo
+      // Puedes añadir aquí un campo 'status: pending' si la verificación es manual
     },
     { new: true, runValidators: true }
   ).select('-password');
+  return userUpdate
 };
 
 // 2. Cambiar Disponibilidad (Disponible / Ocupado)
 const cambiarDisponibilidad = async (userId, estado) => {
-  return await User.findByIdAndUpdate(
+  const userUpdate = await User.findByIdAndUpdate(
     userId,
     { isDisponible: estado },
     { new: true }
   ).select('-password');
+  return userUpdate
 };
 
 // 3. Convertir a Premium
 const convertirAPremium = async (userId) => {
-  return await User.findByIdAndUpdate(
+  const userUpdate = await User.findByIdAndUpdate(
     userId,
     { isPremium: true },
     { new: true }
   ).select('-password');
+  return userUpdate
 };
 
 const actualizarSkills = async (userId, newSkills) => {

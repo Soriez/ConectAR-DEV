@@ -40,6 +40,7 @@ app.get('/', (req, res) => {
 //Ruta de usuarios
 app.use('/api/users/', userRoutes)
 
+
 //Ruta de opiniones
 app.use('/api/opinions/', opinionRoutes)
 

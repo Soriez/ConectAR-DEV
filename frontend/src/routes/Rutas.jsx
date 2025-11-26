@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
-import { useRoutes, Navigate, Outlet } from 'react-router' // Importamos Navigate y Outlet
-import { AuthContext } from '../context/AuthContext' // Importamos el contexto
+import { useRoutes, Navigate, Outlet } from 'react-router' 
+import { AuthContext } from '../context/AuthContext' 
 
 // --- Imports de Páginas ---
 import Inicio from '../pages/ContenidoPrincipal/Inicio'
@@ -24,132 +24,118 @@ import PerfilDashboard from '../pages/Dashboard/PerfilDashboard'
 import ServiciosDashboard from '../pages/Dashboard/ServiciosDashboard'
 import ConfiguracionDashboard from '../components/Dashboard/ConfiguracionDashboard'
 import OpinionesDashboard from '../components/Dashboard/OpinionesDashboard'
-import FreelancerPremium from '../pages/Formulario/FreelancerPremium'
+import UserToFreelancer from '../pages/Formulario/UserToFreelancer'
+import FreeToPremium from '../pages/Formulario/FreeToPremium'
 
-// --- COMPONENTE PROTECTOR DE RUTAS ---
-// Este componente verifica si el usuario tiene permiso de freelancer.
-// Si no lo tiene, lo devuelve al inicio del dashboard.
-const RequireFreelancer = () => {
+// ==========================================
+// COMPONENTES PROTECTORES (GUARDS)
+// ==========================================
+
+// 1. Solo Usuarios NO Freelancers (Para /hacerse-freelancer)
+const OnlyNonFreelancers = () => {
     const { user, isLoading } = useContext(AuthContext);
-
-    // 1. Mientras carga, mostramos nada o un spinner (opcional)
-    if (isLoading) return null; 
-
-    // 2. Si el usuario existe pero NO es freelancer, lo redirigimos
-    if (user && !user.isFreelancer) {
-        return <Navigate to="/dashboard" replace />;
-    }
-
-    // 3. Si todo está bien, mostramos la ruta solicitada
+    if (isLoading) return null; // O un spinner
+    if (!user) return <Navigate to="/iniciar-sesion" replace />;
+    
+    // Si YA es freelancer, lo mandamos al dashboard
+    if (user.isFreelancer) return <Navigate to="/dashboard" replace />;
+    
     return <Outlet />;
 };
 
+// 2. Solo Freelancers NO Premium (Para /hacerse-premium)
+const OnlyStandardFreelancers = () => {
+    const { user, isLoading } = useContext(AuthContext);
+    if (isLoading) return null;
+    if (!user) return <Navigate to="/iniciar-sesion" replace />;
+
+    // Si NO es freelancer, primero debe hacerse uno
+    if (!user.isFreelancer) return <Navigate to="/hacerse-freelancer" replace />;
+
+    // Si YA es premium, lo mandamos al dashboard
+    if (user.isPremium) return <Navigate to="/dashboard" replace />;
+
+    return <Outlet />;
+};
+
+// 3. Solo Freelancers (Para rutas internas del Dashboard)
+const RequireFreelancer = () => {
+    const { user, isLoading } = useContext(AuthContext);
+    if (isLoading) return null; 
+    
+    // Si no es freelancer, al inicio del dashboard
+    if (user && !user.isFreelancer) {
+        return <Navigate to="/dashboard" replace />;
+    }
+    return <Outlet />;
+};
+
+// ==========================================
+// DEFINICIÓN DE RUTAS
+// ==========================================
 
 const Rutas = () => {
-    return useRoutes(
-        [
-            // --- RUTAS PÚBLICAS ---
-            {
-                path: '/',
-                element: <Inicio />
-            },
-            {
-                path: '/freelancers',
-                element: <Freelancers />
-            },
-            {
-                path: '/contacto',
-                element: <Contacto />
-            },
-            {
-                path: '/iniciar-sesion',
-                element: <IniciarSesion />
-            },
-            {
-                path: '/registrarse',
-                element: <Registrarse />
-            },
-            {
-                path: '/perfil/:id',
-                element: <Perfil />
-            },
-            
-            // --- PAGINAS LEGALES / FOOTER ---
-            {
-                path: '/sobre-nosotros',
-                element: <SobreNosotros />
-            },
-            {
-                path: '/terminos-y-servicios',
-                element: <TerminosServicios />
-            },
-            {
-                path: '/politicas-de-privacidad',
-                element: <TerminosPrivacidad />
-            },
-            {
-                path: '/politicas-de-cookies',
-                element: <PoliticaCookies />
-            },
-            
-            // --- RECUPERACIÓN DE CUENTA ---
-            {
-                path: '/recuperar-cuenta',
-                element: <RecuperarCuenta />
-            },
-            {
-                path: '/cambiar-email',
-                element: <CambiarEmail />
-            },
-            {
-                path: '/cambiar-password',
-                element: <CambiarPassword />
-            },
+    return useRoutes([
+        // --- RUTAS PÚBLICAS ---
+        { path: '/', element: <Inicio /> },
+        { path: '/freelancers', element: <Freelancers /> },
+        { path: '/contacto', element: <Contacto /> },
+        { path: '/iniciar-sesion', element: <IniciarSesion /> },
+        { path: '/registrarse', element: <Registrarse /> },
+        { path: '/perfil/:id', element: <Perfil /> },
+        
+        // --- PAGINAS LEGALES / FOOTER ---
+        { path: '/sobre-nosotros', element: <SobreNosotros /> },
+        { path: '/terminos-y-servicios', element: <TerminosServicios /> },
+        { path: '/politicas-de-privacidad', element: <TerminosPrivacidad /> },
+        { path: '/politicas-de-cookies', element: <PoliticaCookies /> },
+        
+        // --- RECUPERACIÓN DE CUENTA ---
+        { path: '/recuperar-cuenta', element: <RecuperarCuenta /> },
+        { path: '/cambiar-email', element: <CambiarEmail /> },
+        { path: '/cambiar-password', element: <CambiarPassword /> },
 
-            // --- DASHBOARD (ZONA DE USUARIOS LOGUEADOS) ---
-            {
-                path: '/hacerse-freelancer',
-                element: <FreelancerPremium />
-            },
-            {
-                path: '/dashboard',
-                element: <DashboardLayout />,
-                children: [
-                    // Rutas accesibles para TODOS (Clientes y Freelancers)
-                    {
-                        index: true,
-                        element: <PerfilDashboard />
-                    },
-                    {
-                        path: 'configuracion',
-                        element: <ConfiguracionDashboard />
-                    },
+        // --- RUTAS PROTEGIDAS ESPECÍFICAS (AQUÍ ESTÁ EL CAMBIO) ---
+        
+        // 🔒 Bloqueo para Hacerse Freelancer
+        {
+            element: <OnlyNonFreelancers />, // El guard envolvente
+            children: [
+                { path: '/hacerse-freelancer', element: <UserToFreelancer /> }
+            ]
+        },
 
-                    // 🔒 Rutas EXCLUSIVAS para Freelancers
-                    // Envolvemos estas rutas con nuestro componente de seguridad
-                    {
-                        element: <RequireFreelancer />,
-                        children: [
-                            {
-                                path: 'servicios',
-                                element: <ServiciosDashboard />
-                            },
-                            {
-                                path: 'opiniones',
-                                element: <OpinionesDashboard />
-                            }
-                        ]
-                    }
-                ]
-            },
+        // 🔒 Bloqueo para Hacerse Premium
+        {
+            element: <OnlyStandardFreelancers />, // El guard envolvente
+            children: [
+                { path: '/hacerse-premium', element: <FreeToPremium /> }
+            ]
+        },
 
-            // --- 404 NO ENCONTRADO ---
-            {
-                path: '*',
-                element: <NoEncontrado />
-            },
-        ]
-    )
+        // --- DASHBOARD (ZONA DE USUARIOS LOGUEADOS) ---
+        {
+            path: '/dashboard',
+            element: <DashboardLayout />,
+            children: [
+                // Rutas accesibles para TODOS (Clientes y Freelancers)
+                { index: true, element: <PerfilDashboard /> },
+                { path: 'configuracion', element: <ConfiguracionDashboard /> },
+
+                // 🔒 Rutas EXCLUSIVAS para Freelancers
+                {
+                    element: <RequireFreelancer />,
+                    children: [
+                        { path: 'servicios', element: <ServiciosDashboard /> },
+                        { path: 'opiniones', element: <OpinionesDashboard /> }
+                    ]
+                }
+            ]
+        },
+
+        // --- 404 NO ENCONTRADO ---
+        { path: '*', element: <NoEncontrado /> },
+    ])
 }
 
 export default Rutas

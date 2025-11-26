@@ -373,9 +373,11 @@ const PerfilDashboard = () => {
                 Convierte tu cuenta a perfil Freelancer y comienza a ofrecer tus
                 servicios hoy mismo.
               </p>
-              <button className="w-full bg-white text-blue-700 font-bold py-2 rounded-lg hover:bg-blue-50 transition shadow-sm">
-                Convertirme en Freelancer
-              </button>
+              <a href="/hacerse-freelancer">
+                <button className="w-full bg-white text-blue-700 font-bold py-2 rounded-lg hover:bg-blue-50 transition shadow-sm">
+                  Convertirme en Freelancer
+                </button>
+              </a>
             </div>
           )}
           {/* Stats simples */}

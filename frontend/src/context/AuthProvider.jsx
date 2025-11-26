@@ -67,6 +67,21 @@ export const AuthProvider = ({ children }) => {
         setAxiosDefaults(null);
     };
 
+    // --- Actualizar a Freelancer Premium ---
+    const upgradeToPremium = async () => {
+        try {
+            // Asumiendo que esta es tu ruta backend definida anteriormente
+            const response = await axios.put(`${BASE_URL}/api/users/upgrade-premium`);
+            
+            // Actualizamos el estado local del usuario con la respuesta (que trae isPremium: true)
+            setUser(response.data);
+            return { success: true };
+        } catch (error) {
+            console.error("Error upgrading to premium:", error);
+            return { success: false, message: error.response?.data?.message || "Error al actualizar" };
+        }
+    };
+
     // --- Efecto de Carga Inicial ---
     useEffect(() => {
         const loadUser = async () => {
@@ -104,7 +119,8 @@ export const AuthProvider = ({ children }) => {
                 logout,
                 isLoading,
                 BASE_URL,
-                setUser
+                setUser,
+                upgradeToPremium
             }}>
             {children}
         </AuthContext.Provider>

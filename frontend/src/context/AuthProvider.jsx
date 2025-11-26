@@ -65,7 +65,6 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
         setUser(null);
         setAxiosDefaults(null);
-        navigate('/iniciar-sesion');
     };
 
     // --- Efecto de Carga Inicial ---

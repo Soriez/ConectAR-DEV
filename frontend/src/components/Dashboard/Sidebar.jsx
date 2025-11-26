@@ -26,8 +26,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   const handleLogout = () => {
     logout(); //  Ejecutamos el logout real
-    // navigate('/') ya no es necesario si logout() hace el navigate, pero por seguridad:
-    navigate('/iniciar-sesion');
+    navigate('/'); //navega al home
   };
 
   return (

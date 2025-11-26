@@ -1,17 +1,23 @@
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react"
-import { NavLink } from "react-router"
+import { useState, useContext } from "react"
+import { NavLink, useNavigate} from "react-router"
+import { AuthContext } from "../../context/AuthContext";
 
 
-const DesktopNavBar = ({ isLoggedIn, user, handleLogout }) => {
+const DesktopNavBar = ({ isLoggedIn, user }) => {
     // Para abrir o cerrar el menú hamburguesa
     const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-    // Función para simular el cierre de sesión
+    //  Obtenemos la función logout real y el hook de navegación
+    const { logout } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    // Función para el cierre de sesión
     const handleLogoutClick = () => {
-        handleLogout()
+        logout()
         setIsMenuOpen(false)
+        navigate('/')//Redirige al home
     };
     // Estilos genéricos para los elementos del menú
     const menuLinkClasses = "block px-4 py-2 text-base font-medium hover:bg-yellow-300 transition duration-150 ease-in-out hover:text-black mx-3 rounded-md";

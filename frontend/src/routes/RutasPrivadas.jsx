@@ -1,3 +1,4 @@
+```javascript
 import { Navigate, Outlet } from 'react-router';
 
 // --- BLOQUEO 1: Solo para Usuarios que NO son Freelancers ---
@@ -10,7 +11,7 @@ export const OnlyUsers = ({ user, isLoading }) => {
   if (!user) return <Navigate to="/login" replace />;
 
   // 3. Si YA es freelancer, no tiene nada que hacer aquí -> Dashboard
-  if (user.isFreelancer) {
+  if (user.role === 'freelancer') {
     return <Navigate to="/dashboard/perfil" replace />;
   }
 
@@ -26,14 +27,15 @@ export const OnlyStandardFreelancers = ({ user, isLoading }) => {
   if (!user) return <Navigate to="/login" replace />;
 
   // 1. Si NO es freelancer, primero tiene que hacerse uno
-  if (!user.isFreelancer) {
+  if (user.role !== 'freelancer') {
      return <Navigate to="/hacerse-freelancer" replace />;
   }
 
   // 2. Si YA es premium, no le cobramos de nuevo -> Dashboard
-  if (user.isPremium) {
+  if (user.plan === 'premium') {
      return <Navigate to="/dashboard/perfil" replace />;
   }
 
   return <Outlet />;
 };
+```

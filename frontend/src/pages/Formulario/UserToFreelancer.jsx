@@ -1,10 +1,9 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../../context/AuthContext'; // 1. Importar el contexto
+import { AuthContext } from '../../context/AuthContext';
 import { CheckCircle, Linkedin, Globe, ArrowRight } from 'lucide-react';
 
 const UserToFreelancer = () => {
-  // 2. Consumir valores del Contexto
   const { token, user, setUser, BASE_URL } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
@@ -13,7 +12,7 @@ const UserToFreelancer = () => {
     descripcion: '',
     agreeTerms: false
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -29,55 +28,43 @@ const UserToFreelancer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (!formData.linkedin || !formData.portfolio || !formData.descripcion || !formData.agreeTerms) {
-        return setError("Por favor, completa todos los campos requeridos y acepta los términos.");
+      return setError("Por favor, completa todos los campos requeridos y acepta los términos.");
     }
 
     setIsSubmitting(true);
-    
+
     try {
-        // Tu AuthProvider ya configura el header de Authorization en axios.defaults,
-        // pero por seguridad usamos el token del contexto explícitamente en el config.
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        };
-
-        // 3. Petición Real usando BASE_URL del contexto
-        const { data } = await axios.put(`${BASE_URL}/api/users/hacerse-freelancer`, {
-            linkedin: formData.linkedin,
-            portfolio: formData.portfolio,
-            descripcion: formData.descripcion
-        }, config);
-        
-        // 4. Actualizar el estado global del usuario (AuthContext)
-        // Esto sirve para que si tienes un navbar que dice "Hola Freelancer", se actualice solo.
-        if (user) {
-            setUser({
-                ...user,
-                isFreelancer: true,
-                freelancerData: {
-                    linkedin: formData.linkedin,
-                    portfolio: formData.portfolio,
-                    descripcion: formData.descripcion
-                }
-            });
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
+      };
 
+      const { data } = await axios.put(`${BASE_URL}/api/users/hacerse-freelancer`, {
+        role: 'freelancer',
+        linkedin: formData.linkedin,
+        portfolio: formData.portfolio,
+        descripcion: formData.descripcion
+      }, config);
 
-        setSubmitted(true); 
+      // Actualizar el estado global con la respuesta del backend
+      if (data) {
+        setUser(data);
+      }
+
+      setSubmitted(true);
 
     } catch (err) {
-        console.error('Error al actualizar perfil:', err);
-        const errorMsg = err.response && err.response.data.message 
-            ? err.response.data.message 
-            : 'Error de conexión con el servidor.';
-        setError(errorMsg);
+      console.error('Error al actualizar perfil:', err);
+      const errorMsg = err.response && err.response.data.message
+        ? err.response.data.message
+        : 'Error de conexión con el servidor.';
+      setError(errorMsg);
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -91,10 +78,10 @@ const UserToFreelancer = () => {
             </div>
             <h2 className="text-3xl font-bold text-white mb-4">¡Felicidades, ya eres Freelancer!</h2>
             <p className="text-gray-300 mb-8">
-               Tu perfil ha sido actualizado.
+              Tu perfil ha sido actualizado.
             </p>
-            <button 
-              onClick={() => window.location.href = '/dashboard'} 
+            <button
+              onClick={() => window.location.href = '/dashboard'}
               className="w-full py-3 px-4 bg-[#2563EB] hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
             >
               Ir a mi Dashboard
@@ -110,9 +97,9 @@ const UserToFreelancer = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
         <div className="relative">
           <div className="absolute -inset-1 bg-gradient-to-r from-[#2563EB] to-purple-600 rounded-2xl blur opacity-25"></div>
-          
+
           <div className="relative bg-[#1f2937] border border-gray-700 rounded-2xl shadow-2xl p-6 sm:p-8 lg:p-10 text-center">
-            
+
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Conviértete en Freelancer Certificado
             </h1>
@@ -121,14 +108,13 @@ const UserToFreelancer = () => {
             </p>
 
             {error && (
-                <div className="bg-red-900/50 text-red-300 border border-red-500 rounded-lg p-3 mb-6 max-w-lg mx-auto">
-                    {error}
-                </div>
+              <div className="bg-red-900/50 text-red-300 border border-red-500 rounded-lg p-3 mb-6 max-w-lg mx-auto">
+                {error}
+              </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto text-left">
-              
-              {/* LinkedIn Input */}
+
               <div>
                 <label htmlFor="linkedin" className="block text-sm font-medium text-gray-300 mb-2">
                   Perfil de LinkedIn <span className="text-red-400">*</span>
@@ -148,7 +134,6 @@ const UserToFreelancer = () => {
                 </div>
               </div>
 
-              {/* Portfolio Input */}
               <div>
                 <label htmlFor="portfolio" className="block text-sm font-medium text-gray-300 mb-2">
                   Portfolio o Sitio Web <span className="text-red-400">*</span>
@@ -168,43 +153,41 @@ const UserToFreelancer = () => {
                 </div>
               </div>
 
-              {/* Descripcion Input */}
               <div>
                 <label htmlFor="descripcion" className="block text-sm font-medium text-gray-300 mb-2">
                   Descripción Breve (Pitch) <span className="text-red-400">*</span>
                 </label>
                 <textarea
-                    id="descripcion"
-                    name="descripcion"
-                    required
-                    rows="3"
-                    placeholder="Soy un desarrollador Full Stack con 5 años de experiencia..."
-                    value={formData.descripcion}
-                    onChange={handleChange}
-                    className="block w-full px-4 py-3 bg-[#111827] border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none transition-all"
+                  id="descripcion"
+                  name="descripcion"
+                  required
+                  rows="3"
+                  placeholder="Soy un desarrollador Full Stack con 5 años de experiencia..."
+                  value={formData.descripcion}
+                  onChange={handleChange}
+                  className="block w-full px-4 py-3 bg-[#111827] border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none transition-all"
                 />
               </div>
 
-              {/* Checkbox Términos */}
               <div className="flex items-start mb-6">
-                  <input 
-                      type="checkbox" 
-                      id="terms" 
-                      name="agreeTerms" 
-                      checked={formData.agreeTerms}
-                      onChange={handleChange}
-                      className="w-[18px] h-[18px] border-2 border-slate-700 rounded bg-slate-800 cursor-pointer appearance-none checked:bg-blue-600 checked:border-blue-600 focus:outline-none mt-0.5 shrink-0" 
-                      required 
-                      style={{
-                          backgroundImage: formData.agreeTerms ? `url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3csvg%3e")` : 'none',
-                          backgroundSize: '100%',
-                          backgroundPosition: 'center',
-                          backgroundRepeat: 'no-repeat',
-                      }}
-                  />
-                  <label className="text-[13px] text-slate-300 cursor-pointer ml-2 leading-relaxed" htmlFor="terms">
-                      Acepto los <a href="#" className="text-blue-500 hover:underline">términos</a> y la <a href="#" className="text-blue-500 hover:underline">política de privacidad</a>
-                  </label>
+                <input
+                  type="checkbox"
+                  id="terms"
+                  name="agreeTerms"
+                  checked={formData.agreeTerms}
+                  onChange={handleChange}
+                  className="w-[18px] h-[18px] border-2 border-slate-700 rounded bg-slate-800 cursor-pointer appearance-none checked:bg-blue-600 checked:border-blue-600 focus:outline-none mt-0.5 shrink-0"
+                  required
+                  style={{
+                    backgroundImage: formData.agreeTerms ? `url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3csvg%3e")` : 'none',
+                    backgroundSize: '100%',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                />
+                <label className="text-[13px] text-slate-300 cursor-pointer ml-2 leading-relaxed" htmlFor="terms">
+                  Acepto los <a href="#" className="text-blue-500 hover:underline">términos</a> y la <a href="#" className="text-blue-500 hover:underline">política de privacidad</a>
+                </label>
               </div>
 
               <button
@@ -219,12 +202,12 @@ const UserToFreelancer = () => {
                   </>
                 ) : (
                   <>
-                    Enviar Solicitud <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform"/>
+                    Enviar Solicitud <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
               </button>
             </form>
-            
+
           </div>
         </div>
       </div>

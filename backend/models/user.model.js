@@ -11,36 +11,35 @@ const userSchema = new Schema({
   password: { type: String, required: true, select: false },
 
   // --- Rol y Estado ---
-  isFreelancer: { type: Boolean, default: false },
+  role: {
+    type: String,
+    enum: ['cliente', 'freelancer'],
+    default: 'cliente'
+  },
 
   // Para la pasarela de pago y ordenamiento
-  isPremium: {
-    type: Boolean,
-    default: false
+  plan: {
+    type: String,
+    enum: ['free', 'premium'],
+    default: 'free'
   },
 
   // --- Perfil Freelancer ---
   linkedin: { type: String, trim: true },
   portfolio: { type: String, trim: true },
   descripcion: { type: String, trim: true },
-  tarifa: {
-    type: Number,
-    default: 0
-    // Nota: Quitamos el 'required' condicional si te da problemas al registrar usuarios normales, 
-    // o manéjalo con cuidado en el controller.
-  },
   isDisponible: { type: Boolean, default: true },
 
-  skills: { 
-        type: [String], 
-        default: [], // Por defecto, es un array vacío
-        validate: {
-            validator: function(v) {
-                return v.length <= 5; // Límite de 5 skills
-            },
-            message: props => `El perfil solo puede tener un máximo de 5 skills, pero se intentó guardar ${props.value.length}.`
-        }
-    },
+  skills: {
+    type: [String],
+    default: [], // Por defecto, es un array vacío
+    validate: {
+      validator: function (v) {
+        return v.length <= 5; // Límite de 5 skills
+      },
+      message: props => `El perfil solo puede tener un máximo de 5 skills, pero se intentó guardar ${props.value.length}.`
+    }
+  },
 
   // --- Estadísticas para el Dashboard ---
   cantVisitas: { type: Number, default: 0 },
@@ -100,14 +99,14 @@ const buscarUsuarioConPassword = async (email) => {
 }
 
 //Función para guardar en la base de datos un NUEVO usuario
-const guardarUsuario = async (nombre, apellido, email, password, isFreelancer, saltRounds) => {
+const guardarUsuario = async (nombre, apellido, email, password, role, saltRounds) => {
 
   const hashedPassword = await hashearPassword(password, saltRounds)
 
   const newUser = new User({
     nombre, apellido, email,
     password: hashedPassword,
-    isFreelancer
+    role: role || 'cliente'
   })
 
   const usuarioGuardado = await newUser.save()
@@ -142,7 +141,7 @@ const generateToken = (id) => {
 };
 
 const obtenerFreelancers = async () => {
-  const freelancers = await User.find({ isFreelancer: true });
+  const freelancers = await User.find({ role: 'freelancer' });
   return freelancers
 }
 
@@ -154,38 +153,62 @@ const buscarUsuarioSinPassword = async (decoded) => {
 // --- NUEVAS FUNCIONES DE ESTADO ---
 
 // 1. Convertir a Freelancer (con campos nuevos)
-const convertirAFreelancer = async (userId, linkedin, portfolio) => {
-  const userUpdate = await User.findByIdAndUpdate(
-    userId,
-    {
-      isFreelancer: true,
-      linkedin, // Nuevo campo
-      portfolio, // Nuevo campo
-      // Puedes añadir aquí un campo 'status: pending' si la verificación es manual
-    },
-    { new: true, runValidators: true }
-  ).select('-password');
-  return userUpdate
+const convertirAFreelancer = async (userId, linkedin, portfolio, descripcion, role) => {
+
+  // Usamos findById y save() en lugar de findByIdAndUpdate para asegurar que se guarden los cambios
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error('Usuario no encontrado al intentar convertir a freelancer');
+  }
+
+  // Actualizamos los campos manualmente
+  user.role = role;
+  user.linkedin = linkedin;
+  user.portfolio = portfolio;
+  user.descripcion = descripcion;
+
+  // Guardamos el usuario actualizado
+  const userSaved = await user.save();
+
+  const userJson = userSaved.toJSON();
+  delete userJson.password;
+
+  return userJson;
 };
 
 // 2. Cambiar Disponibilidad (Disponible / Ocupado)
 const cambiarDisponibilidad = async (userId, estado) => {
   const userUpdate = await User.findByIdAndUpdate(
     userId,
-    { isDisponible: estado },
+    { $set: { isDisponible: estado } },
     { new: true }
   ).select('-password');
-  return userUpdate
+
+  if (!userUpdate) {
+    throw new Error('Usuario no encontrado al intentar cambiar disponibilidad');
+  }
+
+  return userUpdate.toJSON();
 };
 
 // 3. Convertir a Premium
 const convertirAPremium = async (userId) => {
-  const userUpdate = await User.findByIdAndUpdate(
-    userId,
-    { isPremium: true },
-    { new: true }
-  ).select('-password');
-  return userUpdate
+  // Usamos findById y save()
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error('Usuario no encontrado al intentar convertir a Premium');
+  }
+
+  user.plan = 'premium';
+
+  const userSaved = await user.save();
+
+  const userJson = userSaved.toJSON();
+  delete userJson.password;
+
+  return userJson;
 };
 
 const actualizarSkills = async (userId, newSkills) => {
@@ -202,7 +225,7 @@ const actualizarSkills = async (userId, newSkills) => {
 
   // 🟢 CORRECCIÓN CLAVE: Usamos .toJSON() para serializar el objeto de Mongoose.
   // Esto previene errores si hay propiedades virtuales o tipos complejos.
-  return updatedUser.toJSON(); 
+  return updatedUser.toJSON();
 };
 
 module.exports = {

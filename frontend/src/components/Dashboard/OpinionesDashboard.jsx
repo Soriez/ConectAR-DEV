@@ -35,7 +35,7 @@ const OpinionesDashboard = () => {
         const realizadasRes = await axios.get(`${BASE_URL}/api/opinions/realizadas/${authUser._id}`);
         setOpinionesRealizadas(realizadasRes.data);
 
-        if (userRes.data.isFreelancer) {
+        if (userRes.data.role === 'freelancer') {
           const recibidasRes = await axios.get(`${BASE_URL}/api/opinions/recibidas/${authUser._id}`);
           setOpinionesRecibidas(recibidasRes.data);
         }
@@ -60,13 +60,13 @@ const OpinionesDashboard = () => {
     <div>
       <h1 className="text-2xl font-bold text-slate-800 mb-6">Opiniones</h1>
 
-      {profile.isFreelancer && (
+      {profile.role === 'freelancer' && (
         <div className="flex gap-4 mb-6 border-b border-slate-200">
           <button
             onClick={() => setActiveTab('recibidas')}
             className={`pb-3 px-4 font-medium transition ${activeTab === 'recibidas'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-slate-500 hover:text-slate-700'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-slate-500 hover:text-slate-700'
               }`}
           >
             Recibidas ({opinionesRecibidas.length})
@@ -74,8 +74,8 @@ const OpinionesDashboard = () => {
           <button
             onClick={() => setActiveTab('realizadas')}
             className={`pb-3 px-4 font-medium transition ${activeTab === 'realizadas'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-slate-500 hover:text-slate-700'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-slate-500 hover:text-slate-700'
               }`}
           >
             Realizadas ({opinionesRealizadas.length})
@@ -83,7 +83,7 @@ const OpinionesDashboard = () => {
         </div>
       )}
 
-      {profile.isFreelancer && activeTab === 'recibidas' && (
+      {profile.role === 'freelancer' && activeTab === 'recibidas' && (
         <div className="space-y-4">
           {opinionesRecibidas.length === 0 ? (
             <div className="text-center py-12">
@@ -111,7 +111,7 @@ const OpinionesDashboard = () => {
         </div>
       )}
 
-      {(!profile.isFreelancer || activeTab === 'realizadas') && (
+      {(profile.role !== 'freelancer' || activeTab === 'realizadas') && (
         <div className="space-y-4">
           {opinionesRealizadas.length === 0 ? (
             <div className="text-center py-12">

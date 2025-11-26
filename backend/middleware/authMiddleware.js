@@ -27,7 +27,7 @@ export const protect = async (req, res, next) => {
         // 🔴 BLOQUEO 1: Token válido, pero usuario ya no existe en la DB
         return res.status(401).json({ message: 'No autorizado, usuario no encontrado' });
       }
-      
+
       // 5. ¡Todo bien! Pasar al siguiente middleware o controlador
       next();
 
@@ -47,47 +47,4 @@ export const protect = async (req, res, next) => {
   // Nota: Si el token existe pero no es válido, el `catch` ya devolvió un 401. 
   // Si el `if` se ejecutó sin errores, `next()` ya se llamó.
   // El `if (!token)` final solo es estrictamente necesario si `token` nunca se asignó.
-};
-
-
-// ------------------------------------------------------------------
-// MIDDLEWARE ADICIONAL 1: Solo Usuarios (NO Freelancers)
-// ------------------------------------------------------------------
-export const onlyUsers = (req, res, next) => {
-    // req.user ya está cargado por el middleware 'protect'
-    
-    // Asumo que tu modelo de usuario tiene 'isFreelancer'
-    if (req.user && !req.user.isFreelancer) { 
-        // El usuario está logueado y NO es freelancer, puede continuar
-        next();
-    } else {
-        // Si el usuario ya es freelancer (o no está logueado, aunque 'protect' lo evita)
-        return res.status(403).json({ 
-            message: 'Acceso denegado. Solo usuarios no-freelancers pueden acceder.' 
-        });
-    }
-};
-
-
-// ------------------------------------------------------------------
-// MIDDLEWARE ADICIONAL 2: Solo Freelancers NO Premium
-// ------------------------------------------------------------------
-export const onlyFreeFreelancers = (req, res, next) => {
-    // req.user ya está cargado por el middleware 'protect'
-    
-    if (req.user && req.user.isFreelancer && !req.user.isPremium) {
-        // El usuario está logueado, es freelancer, y NO es premium. Puede continuar.
-        next();
-    } else if (req.user && req.user.isPremium) {
-        // Si ya es premium, lo bloqueamos
-         return res.status(403).json({ 
-            message: 'Acceso denegado. Ya tienes una cuenta Premium.' 
-        });
-    } 
-    else {
-        // Si no está logueado (protect lo evita) o no es freelancer (o no cumple otras condiciones)
-        return res.status(403).json({ 
-            message: 'Acceso denegado. Solo freelancers sin membresía premium pueden acceder.' 
-        });
-    }
 };

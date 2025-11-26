@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
-import { useRoutes, Navigate, Outlet } from 'react-router' 
-import { AuthContext } from '../context/AuthContext' 
+import { useRoutes, Navigate, Outlet } from 'react-router'
+import { AuthContext } from '../context/AuthContext'
 
 // --- Imports de Páginas ---
 import Inicio from '../pages/ContenidoPrincipal/Inicio'
@@ -36,10 +36,10 @@ const OnlyNonFreelancers = () => {
     const { user, isLoading } = useContext(AuthContext);
     if (isLoading) return null; // O un spinner
     if (!user) return <Navigate to="/iniciar-sesion" replace />;
-    
+
     // Si YA es freelancer, lo mandamos al dashboard
-    if (user.isFreelancer) return <Navigate to="/dashboard" replace />;
-    
+    if (user.role === 'freelancer') return <Navigate to="/dashboard" replace />;
+
     return <Outlet />;
 };
 
@@ -50,10 +50,10 @@ const OnlyStandardFreelancers = () => {
     if (!user) return <Navigate to="/iniciar-sesion" replace />;
 
     // Si NO es freelancer, primero debe hacerse uno
-    if (!user.isFreelancer) return <Navigate to="/hacerse-freelancer" replace />;
+    if (user.role !== 'freelancer') return <Navigate to="/hacerse-freelancer" replace />;
 
     // Si YA es premium, lo mandamos al dashboard
-    if (user.isPremium) return <Navigate to="/dashboard" replace />;
+    if (user.plan === 'premium') return <Navigate to="/dashboard" replace />;
 
     return <Outlet />;
 };
@@ -61,10 +61,10 @@ const OnlyStandardFreelancers = () => {
 // 3. Solo Freelancers (Para rutas internas del Dashboard)
 const RequireFreelancer = () => {
     const { user, isLoading } = useContext(AuthContext);
-    if (isLoading) return null; 
-    
+    if (isLoading) return null;
+
     // Si no es freelancer, al inicio del dashboard
-    if (user && !user.isFreelancer) {
+    if (user && user.role !== 'freelancer') {
         return <Navigate to="/dashboard" replace />;
     }
     return <Outlet />;
@@ -83,20 +83,20 @@ const Rutas = () => {
         { path: '/iniciar-sesion', element: <IniciarSesion /> },
         { path: '/registrarse', element: <Registrarse /> },
         { path: '/perfil/:id', element: <Perfil /> },
-        
+
         // --- PAGINAS LEGALES / FOOTER ---
         { path: '/sobre-nosotros', element: <SobreNosotros /> },
         { path: '/terminos-y-servicios', element: <TerminosServicios /> },
         { path: '/politicas-de-privacidad', element: <TerminosPrivacidad /> },
         { path: '/politicas-de-cookies', element: <PoliticaCookies /> },
-        
+
         // --- RECUPERACIÓN DE CUENTA ---
         { path: '/recuperar-cuenta', element: <RecuperarCuenta /> },
         { path: '/cambiar-email', element: <CambiarEmail /> },
         { path: '/cambiar-password', element: <CambiarPassword /> },
 
-        // --- RUTAS PROTEGIDAS ESPECÍFICAS (AQUÍ ESTÁ EL CAMBIO) ---
-        
+        // --- RUTAS PROTEGIDAS ESPECÍFICAS ---
+
         // 🔒 Bloqueo para Hacerse Freelancer
         {
             element: <OnlyNonFreelancers />, // El guard envolvente

@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { protect, onlyUsers, onlyFreeFreelancers } from '../middleware/authMiddleware.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 // 1. Importamos el controlador
 import {
@@ -46,8 +46,8 @@ router.put('/:id', protect, updateUser);
 
 // (U) UPDATE - Convertirse en Freelancer
 // PUT a /api/users/become-freelancer
-// APLICAMOS: protect (asegura login) y onlyUsers (asegura que NO es freelancer)
-router.put('/hacerse-freelancer', protect, onlyUsers, becomeFreelancer);
+// APLICAMOS: protect (asegura login)
+router.put('/hacerse-freelancer', protect, becomeFreelancer);
 
 // (U) UPDATE - Cambiar Disponibilidad
 // PUT a /api/users/availability
@@ -56,7 +56,7 @@ router.put('/availability', protect, toggleAvailability);
 // (U) UPDATE - Convertirse en Premium
 // PUT a /api/users/upgrade-premium
 // APLICAMOS: protect (asegura login) y onlyFreeFreelancers (asegura que es freelancer y NO es premium)
-router.put('/hacerse-premium', protect, onlyFreeFreelancers, upgradeToPremium);
+router.put('/hacerse-premium', protect, upgradeToPremium);
 
 // PUT /api/users/:id/skills
 router.put('/:id/skills', protect, actualizarSkillsUser);

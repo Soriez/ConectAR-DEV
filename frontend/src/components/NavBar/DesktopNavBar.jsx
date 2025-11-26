@@ -50,7 +50,7 @@ const DesktopNavBar = ({ isLoggedIn, user, handleLogout }) => {
                         >
                             {/* Grupo Superior */}
                             {/* Perfil del usuario - SOLO FREELANCERS */}
-                            {(user?.isFreelancer === true || user?.isFreelancer === 'true') && (
+                            {(user?.role === 'freelancer') && (
                                 <NavLink to={`/perfil/${user.id}`} onClick={() => setIsMenuOpen(false)} className={menuLinkClasses}>
                                     Mi perfil
                                 </NavLink>

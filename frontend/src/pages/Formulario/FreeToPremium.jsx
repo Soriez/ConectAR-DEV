@@ -1,16 +1,15 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../../context/AuthContext'; // 1. Importar Contexto
-import { 
-  CheckCircle, 
-  Star, 
-  BarChart2, 
-  MousePointerClick, 
+import { AuthContext } from '../../context/AuthContext';
+import {
+  CheckCircle,
+  Star,
+  BarChart2,
+  MousePointerClick,
   CreditCard
 } from 'lucide-react';
 import SuccessModal from '../../components/Modals/UpdateRol/FreeToPremiumModal';
 
-// Componente para los items de beneficios
 const BenefitItem = ({ icon: Icon, title, description }) => (
   <div className="flex gap-4 p-4 rounded-xl bg-[#1f2937]/50 border border-gray-700 hover:border-[#2563EB]/50 transition-colors group">
     <div className="shrink-0">
@@ -25,74 +24,67 @@ const BenefitItem = ({ icon: Icon, title, description }) => (
   </div>
 );
 
-
 const FreeToPremium = () => {
-  // 2. Consumir el contexto
   const { token, user, setUser, BASE_URL } = useContext(AuthContext);
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState('');
 
-  // --- LÓGICA CONECTADA A LA API ---
   const handleUpgradeAPI = async () => {
     try {
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // Token real del contexto
-            }
-        };
-
-        // 3. Petición real con Axios
-        await axios.put(`${BASE_URL}/api/users/hacerse-premium`, {}, config);
-
-        setIsProcessing(false);
-        
-        // 4. Actualizar el estado global para reflejar el cambio en la UI inmediatamente
-        if (user) {
-            setUser({ ...user, isPremium: true });
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
+      };
 
-        console.log("Cuenta actualizada a Premium exitosamente.");
-        setShowModal(true);
+      const { data } = await axios.put(`${BASE_URL}/api/users/hacerse-premium`, {}, config);
+
+      setIsProcessing(false);
+
+      // Actualizar el estado global con la respuesta del backend
+      if (data) {
+        setUser(data);
+      }
+
+      console.log("Cuenta actualizada a Premium exitosamente.");
+      setShowModal(true);
 
     } catch (err) {
-        setIsProcessing(false);
-        console.error('Error al procesar suscripción:', err);
-        const errorMsg = err.response && err.response.data.message 
-            ? err.response.data.message 
-            : 'Error de conexión con el servidor.';
-        setError(errorMsg);
+      setIsProcessing(false);
+      console.error('Error al procesar suscripción:', err);
+      const errorMsg = err.response && err.response.data.message
+        ? err.response.data.message
+        : 'Error de conexión con el servidor.';
+      setError(errorMsg);
     }
   }
 
   const handleRedirectToPayment = () => {
     setIsProcessing(true);
     setError('');
-    
-    // NOTA: Aquí iría la integración real con Stripe/PayPal.
-    // Mantenemos el setTimeout para simular que el usuario fue a pagar y volvió.
+
     console.log("Iniciando simulación de pasarela de pago...");
-    
+
     setTimeout(() => {
-        console.log("Pago 'exitoso'. Ejecutando actualización en base de datos...");
-        handleUpgradeAPI();
-    }, 2500); 
+      console.log("Pago 'exitoso'. Ejecutando actualización en base de datos...");
+      handleUpgradeAPI();
+    }, 2500);
   };
 
   const handleGoToDashboard = () => {
-    window.location.href = '/dashboard/perfil'; 
+    window.location.href = '/dashboard/perfil';
     setShowModal(false);
   };
 
   return (
     <div className="min-h-screen bg-[#1a233a] font-sans selection:bg-[#2563EB] selection:text-white">
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          
-          {/* Columna Izquierda: Ventajas Premium */}
+
           <div className="space-y-8 animate-fade-in-up">
             <div>
               <span className="inline-flex items-center gap-2 py-1 px-3 rounded-full bg-yellow-400/10 text-[#FACC15] text-sm font-semibold mb-4 border border-yellow-400/20">
@@ -107,24 +99,23 @@ const FreeToPremium = () => {
             </div>
 
             <div className="space-y-4">
-              <BenefitItem 
+              <BenefitItem
                 icon={BarChart2}
                 title="Visitas Históricas de Perfil"
                 description="Accede a la analítica completa para entender quién te ve y cuándo. ¡Deja de adivinar!"
               />
-              <BenefitItem 
+              <BenefitItem
                 icon={MousePointerClick}
                 title="Métricas de Conversión a Enlaces"
                 description="Mide cuántos clics reciben tu LinkedIn y Portfolio para optimizar tu presentación profesional."
               />
-              <BenefitItem 
+              <BenefitItem
                 icon={Star}
                 title="Máxima Visibilidad"
                 description="Tu perfil aparecerá siempre destacado en tu especialidad, garantizando que los clientes te encuentren primero."
               />
             </div>
 
-            {/* Banner de Pago Único */}
             <div className="mt-8 bg-gradient-to-r from-[#2563EB]/10 to-[#1f2937] p-5 rounded-xl border-l-4 border-[#2563EB]">
               <div className="flex items-center gap-3">
                 <CreditCard className="text-[#2563EB]" size={24} />
@@ -136,11 +127,9 @@ const FreeToPremium = () => {
             </div>
           </div>
 
-          {/* Columna Derecha: Tarjeta de Pago */}
           <div className="relative">
-            {/* Tarjeta de precio */}
             <div className="relative bg-[#1f2937] border border-gray-700 rounded-2xl shadow-2xl p-8 lg:p-10 text-center">
-              
+
               <p className="text-5xl font-extrabold text-white mb-2">
                 $5000
               </p>
@@ -148,18 +137,16 @@ const FreeToPremium = () => {
                 Unico pago. Sin letra chica.
               </p>
 
-              {/* Mensaje de error de la API */}
               {error && (
-                  <div className="bg-red-900/50 text-red-300 border border-red-500 rounded-lg p-3 mb-6">
-                      {error}
-                  </div>
+                <div className="bg-red-900/50 text-red-300 border border-red-500 rounded-lg p-3 mb-6">
+                  {error}
+                </div>
               )}
 
               <p className="text-gray-300 text-sm mb-6">
                 Al hacer clic serás redirigido de forma segura a nuestra pasarela de pago para completar la transacción.
               </p>
 
-              {/* Botón de Pago */}
               <button
                 onClick={handleRedirectToPayment}
                 disabled={isProcessing}
@@ -179,12 +166,12 @@ const FreeToPremium = () => {
 
               <div className="mt-8 pt-6 border-t border-gray-700 space-y-3 text-sm text-gray-300">
                 <div className="flex items-center gap-2 justify-center">
-                    <CheckCircle size={16} className="text-green-400" />
-                    <span>Analíticas Avanzadas</span>
+                  <CheckCircle size={16} className="text-green-400" />
+                  <span>Analíticas Avanzadas</span>
                 </div>
                 <div className="flex items-center gap-2 justify-center">
-                    <CheckCircle size={16} className="text-green-400" />
-                    <span>Posicionamiento VIP</span>
+                  <CheckCircle size={16} className="text-green-400" />
+                  <span>Posicionamiento VIP</span>
                 </div>
               </div>
 
@@ -193,7 +180,6 @@ const FreeToPremium = () => {
         </div>
       </div>
 
-      {/* Modal de Confirmación */}
       {showModal && <SuccessModal onGoToDashboard={handleGoToDashboard} />}
     </div>
   );

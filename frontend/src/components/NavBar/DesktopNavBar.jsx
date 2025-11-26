@@ -87,7 +87,7 @@ const DesktopNavBar = ({ isLoggedIn, user }) => {
                     {/* Boton de inicio de sesión */}
                     <NavLink
                         to={'/iniciar-sesion'}
-                        className="whitespace-nowrap hover:text-blue-400 px-3 py-2 text-base font-medium transition duration-150 ease-in-out focus:ring-2 focus:ring-blue-500 rounded-md"
+                        className="whitespace-nowrap hover:text-blue-400 px-3 py-2 m-8 text-base font-medium transition duration-150 ease-in-out focus:ring-2 focus:ring-blue-500 rounded-md"
                     >
                         Iniciar Sesión
                     </NavLink>

@@ -40,7 +40,7 @@ const FreeToPremium = () => {
         }
       };
 
-      const { data } = await axios.put(`${BASE_URL}/api/users/hacerse-premium`, {}, config);
+      const { data } = await axios.put(`${BASE_URL}/api/users/hacerse-premium`, { plan: 'premium' }, config);
 
       setIsProcessing(false);
 
@@ -75,7 +75,7 @@ const FreeToPremium = () => {
   };
 
   const handleGoToDashboard = () => {
-    window.location.href = '/dashboard/perfil';
+    window.location.href = '/dashboard';
     setShowModal(false);
   };
 

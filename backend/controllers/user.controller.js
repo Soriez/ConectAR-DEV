@@ -230,11 +230,12 @@ export const toggleAvailability = async (req, res) => {
 export const upgradeToPremium = async (req, res) => {
   try {
     const userId = req.user._id;
+    const { plan } = req.body;
 
     // Aquí iría la lógica de verificación de pago si fuera real
     // Por ahora asumimos que si llaman a este endpoint es porque pagaron
 
-    const updatedUser = await convertirAPremium(userId);
+    const updatedUser = await convertirAPremium(userId, plan);
 
     res.status(200).json(updatedUser);
 

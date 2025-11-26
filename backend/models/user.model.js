@@ -193,7 +193,7 @@ const cambiarDisponibilidad = async (userId, estado) => {
 };
 
 // 3. Convertir a Premium
-const convertirAPremium = async (userId) => {
+const convertirAPremium = async (userId, plan) => {
   // Usamos findById y save()
   const user = await User.findById(userId);
 
@@ -201,7 +201,7 @@ const convertirAPremium = async (userId) => {
     throw new Error('Usuario no encontrado al intentar convertir a Premium');
   }
 
-  user.plan = 'premium';
+  user.plan = plan;
 
   const userSaved = await user.save();
 

@@ -1,4 +1,5 @@
 import React, { useState, useContext, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router";
 import {
   Star,
   X,
@@ -23,7 +24,7 @@ const PremiumCounterItem = ({ label, value, isPremium }) => {
   return (
     <li className="flex justify-between items-center text-sm py-2 border-b border-slate-50 last:border-0">
       <span className="text-slate-600 font-medium">{label}</span>
-      
+
       <div className="relative flex items-center">
         {isPremium ? (
           // CASO PREMIUM: Muestra el número real claro y fuerte
@@ -47,6 +48,7 @@ const PerfilDashboard = () => {
 
   // Hook 1: Obtener el contexto de autenticación
   const { user, isLoading, BASE_URL, setUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   // Hook 2: Lista de tecnologías disponibles (del backend)
   const [availableTechs, setAvailableTechs] = useState([]);
@@ -60,7 +62,7 @@ const PerfilDashboard = () => {
 
   //Hook 5: Estado para el boton freelancer premium
   const [isUpgrading, setIsUpgrading] = useState(false); // Estado para loading del botón
-  
+
   // 2. EFECTO: Sincronizar 'technologies' con 'user.skills' cuando el usuario carga
   useEffect(() => {
     // Solo actualizamos si el usuario existe y es freelancer con skills
@@ -182,18 +184,8 @@ const PerfilDashboard = () => {
     }
   };
   // --- Handler para hacerse Premium ---
-  const handleUpgradeClick = async () => {
-    if (confirm("¿Estás seguro de que quieres adquirir la membresía Premium?")) {
-      setIsUpgrading(true);
-      const result = await upgradeToPremium();
-      setIsUpgrading(false);
-      
-      if (result.success) {
-        alert("¡Felicitaciones! Ahora eres usuario Premium.");
-      } else {
-        alert("Error al actualizar: " + result.message);
-      }
-    }
+  const handleUpgradeClick = () => {
+    navigate('/hacerse-premium');
   };
 
   const renderStars = () => {
@@ -396,8 +388,8 @@ const PerfilDashboard = () => {
                   !isFreelancer || technologies.length === user.skills.length
                 }
                 className={`mt-4 w-full px-4 py-3 font-bold rounded-lg transition ${technologies.length === user.skills.length
-                    ? "bg-slate-300 text-slate-600 cursor-not-allowed"
-                    : "bg-green-600 text-white hover:bg-green-700"
+                  ? "bg-slate-300 text-slate-600 cursor-not-allowed"
+                  : "bg-green-600 text-white hover:bg-green-700"
                   }`}
               >
                 Guardar Skills ({technologies.length}/5)
@@ -424,69 +416,71 @@ const PerfilDashboard = () => {
           )}
           {/* Stats simples */}
           {/* 🎯 SECCIÓN ESTADÍSTICAS MODIFICADA */}
-          <div className={`bg-white rounded-xl shadow-sm border ${isPremium ? 'border-yellow-200 ring-1 ring-yellow-100' : 'border-slate-200'} p-6 transition-all duration-300`}>
-            
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-slate-800">Estadísticas</h3>
-              {isPremium && <Crown size={18} className="text-yellow-500 fill-yellow-500" />}
-            </div>
+          {isFreelancer && (
+            <div className={`bg-white rounded-xl shadow-sm border ${isPremium ? 'border-yellow-200 ring-1 ring-yellow-100' : 'border-slate-200'} p-6 transition-all duration-300`}>
 
-            <ul className="space-y-1 mb-6">
-              {/* Usamos el componente auxiliar para cada estadística */}
-              <PremiumCounterItem 
-                label="Visitas al perfil" 
-                value={user.cantVisitas} 
-                isPremium={isPremium} 
-              />
-              
-              {isFreelancer && (
-                <>
-                  <PremiumCounterItem 
-                    label="Clics en LinkedIn" 
-                    value={user.cantAccesosLinkedin} 
-                    isPremium={isPremium} 
-                  />
-                  <PremiumCounterItem 
-                    label="Clics en Portfolio" 
-                    value={user.cantAccesosPortfolio} 
-                    isPremium={isPremium} 
-                  />
-                </>
-              )}
-            </ul>
-
-            {/* BOTÓN PARA HACERSE PREMIUM (Solo si es freelancer y NO es premium) */}
-            {isFreelancer && !isPremium && (
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <p className="text-xs text-slate-500 mb-3 text-center">
-                  Desbloquea las métricas y obtén mayor visibilidad.
-                </p>
-                <button 
-                  onClick={handleUpgradeClick}
-                  disabled={isUpgrading}
-                  className="w-full bg-linear-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white font-bold py-3 rounded-lg shadow-md shadow-yellow-200/50 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
-                >
-                  {isUpgrading ? (
-                    <span className="text-sm">Procesando...</span>
-                  ) : (
-                    <>
-                      <Crown size={18} />
-                      <span>Hacerme Premium</span>
-                    </>
-                  )}
-                </button>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-slate-800">Estadísticas</h3>
+                {isPremium && <Crown size={18} className="text-yellow-500 fill-yellow-500" />}
               </div>
-            )}
-            
-            {/* Mensaje para usuarios Premium */}
-            {isPremium && (
-               <div className="mt-4 pt-4 border-t border-yellow-100 text-center">
+
+              <ul className="space-y-1 mb-6">
+                {/* Usamos el componente auxiliar para cada estadística */}
+                <PremiumCounterItem
+                  label="Visitas al perfil"
+                  value={user.cantVisitas}
+                  isPremium={isPremium}
+                />
+
+                {isFreelancer && (
+                  <>
+                    <PremiumCounterItem
+                      label="Clics en LinkedIn"
+                      value={user.cantAccesosLinkedin}
+                      isPremium={isPremium}
+                    />
+                    <PremiumCounterItem
+                      label="Clics en Portfolio"
+                      value={user.cantAccesosPortfolio}
+                      isPremium={isPremium}
+                    />
+                  </>
+                )}
+              </ul>
+
+              {/* BOTÓN PARA HACERSE PREMIUM (Solo si es freelancer y NO es premium) */}
+              {isFreelancer && !isPremium && (
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <p className="text-xs text-slate-500 mb-3 text-center">
+                    Desbloquea las métricas y obtén mayor visibilidad.
+                  </p>
+                  <button
+                    onClick={handleUpgradeClick}
+                    disabled={isUpgrading}
+                    className="w-full bg-linear-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white font-bold py-3 rounded-lg shadow-md shadow-yellow-200/50 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+                  >
+                    {isUpgrading ? (
+                      <span className="text-sm">Procesando...</span>
+                    ) : (
+                      <>
+                        <Crown size={18} />
+                        <span>Hacerme Premium</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* Mensaje para usuarios Premium */}
+              {isPremium && (
+                <div className="mt-4 pt-4 border-t border-yellow-100 text-center">
                   <p className="text-xs font-semibold text-yellow-700 bg-yellow-50 py-2 rounded-lg">
                     ✨ Tienes acceso total a tus métricas
                   </p>
-               </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

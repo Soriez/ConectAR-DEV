@@ -1,37 +1,28 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
+import { useNavigate } from 'react-router';
 import { ChevronRight, Mail, Lock, Linkedin, Globe, X, Briefcase, Link as LinkIcon, Crown } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext'; // Importar contexto
 import axios from 'axios';
 
 //import de modales
-import BecomeFreelancerModal from '../Modals/ModalsConfiguracion/BecomeFreelancerModal';
 import PortfolioModal from '../Modals/ModalsConfiguracion/PortfolioModal';
-import EmailModal from '../Modals/ModalsConfiguracion/EmailModal';
-import PasswordModal from '../Modals/ModalsConfiguracion/PasswordModal';
 import GoogleModal from '../Modals/ModalsConfiguracion/GoogleModal';
 import LinkedinModal from '../Modals/ModalsConfiguracion/LinkedinModal';
 
 const ConfiguracionDashboard = () => {
-  const { user, setUser, BASE_URL, upgradeToPremium } = useContext(AuthContext); // Datos reales
+  const { user, setUser, BASE_URL } = useContext(AuthContext); // Datos reales
+  const navigate = useNavigate();
+
   // --- ESTADOS PARA MODALES ---
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [showLinkedinModal, setShowLinkedinModal] = useState(false);
   const [showPortfolioModal, setShowPortfolioModal] = useState(false);
-  const [showBecomeFreelancerModal, setShowBecomeFreelancerModal] = useState(false);
-
-  // Estado para el formulario de "Hacerse Freelancer"
-  const [freelancerData, setFreelancerData] = useState({
-    linkedin: user?.linkedin || '',
-    portfolio: user?.portfolio || '',
-    descripcion: user?.descripcion || '',
-    tarifa: user?.tarifa || 0,
-  });
 
   // Helpers
-  const isFreelancer = user?.isFreelancer;
-  const isPremium = user?.isPremium;
+  const isFreelancer = user?.role === 'freelancer';
+  const isPremium = user?.plan === 'premium';
 
   // --- LÓGICA DE NEGOCIO (HANDLERS) ---
 
@@ -56,29 +47,9 @@ const ConfiguracionDashboard = () => {
     }
   };
 
-  // 2. Convertirse en Freelancer
-  const handleBecomeFreelancerSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.put(`${BASE_URL}/api/users/become-freelancer`, freelancerData);
-      setUser(response.data);
-      setShowBecomeFreelancerModal(false);
-      alert("¡Ahora eres Freelancer!");
-    } catch (error) {
-      console.error(error);
-      alert("Error al procesar la solicitud.");
-    }
-  };
-
-  // 3. Hacerse Premium
-  const handleUpgradePremium = async () => {
-    if (confirm("¿Confirmas que quieres ser Premium?")) {
-      try {
-        const res = await upgradeToPremium();
-        if (res.success) alert("¡Bienvenido al plan Premium!");
-        else alert("Error: " + res.message);
-      } catch (e) { alert("Error de conexión"); }
-    }
+  // 2. Hacerse Premium
+  const handleUpgradePremium = () => {
+    navigate('/hacerse-premium');
   };
 
   // Componente de Item de Configuración
@@ -202,7 +173,7 @@ const ConfiguracionDashboard = () => {
               subtitle="Empieza a vender tus servicios hoy"
               icon={<Briefcase size={18} />}
               actionLabel="Empezar"
-              onClick={() => setShowBecomeFreelancerModal(true)}
+              onClick={() => navigate('/hacerse-freelancer')}
             />
           </div>
         </div>
@@ -215,13 +186,7 @@ const ConfiguracionDashboard = () => {
         currentPortfolio={user.portfolio}
         onSave={handleSavePortfolio}
       />
-      <BecomeFreelancerModal
-        show={showBecomeFreelancerModal}
-        onClose={() => setShowBecomeFreelancerModal(false)}
-        data={freelancerData}
-        setData={setFreelancerData}
-        onSubmit={handleBecomeFreelancerSubmit}
-      />
+
       <GoogleModal
         show={showGoogleModal}
         onClose={() => setShowGoogleModal(false)}

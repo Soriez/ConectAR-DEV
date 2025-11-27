@@ -13,16 +13,7 @@ const formatARS = (n) =>
     style: "currency",
     currency: "ARS",
     maximumFractionDigits: 0,
-  }).format(n);
-
-const formatMonthYearEs = (iso) => {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleDateString("es-AR", { year: "numeric", month: "long" });
-  } catch {
-    return iso;
-  }
-};
+  }).format(n || 0);
 
 const getAvatarUrl = (nombreCompleto) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(
@@ -58,101 +49,116 @@ const Perfil = () => {
   // Filtro de opiniones
   const [starFilter, setStarFilter] = useState(0); // 0 = todas
 
-  // --- EFECTO: Cargar Datos Iniciales (MOCK) ---
+  // --- EFECTO: Cargar Datos REALES ---
   useEffect(() => {
-    // Simulación de carga
-    setLoading(true);
-    setTimeout(() => {
-      // 1. Mock Freelancer
-      setFreelancer({
-        _id: "1",
-        nombre: "Juan",
-        apellido: "Pérez",
-        descripcion: "Desarrollador Full Stack con más de 5 años de experiencia en MERN Stack. Apasionado por crear experiencias web únicas y performantes.",
-        tarifa: 25000,
-        isDisponible: true,
-        linkedin: "https://linkedin.com",
-        portfolio: "https://github.com",
-        skills: ["React", "Node.js", "MongoDB", "Tailwind", "TypeScript"],
-        createdAt: "2023-01-15T00:00:00.000Z"
-      });
+    const fetchProfileData = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        // 1. Obtener datos del Freelancer
+        const userRes = await axios.get(`${BASE_URL}/api/users/${id}`);
+        setFreelancer(userRes.data);
 
-      // 2. Mock Servicios
-      setServices([
-        { _id: "s1", nombre: "Desarrollo Web Completo", descripcion: "Sitio web desde cero, responsive y optimizado.", precio: 150000, duracionEstimada: "2 semanas" },
-        { _id: "s2", nombre: "Auditoría de Código", descripcion: "Revisión y optimización de tu código existente.", precio: 50000, duracionEstimada: "3 días" },
-        { _id: "s3", nombre: "Consultoría Técnica", descripcion: "Asesoramiento sobre arquitectura y tecnologías.", precio: 20000, duracionEstimada: "1 hora" }
-      ]);
+        // 2. Obtener Servicios del Freelancer
+        try {
+          const servicesRes = await axios.get(`${BASE_URL}/api/servicios/freelancer/${id}`);
+          setServices(servicesRes.data);
+        } catch (srvErr) {
+          console.warn("No se pudieron cargar servicios o no tiene:", srvErr);
+          setServices([]);
+        }
 
-      // 3. Mock Opiniones
-      setReviews([
-        { _id: "r1", calificacion: 5, comentario: "Excelente profesional, entregó todo a tiempo.", emisor: { nombre: "María Garcia" }, createdAt: "2023-10-10" },
-        { _id: "r2", calificacion: 4, comentario: "Muy buen trabajo, aunque hubo un pequeño retraso.", emisor: { nombre: "Carlos Lopez" }, createdAt: "2023-09-25" },
-        { _id: "r3", calificacion: 5, comentario: "Increíble calidad de código. Recomendado.", emisor: { nombre: "Ana Torres" }, createdAt: "2023-11-05" }
-      ]);
+        // 3. Obtener Opiniones Recibidas
+        try {
+          const reviewsRes = await axios.get(`${BASE_URL}/api/opinions/recibidas/${id}`);
+          setReviews(reviewsRes.data);
+        } catch (revErr) {
+          console.warn("No se pudieron cargar opiniones:", revErr);
+          setReviews([]);
+        }
 
-      // 4. Mock Sugeridos
-      setSuggested([
-        { _id: "2", nombre: "Laura", apellido: "Gomez", descripcion: "Diseñadora UX/UI", tarifa: 18000 },
-        { _id: "3", nombre: "Pedro", apellido: "Martinez", descripcion: "DevOps Engineer", tarifa: 30000 },
-        { _id: "4", nombre: "Sofia", apellido: "Rodriguez", descripcion: "Marketing Digital", tarifa: 15000 },
-        { _id: "5", nombre: "Lucas", apellido: "Fernandez", descripcion: "Redactor SEO", tarifa: 10000 }
-      ]);
+        // 4. Cargar Sugeridos (Opcional: Podría ser una llamada a /freelancers con filtro random)
+        // Por ahora lo dejamos vacío o hacemos una llamada simple si quieres
+        // const suggestedRes = await axios.get(`${BASE_URL}/api/users/freelancers?limit=4`);
+        // setSuggested(suggestedRes.data.filter(f => f._id !== id).slice(0, 4));
+        setSuggested([]); // Desactivado temporalmente para simplificar
 
-      setLoading(false);
-    }, 800); // Simular un pequeño delay de red
-  }, [id]);
+      } catch (err) {
+        console.error("Error cargando perfil:", err);
+        setError("No se pudo cargar la información del freelancer.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // --- HANDLERS: Tracking (MOCK) ---
+    if (id && BASE_URL) {
+      fetchProfileData();
+    }
+  }, [id, BASE_URL]);
+
+  // --- HANDLERS: Tracking ---
   const handleLinkedinClick = async () => {
     if (!freelancer?.linkedin) return;
-    console.log("MOCK: Tracking LinkedIn click for user", id);
+    try {
+      await axios.put(`${BASE_URL}/api/users/${id}/linkedin`);
+    } catch (e) { console.error("Error tracking linkedin", e); }
     window.open(freelancer.linkedin, "_blank");
   };
 
   const handlePortfolioClick = async () => {
     if (!freelancer?.portfolio) return;
-    console.log("MOCK: Tracking Portfolio click for user", id);
+    try {
+      await axios.put(`${BASE_URL}/api/users/${id}/portfolio`);
+    } catch (e) { console.error("Error tracking portfolio", e); }
     window.open(freelancer.portfolio, "_blank");
   };
 
-  // --- HANDLERS: Opiniones (MOCK) ---
+  // --- HANDLERS: Opiniones ---
   const handleSubmitReview = async (e) => {
     e.preventDefault();
-    /* 
+
     if (!currentUser) {
       alert("Debes iniciar sesión para dejar una opinión.");
+      navigate('/iniciar-sesion');
       return;
-    } 
-    */
+    }
+
     setReviewSubmitting(true);
 
-    // Simular petición
-    setTimeout(() => {
-      const newReviewMock = {
-        _id: Date.now().toString(),
-        calificacion: newReview.score,
-        comentario: newReview.description,
-        emisor: { nombre: currentUser?.nombre || "Usuario Test" },
-        createdAt: new Date().toISOString()
+    try {
+      // Endpoint para crear opinión: POST /api/opinions
+      const reviewData = {
+        destinatario: id,
+        puntuacion: newReview.score,
+        opinion: newReview.description
       };
 
-      setReviews([newReviewMock, ...reviews]);
+      const res = await axios.post(`${BASE_URL}/api/opinions`, reviewData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } // Asumiendo token en localStorage o usar context
+      });
+
+      // Agregar la nueva opinión a la lista localmente
+      setReviews([res.data, ...reviews]);
       setShowReviewModal(false);
       setNewReview({ score: 5, description: "" });
+      alert("¡Opinión publicada con éxito!");
+
+    } catch (error) {
+      console.error("Error publicando opinión:", error);
+      alert(error.response?.data?.message || "Error al publicar la opinión.");
+    } finally {
       setReviewSubmitting(false);
-      alert("¡Opinión publicada con éxito! (Simulado)");
-    }, 1000);
+    }
   };
 
   // --- RENDER HELPERS ---
   const filteredReviews = starFilter === 0
     ? reviews
-    : reviews.filter(r => r.calificacion === starFilter);
+    : reviews.filter(r => r.puntuacion === starFilter); // Nota: Backend suele devolver 'puntuacion', no 'calificacion'
 
   const averageRating = reviews.length > 0
-    ? (reviews.reduce((acc, curr) => acc + curr.calificacion, 0) / reviews.length).toFixed(1)
-    : "5.0";
+    ? (reviews.reduce((acc, curr) => acc + (curr.puntuacion || curr.calificacion || 0), 0) / reviews.length).toFixed(1)
+    : "0.0"; // Corregido a 0.0 si no hay opiniones
 
   if (loading) {
     return (
@@ -313,17 +319,17 @@ const Perfil = () => {
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs">
-                            {op.emisor?.nombre ? op.emisor.nombre.charAt(0) : 'A'}
+                            {op.autor?.nombre ? op.autor.nombre.charAt(0) : 'A'}
                           </div>
-                          <span className="font-semibold text-gray-900">{op.emisor?.nombre || "Anónimo"}</span>
+                          <span className="font-semibold text-gray-900">{op.autor?.nombre || "Anónimo"}</span>
                         </div>
                         <div className="flex text-amber-400 text-sm">
                           {[...Array(5)].map((_, i) => (
-                            <span key={i}>{i < op.calificacion ? '★' : '☆'}</span>
+                            <span key={i}>{i < (op.puntuacion || op.calificacion) ? '★' : '☆'}</span>
                           ))}
                         </div>
                       </div>
-                      <p className="text-gray-600 text-sm leading-relaxed">{op.comentario}</p>
+                      <p className="text-gray-600 text-sm leading-relaxed">{op.opinion || op.comentario}</p>
                     </div>
                   ))}
                 </div>
@@ -347,7 +353,7 @@ const Perfil = () => {
 
         </section>
 
-        {/* ===== PERFILES SUGERIDOS ===== */}
+        {/* ===== PERFILES SUGERIDOS (Opcional) ===== */}
         {suggested.length > 0 && (
           <section className="mt-20 pt-10 border-t border-gray-200">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">Perfiles sugeridos</h2>
@@ -466,20 +472,20 @@ const Perfil = () => {
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold">
-                              {op.emisor?.nombre ? op.emisor.nombre.charAt(0) : '?'}
+                              {op.autor?.nombre ? op.autor.nombre.charAt(0) : '?'}
                             </div>
                             <div>
-                              <p className="font-bold text-gray-900">{op.emisor?.nombre || "Usuario"}</p>
+                              <p className="font-bold text-gray-900">{op.autor?.nombre || "Usuario"}</p>
                               <p className="text-xs text-gray-400">{new Date(op.createdAt).toLocaleDateString()}</p>
                             </div>
                           </div>
                           <div className="flex text-amber-400">
                             {[...Array(5)].map((_, i) => (
-                              <span key={i}>{i < op.calificacion ? '★' : '☆'}</span>
+                              <span key={i}>{i < (op.puntuacion || op.calificacion) ? '★' : '☆'}</span>
                             ))}
                           </div>
                         </div>
-                        <p className="text-gray-600 leading-relaxed mt-2">{op.comentario}</p>
+                        <p className="text-gray-600 leading-relaxed mt-2">{op.opinion || op.comentario}</p>
                       </div>
                     ))}
                   </div>

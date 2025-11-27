@@ -108,14 +108,11 @@ export const getAllFreelancers = async (req, res) => {
     const { isPremium, isDisponible, isAvailable } = req.query;
 
     // 2. Construir el objeto de filtro para MongoDB
-    const filter = {
-      // El filtro base SIEMPRE debe ser isFreelancer: true
-      isFreelancer: true
-    }
+    const filter = {}
 
     // 3. Aplicar filtro Premium
     if (isPremium === 'true') {
-      filter.isPremium = true;
+      filter.plan = 'premium';
     }
 
     // 4. Aplicar filtro de Disponibilidad
@@ -367,18 +364,40 @@ export const incrementPortfolioAccess = async (req, res) => {
   }
 };
 // ! GET /api/users/freelancers/premium
-// ? Obtener SOLO freelancers PREMIUM y DISPONIBLES
+// ? Obtener SOLO freelancers PREMIUM y DISPONIBLES, ordenados por CALIFICACIÓN
 export const getPremiumFreelancers = async (req, res) => {
   try {
-    // Definimos el filtro estricto directamente en el servidor
-    const filter = {
+    // 1. Buscar freelancers premium y disponibles
+    // Usamos el modelo User directamente para poder hacer populate
+    const freelancers = await userModel.User.find({
       plan: 'premium',
-      isDisponible: true
-    };
+      isDisponible: true,
+      role: 'freelancer'
+    }).populate('opiniones'); // Traemos las opiniones completas
 
-    const freelancers = await obtenerFreelancers(filter);
+    // 2. Calcular el rating promedio para cada freelancer
+    const freelancersWithRating = freelancers.map(f => {
+      // Convertimos a objeto plano para poder agregar propiedades
+      const freelancerObj = f.toObject();
 
-    res.status(200).json(freelancers || []);
+      let avgRating = 0;
+      if (f.opiniones && f.opiniones.length > 0) {
+        const sum = f.opiniones.reduce((acc, op) => acc + (op.calificacion || op.puntuacion || 0), 0);
+        avgRating = sum / f.opiniones.length;
+      }
+
+      // Agregamos el rating calculado al objeto
+      freelancerObj.calculatedRating = avgRating;
+      // También aseguramos que el campo 'rating' (si se usa en el front) tenga este valor
+      freelancerObj.rating = avgRating.toFixed(1);
+
+      return freelancerObj;
+    });
+
+    // 3. Ordenar por rating descendente (Mayor a menor)
+    freelancersWithRating.sort((a, b) => b.calculatedRating - a.calculatedRating);
+
+    res.status(200).json(freelancersWithRating);
   } catch (error) {
     console.error("Error en getPremiumFreelancers:", error);
     res.status(500).json({ message: "Error al obtener freelancers premium", error: error.message });

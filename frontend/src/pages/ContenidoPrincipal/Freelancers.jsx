@@ -225,6 +225,12 @@ const Freelancers = () => {
         }
     };
 
+    // --- Función para aplicar filtros en móvil ---
+    const handleApplyMobileFilters = () => {
+        setCurrentPage(1);
+        setShowMobileFilters(false);
+    }
+
     const especialidadesList = ["Todas", ...new Set(ENRICHED_DB.map(i => i.especialidad))];
     
     // Condición para mostrar el estado vacío
@@ -275,7 +281,7 @@ const Freelancers = () => {
                     
                     {/* --- SIDEBAR FILTROS --- */}
                     <aside className={`
-                        fixed inset-0 z-40 bg-white p-6 lg:p-0 lg:static lg:bg-transparent lg:z-auto lg:w-72 lg:flex-shrink-0 
+                        fixed inset-0 z-40 bg-white p-6 lg:p-0 lg:static lg:bg-transparent lg:z-auto lg:w-72 lg:shrink-0 
                         ${showMobileFilters ? 'flex flex-col overflow-y-auto' : 'hidden lg:block'}
                     `}>
                         {/* Header Móvil */}
@@ -360,19 +366,29 @@ const Freelancers = () => {
                                         <button 
                                             key={stars}
                                             onClick={() => { setFilterRating(filterRating === stars ? 0 : stars); setCurrentPage(1); }}
-                                            className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors w-full ${filterRating === stars ? 'bg-yellow-50 ring-1 ring-yellow-200 text-yellow-700' : 'hover:bg-slate-50 text-slate-600'}`}
+                                            className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors w-full ${filterRating === stars ? 'bg-yellow-50 ring-1 ring-yellow-400 text-yellow-700' : 'hover:bg-slate-50 text-slate-600'}`}
                                         >
                                             <div className="flex text-yellow-400">
                                                 {[...Array(5)].map((_, i) => (
                                                     <Star key={i} size={14} className={i < stars ? "fill-current" : "text-slate-200"} />
                                                 ))}
                                             </div>
-                                            <span className="text-xs opacity-70">& más</span>
                                         </button>
                                     ))}
                                 </div>
                             </div>
                         </div>
+                        {/* --- boton de aplicar filtros version mobile --- */}
+                        {showMobileFilters && (
+                            <div className="lg:hidden sticky bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-200 mt-auto">
+                                <button 
+                                    onClick={handleApplyMobileFilters}
+                                    className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-transform"
+                                >
+                                    Aplicar Filtros ({totalResults})
+                                </button>
+                            </div>
+                        )}
                     </aside>
 
                     {/* --- GRID RESULTADOS (SÓLO GENERAL) --- */}

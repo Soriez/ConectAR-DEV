@@ -225,6 +225,12 @@ const Freelancers = () => {
         }
     };
 
+    // --- Función para aplicar filtros en móvil ---
+    const handleApplyMobileFilters = () => {
+        setCurrentPage(1);
+        setShowMobileFilters(false);
+    }
+
     const especialidadesList = ["Todas", ...new Set(ENRICHED_DB.map(i => i.especialidad))];
     
     // Condición para mostrar el estado vacío
@@ -372,6 +378,17 @@ const Freelancers = () => {
                                 </div>
                             </div>
                         </div>
+                        {/* --- boton de aplicar filtros version mobile --- */}
+                        {showMobileFilters && (
+                            <div className="lg:hidden sticky bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-200 mt-auto">
+                                <button 
+                                    onClick={handleApplyMobileFilters}
+                                    className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-transform"
+                                >
+                                    Aplicar Filtros ({totalResults})
+                                </button>
+                            </div>
+                        )}
                     </aside>
 
                     {/* --- GRID RESULTADOS (SÓLO GENERAL) --- */}

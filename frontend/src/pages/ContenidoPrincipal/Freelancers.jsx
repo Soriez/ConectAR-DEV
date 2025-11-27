@@ -2,12 +2,14 @@ import React, { useState, useMemo } from 'react';
 import { Search, Filter, Star, ChevronLeft, ChevronRight, Check, Globe, Briefcase, DollarSign, MapPin, X } from 'lucide-react';
 import { NavLink } from 'react-router';
 
+// 🚨 RUTA DE IMPORTACIÓN CORREGIDA para el componente reutilizado del carrusel
+import FreelancersInicio from '../../components/SeccionesInicio/FreelancersInicio'; 
+
 // Importamos los datos locales desde el archivo que acabamos de crear
 import dbData from '../../data/freelancers.json'; 
 
 /* ========================================================================
    UTILS & ENRICHMENT
-   Lógica para completar datos que faltan en el JSON original
    ======================================================================== */
 
 const getRating = (opinionStr) => {
@@ -48,12 +50,18 @@ const enrichProfileData = (profile) => {
     // Asignar idiomas (simulado para la demo)
     const idiomas = profile.id % 2 === 0 ? ["Español", "Inglés"] : ["Español"];
 
+    // Nota: Añadimos isPremium y isDisponible si el JSON no lo tiene
+    const isPremium = profile.isPremium || (profile.id % 5 === 0); // Simulación
+    const isDisponible = profile.isDisponible !== undefined ? profile.isDisponible : true; // Simulación
+
     return {
         ...profile,
         titulo,
         servicios,
         especialidad,
         idiomas,
+        isPremium,
+        isDisponible,
         rating: getRating(profile.opiniones)
     };
 };
@@ -89,6 +97,10 @@ const FreelancerCard = ({ data }) => {
                         </div>
                         
                         <div className="flex items-center gap-1">
+                            {/* Indicador Premium (Nuevo) */}
+                            {data.isPremium && (
+                                <span className="text-yellow-500 mr-1" title="Perfil Premium">⭐</span>
+                            )}
                             <div className="flex text-yellow-400">
                                 {[...Array(5)].map((_, i) => (
                                     <Star key={i} size={12} className={i < data.rating ? "fill-current" : "text-slate-200"} />
@@ -162,9 +174,10 @@ const Freelancers = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 24; 
 
-    // --- Filtrado ---
-    const filteredData = useMemo(() => {
-        return ENRICHED_DB.filter(item => {
+    // --- Filtrado y División ---
+    const { premiumData, generalData, totalResults } = useMemo(() => {
+        // 1. Filtrado
+        let filtered = ENRICHED_DB.filter(item => {
             const term = searchTerm.toLowerCase();
             const matchesSearch = 
                 item.nombre.toLowerCase().includes(term) || 
@@ -179,11 +192,28 @@ const Freelancers = () => {
 
             return matchesSearch && matchesEsp && matchesIdioma && matchesRating && matchesTarifa;
         });
+
+        // 2. División de listas
+        let premium = filtered.filter(item => item.isPremium);
+        let general = filtered.filter(item => !item.isPremium); // SÓLO No-Premium
+        
+        // 3. Ordenamiento
+        premium.sort((a, b) => b.rating - a.rating); // Premium: Rating Desc.
+        general.sort((a, b) => b.rating - a.rating); // General: Default Rating Desc.
+
+        return {
+            premiumData: premium,
+            generalData: general,
+            totalResults: filtered.length
+        };
+
     }, [searchTerm, filterEspecialidad, filterIdioma, filterRating, filterTarifaMax]);
 
     // --- Paginación Lógica ---
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    const paginatedData = filteredData.slice(
+    const totalPages = Math.ceil(generalData.length / itemsPerPage);
+    
+    // Solo paginamos la lista general (no premium)
+    const paginatedGeneralData = generalData.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
@@ -196,11 +226,14 @@ const Freelancers = () => {
     };
 
     const especialidadesList = ["Todas", ...new Set(ENRICHED_DB.map(i => i.especialidad))];
+    
+    // Condición para mostrar el estado vacío
+    //const showEmptyState = totalResults === 0;
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-20">
             
-            {/* ===== HERO SEARCH ===== */}
+            {/* ===== HERO SEARCH (Se mantiene arriba, fuera del layout de 2 columnas) ===== */}
             <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -232,11 +265,15 @@ const Freelancers = () => {
                 </div>
             </div>
 
-            {/* ===== LAYOUT PRINCIPAL ===== */}
+            {/* 2. ✅ INTEGRACIÓN DEL CARRUSEL (USUARIOS PREMIUM DESTACADOS) */}
+            {/* Solo mostramos el carrusel si hay resultados premium que coincidan con los filtros */}
+            {premiumData.length > 0 && <FreelancersInicio />} 
+
+            {/* ===== LAYOUT PRINCIPAL: FILTROS y CATÁLOGO ===== */}
             <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="flex flex-col lg:flex-row gap-8">
                     
-                    {/* --- SIDEBAR FILTROS (Desktop & Mobile Overlay) --- */}
+                    {/* --- SIDEBAR FILTROS --- */}
                     <aside className={`
                         fixed inset-0 z-40 bg-white p-6 lg:p-0 lg:static lg:bg-transparent lg:z-auto lg:w-72 lg:flex-shrink-0 
                         ${showMobileFilters ? 'flex flex-col overflow-y-auto' : 'hidden lg:block'}
@@ -338,44 +375,53 @@ const Freelancers = () => {
                         </div>
                     </aside>
 
-                    {/* --- GRID RESULTADOS --- */}
+                    {/* --- GRID RESULTADOS (SÓLO GENERAL) --- */}
                     <div className="flex-1">
                         
                         <div className="mb-6 flex justify-between items-center">
+                            {/* Mostramos el conteo del catálogo general */}
                             <p className="text-slate-500 text-sm">
-                                Se encontraron <span className="font-bold text-slate-900">{filteredData.length}</span> perfiles
+                                Se encontraron <span className="font-bold text-slate-900">{generalData.length}</span> resultados en el Catálogo General
                             </p>
                             
-                            {/* Paginación Mini (Arriba) */}
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs font-medium text-slate-400 mr-2 hidden sm:inline">
-                                    Pág {currentPage} de {totalPages}
-                                </span>
-                                <button 
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    disabled={currentPage === 1}
-                                    className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
-                                >
-                                    <ChevronLeft size={16} />
-                                </button>
-                                <button 
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    disabled={currentPage === totalPages}
-                                    className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
-                                >
-                                    <ChevronRight size={16} />
-                                </button>
-                            </div>
+                            {/* Paginación Mini (Arriba - SÓLO para la lista general) */}
+                            {generalData.length > 0 && (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-medium text-slate-400 mr-2 hidden sm:inline">
+                                        Pág {currentPage} de {totalPages}
+                                    </span>
+                                    <button 
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                        className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
+                                    >
+                                        <ChevronLeft size={16} />
+                                    </button>
+                                    <button 
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                        className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
+                                    >
+                                        <ChevronRight size={16} />
+                                    </button>
+                                </div>
+                            )}
                         </div>
-
-                        {paginatedData.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-                                {paginatedData.map((freelancer) => (
-                                    <FreelancerCard key={freelancer.id} data={freelancer} />
-                                ))}
-                            </div>
-                        ) : (
-                            /* Estado Vacío */
+                        
+                        {/* ===== CATÁLOGO GENERAL (PAGINADA - SÓLO NO-PREMIUM) ===== */}
+                        {paginatedGeneralData.length > 0 ? (
+                            <>
+                                <h2 className="text-xl font-bold text-slate-800 mb-4">
+                                    Catálogo General
+                                </h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                                    {paginatedGeneralData.map((freelancer) => (
+                                        <FreelancerCard key={freelancer.id} data={freelancer} />
+                                    ))}
+                                </div>
+                            </>
+                        ) : totalResults === 0 ? (
+                            /* Estado Vacío si NO hay absolutamente NINGÚN resultado (Premium + General) */
                             <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-slate-200">
                                 <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-full mb-4">
                                     <Search className="w-8 h-8 text-slate-300" />
@@ -389,10 +435,19 @@ const Freelancers = () => {
                                     Limpiar todos los filtros
                                 </button>
                             </div>
+                        ) : (
+                            /* Si hay resultados Premium (totalResults > 0) pero no Generales, muestra un mensaje suave. */
+                             <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-slate-200">
+                                <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-full mb-4">
+                                    <Search className="w-8 h-8 text-slate-300" />
+                                </div>
+                                <h3 className="text-lg font-bold text-slate-900 mb-1">No encontramos resultados en el Catálogo General</h3>
+                                <p className="text-slate-500">Los resultados Premium que cumplen tus filtros se muestran arriba.</p>
+                            </div>
                         )}
 
-                        {/* Paginación Inferior */}
-                        {totalPages > 1 && (
+                        {/* Paginación Inferior (SÓLO si la lista general tiene más de una página) */}
+                        {totalPages > 1 && paginatedGeneralData.length > 0 && (
                             <div className="mt-12 flex justify-center">
                                 <div className="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-100">
                                     <button 

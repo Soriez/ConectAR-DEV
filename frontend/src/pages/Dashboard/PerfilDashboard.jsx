@@ -64,7 +64,7 @@ const PerfilDashboard = () => {
   // 2. EFECTO: Sincronizar 'technologies' con 'user.skills' cuando el usuario carga
   useEffect(() => {
     // Solo actualizamos si el usuario existe y es freelancer con skills
-    if (user && user.isFreelancer && user.skills) {
+    if (user && user.role === 'freelancer' && user.skills) {
       setTechnologies(user.skills);
     } else {
       // Si no es freelancer o no tiene skills, aseguramos que el estado esté vacío.
@@ -117,8 +117,8 @@ const PerfilDashboard = () => {
   }
 
   // Variables de conveniencia (AHORA es seguro acceder a user.*)
-  const isFreelancer = user.isFreelancer;
-  const isPremium = user.isPremium;
+  const isFreelancer = user.role === 'freelancer';
+  const isPremium = user.plan === 'premium';
   const handleSelectTech = (tech) => {
     if (technologies.length < 5) {
       setTechnologies([...technologies, tech]);
@@ -202,9 +202,8 @@ const PerfilDashboard = () => {
       <Star
         key={index}
         size={18}
-        className={`${
-          index < rating ? "text-yellow-400 fill-yellow-400" : "text-slate-300"
-        }`}
+        className={`${index < rating ? "text-yellow-400 fill-yellow-400" : "text-slate-300"
+          }`}
       />
     ));
   };
@@ -237,10 +236,9 @@ const PerfilDashboard = () => {
             <div
               className={`
                 w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg ring-4 
-                ${
-                  isPremium
-                    ? "bg-slate-900 ring-yellow-400/50"
-                    : "bg-blue-600 ring-blue-50"
+                ${isPremium
+                  ? "bg-slate-900 ring-yellow-400/50"
+                  : "bg-blue-600 ring-blue-50"
                 }
             `}
             >
@@ -397,11 +395,10 @@ const PerfilDashboard = () => {
                 disabled={
                   !isFreelancer || technologies.length === user.skills.length
                 }
-                className={`mt-4 w-full px-4 py-3 font-bold rounded-lg transition ${
-                  technologies.length === user.skills.length
+                className={`mt-4 w-full px-4 py-3 font-bold rounded-lg transition ${technologies.length === user.skills.length
                     ? "bg-slate-300 text-slate-600 cursor-not-allowed"
                     : "bg-green-600 text-white hover:bg-green-700"
-                }`}
+                  }`}
               >
                 Guardar Skills ({technologies.length}/5)
               </button>
@@ -418,9 +415,11 @@ const PerfilDashboard = () => {
                 Convierte tu cuenta a perfil Freelancer y comienza a ofrecer tus
                 servicios hoy mismo.
               </p>
-              <button className="w-full bg-white text-blue-700 font-bold py-2 rounded-lg hover:bg-blue-50 transition shadow-sm">
-                Convertirme en Freelancer
-              </button>
+              <a href="/hacerse-freelancer">
+                <button className="w-full bg-white text-blue-700 font-bold py-2 rounded-lg hover:bg-blue-50 transition shadow-sm">
+                  Convertirme en Freelancer
+                </button>
+              </a>
             </div>
           )}
           {/* Stats simples */}

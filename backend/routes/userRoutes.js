@@ -10,6 +10,7 @@ import {
     getUserById,
     updateUser,
     getAllFreelancers,
+    getPremiumFreelancers, // <--- Importamos el nuevo controlador
     becomeFreelancer,
     toggleAvailability,
     upgradeToPremium,
@@ -21,15 +22,18 @@ const router = express.Router();
 
 // (C) CREATE - Crear un usuario (Registro)
 // Petición POST a /api/users/
-// (Usamos la función registerUser que creamos en el paso anterior)
 router.post('/register', registerUser);
 
 // POST a /api/users/login (Login)
 router.post('/login', loginUser);
 
 // (R) READ - Obtener todos los freelancers
-//Petición GET a /api/users/freelancers
+// Petición GET a /api/users/freelancers
 router.get('/freelancers', getAllFreelancers)
+
+// (R) READ - Obtener freelancers PREMIUM (Endpoint dedicado)
+// Petición GET a /api/users/freelancers/premium
+router.get('/freelancers/premium', getPremiumFreelancers);
 
 // (R) READ - Obtener todos los usuarios
 // Petición GET a /api/users/
@@ -46,7 +50,7 @@ router.put('/:id', protect, updateUser);
 
 // (U) UPDATE - Convertirse en Freelancer
 // PUT a /api/users/become-freelancer
-router.put('/become-freelancer', protect, becomeFreelancer);
+router.put('/hacerse-freelancer', protect, becomeFreelancer);
 
 // (U) UPDATE - Cambiar Disponibilidad
 // PUT a /api/users/availability
@@ -54,7 +58,7 @@ router.put('/availability', protect, toggleAvailability);
 
 // (U) UPDATE - Convertirse en Premium
 // PUT a /api/users/upgrade-premium
-router.put('/upgrade-premium', protect, upgradeToPremium);
+router.put('/hacerse-premium', protect, upgradeToPremium);
 
 // PUT /api/users/:id/skills
 router.put('/:id/skills', protect, actualizarSkillsUser);

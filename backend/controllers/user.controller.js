@@ -1,5 +1,5 @@
 import userModel from '../models/user.model.js';
-const { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuario, obtenerFreelancers, obtenerTodosLosUsuarios, usuarioExiste, verificarPasword, convertirAFreelancer, cambiarDisponibilidad, buscarUsuarioSinPassword, convertirAPremium, actualizarSkills} = userModel;
+const { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuario, obtenerFreelancers, obtenerTodosLosUsuarios, usuarioExiste, verificarPasword, convertirAFreelancer, cambiarDisponibilidad, buscarUsuarioSinPassword, convertirAPremium, actualizarSkills } = userModel;
 
 
 // ! POST /api/users/register
@@ -8,7 +8,7 @@ const { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuar
 // Función para registrar un nuevo usuario
 export const registerUser = async (req, res) => {
   try {
-    const { nombre, apellido, email, password, isFreelancer } = req.body;
+    const { nombre, apellido, email, password, role } = req.body;
 
     // 1. Verificar si el usuario ya existe (opcional, pero buena práctica)
     const userExists = await usuarioExiste(email)
@@ -20,7 +20,7 @@ export const registerUser = async (req, res) => {
     const saltRounds = 10;
 
     // le pido al modelo que guarde el usuario
-    const savedUser = await guardarUsuario(nombre, apellido, email, password, isFreelancer, saltRounds)
+    const savedUser = await guardarUsuario(nombre, apellido, email, password, role, saltRounds)
 
     // 3. Generar y enviar el token después del registro exitoso
     const token = await generateToken(savedUser._id);
@@ -31,7 +31,8 @@ export const registerUser = async (req, res) => {
       _id: savedUser._id,
       nombre: savedUser.nombre,
       email: savedUser.email,
-      isFreelancer: savedUser.isFreelancer,
+      role: savedUser.role,
+      plan: savedUser.plan,
       token: token // ¡CLAVE: Enviamos el JWT!
     });
 
@@ -72,7 +73,8 @@ export const loginUser = async (req, res) => {
         _id: user._id,
         nombre: user.nombre,
         email: user.email,
-        isFreelancer: user.isFreelancer,
+        role: user.role,
+        plan: user.plan,
         token: token // ¡CLAVE: Enviamos el JWT!
       });
     } else {
@@ -99,21 +101,47 @@ export const getAllUsers = async (req, res) => {
 };
 
 // ! GET /api/users/freelancers
-// ? Obtener todos los freelancers
-
+// ? Obtener todos los freelancers (¡CON FILTROS!)
 export const getAllFreelancers = async (req, res) => {
   try {
-    const freelancers = await obtenerFreelancers()
-    res.status(200).json(freelancers);
+    // 1. Obtener parámetros de consulta. Capturamos isPremium y isDisponible/isAvailable
+    const { isPremium, isDisponible, isAvailable } = req.query;
+
+    // 2. Construir el objeto de filtro para MongoDB
+    const filter = {
+      // El filtro base SIEMPRE debe ser isFreelancer: true
+      isFreelancer: true
+    }
+
+    // 3. Aplicar filtro Premium
+    if (isPremium === 'true') {
+      filter.isPremium = true;
+    }
+
+    // 4. Aplicar filtro de Disponibilidad
+    // Usamos la variable 'isDisponible' del query, o la variable 'isAvailable' como fallback.
+    const availabilityQuery = isDisponible || isAvailable;
+
+    if (availabilityQuery === 'true') {
+      // El campo en el modelo es 'isDisponible'
+      filter.isDisponible = true;
+    }
+
+    // 5. Llamar al modelo con el filtro
+    const freelancers = await obtenerFreelancers(filter);
+
+    // 6. RESPUESTA ROBUSTA: Aseguramos que la respuesta SIEMPRE sea un array o vacío.
+    res.status(200).json(freelancers || []);
+
   } catch (error) {
-    console.error('Error al obtener freelancers:', error);
+    // 7. MANEJO DE ERRORES: Devolvemos el mensaje de error real para debugging
+    console.error("Error REAL en getAllFreelancers:", error.message);
     res.status(500).json({
-      message: "Error interno del servidor al obtener la lista de freelancers",
-      error: error.message
+      message: 'Error interno del servidor al obtener la lista de profesionales.',
+      details: error.message // Útil para ver el error exacto en el frontend
     });
   }
 };
-
 
 
 // ! PUT /api/users/:id o PATCH /api/users/:id
@@ -186,20 +214,19 @@ export const updateUser = async (req, res) => {
 export const becomeFreelancer = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { linkedin, portfolio, descripcion, tarifa } = req.body;
+    const { linkedin, portfolio, descripcion, role } = req.body;
 
-    if (!linkedin || !portfolio || !descripcion || !tarifa) {
+    if (!linkedin || !portfolio || !descripcion) {
       return res.status(400).json({ message: "Todos los campos son obligatorios para ser freelancer" });
     }
 
-    const updatedUser = await convertirAFreelancer(userId, linkedin, portfolio, descripcion, tarifa);
+    const updatedUser = await convertirAFreelancer(userId, linkedin, portfolio, descripcion, role);
 
-    res.status(200).json({
-      message: "¡Felicidades! Ahora eres un Freelancer.",
-      user: updatedUser
-    });
+    res.status(200).json(updatedUser);
+
 
   } catch (error) {
+    console.error("Controller Error:", error);
     res.status(500).json({ message: "Error al convertir a freelancer", error: error.message });
   }
 };
@@ -217,10 +244,7 @@ export const toggleAvailability = async (req, res) => {
 
     const updatedUser = await cambiarDisponibilidad(userId, isDisponible);
 
-    res.status(200).json({
-      message: `Estado actualizado a: ${isDisponible ? 'Disponible' : 'Ocupado'}`,
-      user: updatedUser
-    });
+    res.status(200).json(updatedUser);
 
   } catch (error) {
     res.status(500).json({ message: "Error al cambiar disponibilidad", error: error.message });
@@ -232,16 +256,14 @@ export const toggleAvailability = async (req, res) => {
 export const upgradeToPremium = async (req, res) => {
   try {
     const userId = req.user._id;
+    const { plan } = req.body;
 
     // Aquí iría la lógica de verificación de pago si fuera real
     // Por ahora asumimos que si llaman a este endpoint es porque pagaron
 
-    const updatedUser = await convertirAPremium(userId);
+    const updatedUser = await convertirAPremium(userId, plan);
 
-    res.status(200).json({
-      message: "¡Pago exitoso! Ahora eres usuario Premium.",
-      user: updatedUser
-    });
+    res.status(200).json(updatedUser);
 
   } catch (error) {
     res.status(500).json({ message: "Error al procesar la suscripción Premium", error: error.message });
@@ -268,48 +290,66 @@ export const getUserById = async (req, res) => {
 // ? actualiza las skills del usuario 
 
 export const actualizarSkillsUser = async (req, res) => {
-    // 🚨 USAMOS req.user._id: El ID seguro y autenticado que viene del token.
-    const userId = req.user._id; 
-    const { skills } = req.body; // Esperamos que el frontend envíe { skills: [...] }
+  // 🚨 USAMOS req.user._id: El ID seguro y autenticado que viene del token.
+  const userId = req.user._id;
+  const { skills } = req.body; // Esperamos que el frontend envíe { skills: [...] }
 
-    // Validación básica: El campo 'skills' debe existir y ser un array
-    if (!skills || !Array.isArray(skills)) {
-        return res.status(400).json({ message: 'El campo skills es obligatorio y debe ser un array.' });
+  // Validación básica: El campo 'skills' debe existir y ser un array
+  if (!skills || !Array.isArray(skills)) {
+    return res.status(400).json({ message: 'El campo skills es obligatorio y debe ser un array.' });
+  }
+
+  // Si tienes el chequeo de req.params.id en la ruta, puedes omitir esto.
+  // Si quieres un chequeo de seguridad adicional:
+  if (req.params.id !== userId.toString()) {
+    return res.status(403).json({ message: 'Acceso denegado: No puedes actualizar otro usuario.' });
+  }
+
+  try {
+    const updatedUser = await actualizarSkills(userId, skills);
+
+    // Si por alguna razón el modelo no encontró el usuario, lanzará un error (si lo implementamos)
+    // o devolverá null. Es bueno chequear esto.
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
     }
-    
-    // Si tienes el chequeo de req.params.id en la ruta, puedes omitir esto.
-    // Si quieres un chequeo de seguridad adicional:
-    if (req.params.id !== userId.toString()) {
-        return res.status(403).json({ message: 'Acceso denegado: No puedes actualizar otro usuario.' });
+
+    // 🟢 RESPUESTA FINAL DE ÉXITO
+    // El problema es que esta línea falla silenciosamente.
+    // Si el .toJSON() en el modelo no resolvió el problema, 
+    // aquí aseguramos que la respuesta se envía correctamente.
+    return res.status(200).json(updatedUser);
+
+  } catch (error) {
+    // 🔴 Manejo de Errores: Esto captura cualquier fallo interno,
+    // incluyendo el error de validación del límite de 5 skills.
+    console.error('Error REAL al actualizar skills en el controlador:', error.message);
+
+    // Manejo de error de validación de Mongoose (límite de 5 skills, etc.)
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: error.message });
     }
 
-    try {
-        const updatedUser = await actualizarSkills(userId, skills); 
-
-        // Si por alguna razón el modelo no encontró el usuario, lanzará un error (si lo implementamos)
-        // o devolverá null. Es bueno chequear esto.
-        if (!updatedUser) {
-            return res.status(404).json({ message: 'Usuario no encontrado.' });
-        }
-
-        // 🟢 RESPUESTA FINAL DE ÉXITO
-        // El problema es que esta línea falla silenciosamente.
-        // Si el .toJSON() en el modelo no resolvió el problema, 
-        // aquí aseguramos que la respuesta se envía correctamente.
-        return res.status(200).json(updatedUser); 
-        
-    } catch (error) {
-        // 🔴 Manejo de Errores: Esto captura cualquier fallo interno,
-        // incluyendo el error de validación del límite de 5 skills.
-        console.error('Error REAL al actualizar skills en el controlador:', error.message);
-        
-        // Manejo de error de validación de Mongoose (límite de 5 skills, etc.)
-        if (error.name === 'ValidationError') {
-             return res.status(400).json({ message: error.message });
-        }
-        
-        // Este es el error "desconocido" que ve el frontend
-        return res.status(500).json({ message: 'Error interno del servidor al guardar skills.' });
-    }
+    // Este es el error "desconocido" que ve el frontend
+    return res.status(500).json({ message: 'Error interno del servidor al guardar skills.' });
+  }
 };
 
+// ! GET /api/users/freelancers/premium
+// ? Obtener SOLO freelancers PREMIUM y DISPONIBLES
+export const getPremiumFreelancers = async (req, res) => {
+  try {
+    // Definimos el filtro estricto directamente en el servidor
+    const filter = {
+      plan: 'premium',
+      isDisponible: true
+    };
+
+    const freelancers = await obtenerFreelancers(filter);
+
+    res.status(200).json(freelancers || []);
+  } catch (error) {
+    console.error("Error en getPremiumFreelancers:", error);
+    res.status(500).json({ message: "Error al obtener freelancers premium", error: error.message });
+  }
+};

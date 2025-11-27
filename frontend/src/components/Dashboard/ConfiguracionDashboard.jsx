@@ -6,27 +6,27 @@ import axios from 'axios';
 //import de modales
 import BecomeFreelancerModal from '../Modals/ModalsConfiguracion/BecomeFreelancerModal';
 import PortfolioModal from '../Modals/ModalsConfiguracion/PortfolioModal';
-import EmailModal from '../Modals/ModalsConfiguracion/EmailModal'; 
+import EmailModal from '../Modals/ModalsConfiguracion/EmailModal';
 import PasswordModal from '../Modals/ModalsConfiguracion/PasswordModal';
 import GoogleModal from '../Modals/ModalsConfiguracion/GoogleModal';
 import LinkedinModal from '../Modals/ModalsConfiguracion/LinkedinModal';
 
 const ConfiguracionDashboard = () => {
-  const { user,setUser, BASE_URL, upgradeToPremium } = useContext(AuthContext); // Datos reales
+  const { user, setUser, BASE_URL, upgradeToPremium } = useContext(AuthContext); // Datos reales
   // --- ESTADOS PARA MODALES ---
   const [showEmailModal, setShowEmailModal] = useState(false);
-  const [showPasswordModal,setShowPasswordModal] = useState(false);
-  const [showGoogleModal,setShowGoogleModal] = useState(false);
-  const [showLinkedinModal,setShowLinkedinModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [showLinkedinModal, setShowLinkedinModal] = useState(false);
   const [showPortfolioModal, setShowPortfolioModal] = useState(false);
   const [showBecomeFreelancerModal, setShowBecomeFreelancerModal] = useState(false);
 
   // Estado para el formulario de "Hacerse Freelancer"
   const [freelancerData, setFreelancerData] = useState({
-      linkedin: user?.linkedin || '',
-      portfolio: user?.portfolio || '',
-      descripcion: user?.descripcion || '',
-      tarifa: user?.tarifa || 0,
+    linkedin: user?.linkedin || '',
+    portfolio: user?.portfolio || '',
+    descripcion: user?.descripcion || '',
+    tarifa: user?.tarifa || 0,
   });
 
   // Helpers
@@ -38,53 +38,53 @@ const ConfiguracionDashboard = () => {
   // 1. Guardar Portfolio
   const handleSavePortfolio = async (newUrl) => {
     try {
-        const response = await axios.put(`${BASE_URL}/api/users/${user._id}`, { portfolio: newUrl });
+      const response = await axios.put(`${BASE_URL}/api/users/${user._id}`, { portfolio: newUrl });
 
-        // 🛡️ FIX DE ROBUSTEZ:
-        // Verificamos si el usuario viene directo en response.data o dentro de una propiedad .user
-        // (Dependiendo de cómo esté programado tu user.controller.js)
-        const updatedUser = response.data.user ? response.data.user : response.data;
+      // 🛡️ FIX DE ROBUSTEZ:
+      // Verificamos si el usuario viene directo en response.data o dentro de una propiedad .user
+      // (Dependiendo de cómo esté programado tu user.controller.js)
+      const updatedUser = response.data.user ? response.data.user : response.data;
 
-        // Actualizamos el contexto solo con el objeto de usuario limpio
-        setUser(updatedUser); 
-        
-        alert("Portfolio actualizado correctamente.");
+      // Actualizamos el contexto solo con el objeto de usuario limpio
+      setUser(updatedUser);
+
+      alert("Portfolio actualizado correctamente.");
 
     } catch (error) {
-        console.error("Error al guardar portfolio", error);
-        alert("Error al guardar el portfolio.");
+      console.error("Error al guardar portfolio", error);
+      alert("Error al guardar el portfolio.");
     }
-};
+  };
 
   // 2. Convertirse en Freelancer
   const handleBecomeFreelancerSubmit = async (e) => {
-      e.preventDefault();
-      try {
-          const response = await axios.put(`${BASE_URL}/api/users/become-freelancer`, freelancerData);
-          setUser(response.data);
-          setShowBecomeFreelancerModal(false);
-          alert("¡Ahora eres Freelancer!");
-      } catch (error) {
-          console.error(error);
-          alert("Error al procesar la solicitud.");
-      }
+    e.preventDefault();
+    try {
+      const response = await axios.put(`${BASE_URL}/api/users/become-freelancer`, freelancerData);
+      setUser(response.data);
+      setShowBecomeFreelancerModal(false);
+      alert("¡Ahora eres Freelancer!");
+    } catch (error) {
+      console.error(error);
+      alert("Error al procesar la solicitud.");
+    }
   };
 
   // 3. Hacerse Premium
   const handleUpgradePremium = async () => {
-      if(confirm("¿Confirmas que quieres ser Premium?")) {
-        try {
-            const res = await upgradeToPremium(); 
-            if(res.success) alert("¡Bienvenido al plan Premium!");
-            else alert("Error: " + res.message);
-        } catch(e) { alert("Error de conexión"); }
-      }
+    if (confirm("¿Confirmas que quieres ser Premium?")) {
+      try {
+        const res = await upgradeToPremium();
+        if (res.success) alert("¡Bienvenido al plan Premium!");
+        else alert("Error: " + res.message);
+      } catch (e) { alert("Error de conexión"); }
+    }
   };
 
   // Componente de Item de Configuración
   const ConfigItem = ({ title, subtitle, actionLabel, icon, onClick, toggle }) => (
-    <div 
-      onClick={onClick} 
+    <div
+      onClick={onClick}
       className="flex items-center justify-between p-4 hover:bg-slate-50 cursor-pointer transition-colors border-b border-slate-100 last:border-0"
     >
       <div className="flex items-center gap-4">
@@ -94,7 +94,7 @@ const ConfiguracionDashboard = () => {
           {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
         </div>
       </div>
-      
+
       <div className="flex items-center gap-3">
         {actionLabel && <span className="text-xs font-medium text-slate-500">{actionLabel}</span>}
         <ChevronRight size={16} className="text-slate-400" />
@@ -112,125 +112,125 @@ const ConfiguracionDashboard = () => {
       <div className="mb-8">
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">General</h3>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <ConfigItem 
-            title="Dirección de correo electrónico" 
+          <ConfigItem
+            title="Dirección de correo electrónico"
             actionLabel={user.email} // Muestra el email real
-            icon={<Mail size={18}/>}
-            onClick={() => setShowEmailModal(true)} 
+            icon={<Mail size={18} />}
+            onClick={() => setShowEmailModal(true)}
           />
-          <ConfigItem 
+          <ConfigItem
             title="Cambiar contraseña"
-            actionLabel="*********" 
-            icon={<Lock size={18}/>}
-            onClick={() => setShowPasswordModal(true)} 
+            actionLabel="*********"
+            icon={<Lock size={18} />}
+            onClick={() => setShowPasswordModal(true)}
           />
         </div>
       </div>
       {/* 2. SECCIÓN FREELANCER (Solo si YA es freelancer) */}
       {isFreelancer && (
         <div className="mb-8">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Perfil Profesional</h3>
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            
-            <ConfigItem 
-                title="LinkedIn" 
-                subtitle={user.linkedin ? "Cuenta conectada" : "Conecta tu perfil profesional"} 
-                icon={<Linkedin size={18}/>}
-                actionLabel={user.linkedin ? "Editar" : "Conectar"}
-                onClick={() => setShowLinkedinModal(true)} 
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Perfil Profesional</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+            <ConfigItem
+              title="LinkedIn"
+              subtitle={user.linkedin ? "Cuenta conectada" : "Conecta tu perfil profesional"}
+              icon={<Linkedin size={18} />}
+              actionLabel={user.linkedin ? "Editar" : "Conectar"}
+              onClick={() => setShowLinkedinModal(true)}
             />
 
-            <ConfigItem 
-                title="Portfolio" 
-                subtitle={user.portfolio ? "Portfolio enlazado" : "Muestra tu trabajo"} 
-                icon={<LinkIcon size={18}/>}
-                actionLabel={user.portfolio ? "Editar" : "Agregar"}
-                onClick={() => setShowPortfolioModal(true)} 
+            <ConfigItem
+              title="Portfolio"
+              subtitle={user.portfolio ? "Portfolio enlazado" : "Muestra tu trabajo"}
+              icon={<LinkIcon size={18} />}
+              actionLabel={user.portfolio ? "Editar" : "Agregar"}
+              onClick={() => setShowPortfolioModal(true)}
             />
-            </div>
+          </div>
         </div>
       )}
 
       {/* 3. SECCIÓN SUSCRIPCIÓN (Solo Freelancers NO Premium) */}
       {isFreelancer && !isPremium && (
         <div className="mb-8">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Membresía</h3>
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div onClick={handleUpgradePremium} className="p-4 bg-linear-to-r from-orange-50 to-white flex justify-between items-center cursor-pointer hover:bg-orange-100 transition">
-                    <div className="flex gap-4 items-center">
-                        <div className="text-orange-500"><Crown size={20}/></div>
-                        <div>
-                            <h4 className="font-bold text-slate-800">Hacerse Premium</h4>
-                            <p className="text-xs text-slate-500">Destaca tu perfil y accede a métricas.</p>
-                        </div>
-                    </div>
-                    <ChevronRight size={16} className="text-slate-400" />
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Membresía</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div onClick={handleUpgradePremium} className="p-4 bg-linear-to-r from-orange-50 to-white flex justify-between items-center cursor-pointer hover:bg-orange-100 transition">
+              <div className="flex gap-4 items-center">
+                <div className="text-orange-500"><Crown size={20} /></div>
+                <div>
+                  <h4 className="font-bold text-slate-800">Hacerse Premium</h4>
+                  <p className="text-xs text-slate-500">Destaca tu perfil y accede a métricas.</p>
                 </div>
+              </div>
+              <ChevronRight size={16} className="text-slate-400" />
             </div>
+          </div>
         </div>
       )}
       {/* 4. SECCIÓN CUENTAS CONECTADAS (Opcional/Para todos) */}
       <div className="mb-8">
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Integraciones</h3>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <ConfigItem 
-            title="Google" 
-            subtitle="Inicio de sesión social" 
-            icon={<Globe size={18}/>}
+          <ConfigItem
+            title="Google"
+            subtitle="Inicio de sesión social"
+            icon={<Globe size={18} />}
             actionLabel="Configurar"
             onClick={() => setShowGoogleModal(true)}
           />
-           {/* Si no es freelancer, mostramos LinkedIn aquí como integración social */}
-           {!isFreelancer && (
-             <ConfigItem 
-                title="LinkedIn" 
-                subtitle={user.linkedin ? "Cuenta vinculada" : "No conectado"} 
-                icon={<Linkedin size={18}/>}
-                actionLabel={user.linkedin ? "Desconectar" : "Conectar"}
-                onClick={() => setShowLinkedinModal(true)} 
-             />
-           )}
+          {/* Si no es freelancer, mostramos LinkedIn aquí como integración social */}
+          {!isFreelancer && (
+            <ConfigItem
+              title="LinkedIn"
+              subtitle={user.linkedin ? "Cuenta vinculada" : "No conectado"}
+              icon={<Linkedin size={18} />}
+              actionLabel={user.linkedin ? "Desconectar" : "Conectar"}
+              onClick={() => setShowLinkedinModal(true)}
+            />
+          )}
         </div>
       </div>
       {/* 5. SECCIÓN OPORTUNIDADES (Si NO es freelancer) */}
       {!isFreelancer && (
-         <div className="mb-8">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Oportunidades</h3>
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <ConfigItem 
-                    title="Convertirse en Freelancer" 
-                    subtitle="Empieza a vender tus servicios hoy"
-                    icon={<Briefcase size={18}/>}
-                    actionLabel="Empezar"
-                    onClick={() => setShowBecomeFreelancerModal(true)} 
-                />
-            </div>
-         </div>
+        <div className="mb-8">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Oportunidades</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <ConfigItem
+              title="Convertirse en Freelancer"
+              subtitle="Empieza a vender tus servicios hoy"
+              icon={<Briefcase size={18} />}
+              actionLabel="Empezar"
+              onClick={() => setShowBecomeFreelancerModal(true)}
+            />
+          </div>
+        </div>
       )}
       {/* --- MODALES  --- */}
 
-      <PortfolioModal 
-          show={showPortfolioModal} 
-          onClose={() => setShowPortfolioModal(false)} 
-          currentPortfolio={user.portfolio}
-          onSave={handleSavePortfolio}
+      <PortfolioModal
+        show={showPortfolioModal}
+        onClose={() => setShowPortfolioModal(false)}
+        currentPortfolio={user.portfolio}
+        onSave={handleSavePortfolio}
       />
       <BecomeFreelancerModal
-          show={showBecomeFreelancerModal}
-          onClose={() => setShowBecomeFreelancerModal(false)}
-          data={freelancerData}
-          setData={setFreelancerData}
-          onSubmit={handleBecomeFreelancerSubmit}
+        show={showBecomeFreelancerModal}
+        onClose={() => setShowBecomeFreelancerModal(false)}
+        data={freelancerData}
+        setData={setFreelancerData}
+        onSubmit={handleBecomeFreelancerSubmit}
       />
-      <GoogleModal 
-        show={showGoogleModal} 
-        onClose={() => setShowGoogleModal(false)} 
+      <GoogleModal
+        show={showGoogleModal}
+        onClose={() => setShowGoogleModal(false)}
       />
 
-      <LinkedinModal 
-        show={showLinkedinModal} 
+      <LinkedinModal
+        show={showLinkedinModal}
         onClose={() => setShowLinkedinModal(false)}
-        isConnected={!!user.linkedin} 
+        isConnected={!!user.linkedin}
       />
 
     </div>

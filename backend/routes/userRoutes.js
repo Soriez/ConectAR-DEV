@@ -46,7 +46,8 @@ router.put('/:id', protect, updateUser);
 
 // (U) UPDATE - Convertirse en Freelancer
 // PUT a /api/users/become-freelancer
-router.put('/become-freelancer', protect, becomeFreelancer);
+// APLICAMOS: protect (asegura login)
+router.put('/hacerse-freelancer', protect, becomeFreelancer);
 
 // (U) UPDATE - Cambiar Disponibilidad
 // PUT a /api/users/availability
@@ -54,7 +55,8 @@ router.put('/availability', protect, toggleAvailability);
 
 // (U) UPDATE - Convertirse en Premium
 // PUT a /api/users/upgrade-premium
-router.put('/upgrade-premium', protect, upgradeToPremium);
+// APLICAMOS: protect (asegura login) y onlyFreeFreelancers (asegura que es freelancer y NO es premium)
+router.put('/hacerse-premium', protect, upgradeToPremium);
 
 // PUT /api/users/:id/skills
 router.put('/:id/skills', protect, actualizarSkillsUser);

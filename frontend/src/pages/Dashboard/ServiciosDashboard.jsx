@@ -35,7 +35,7 @@ const ServiciosDashboard = () => {
         setProfile(userRes.data);
 
         // Si es freelancer, cargar sus servicios y los tipos disponibles
-        if (userRes.data.isFreelancer) {
+        if (userRes.data.role === 'freelancer') {
           const servicesRes = await axios.get(`${BASE_URL}/api/services/freelancer/${authUser._id}`);
           setServices(servicesRes.data);
 
@@ -142,7 +142,7 @@ const ServiciosDashboard = () => {
   }
 
   // Si el usuario no es freelancer, mostrar mensaje informativo
-  if (!profile || !profile.isFreelancer) {
+  if (!profile || profile.role !== 'freelancer') {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center p-6 bg-slate-50 rounded-xl border border-dashed border-slate-300">
         <Briefcase className="text-slate-400 mb-4" size={48} />

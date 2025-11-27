@@ -71,6 +71,36 @@ const UserToFreelancer = () => {
   };
 
   if (submitted) {
+    const handleGoToDashboard = async () => {
+      try {
+        // Decodificar el token para obtener el ID del usuario
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        const payload = JSON.parse(jsonPayload);
+
+        // Recargar el usuario desde el backend para asegurar que tenemos la data más reciente
+        const config = {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        };
+
+        const { data } = await axios.get(`${BASE_URL}/api/users/${payload.id}`, config);
+        setUser(data);
+
+        // Ahora navegamos al dashboard con la información actualizada
+        navigate('/dashboard');
+      } catch (error) {
+        console.error('Error al recargar usuario:', error);
+        // Incluso si falla, navegamos al dashboard
+        navigate('/dashboard');
+      }
+    };
+
     return (
       <div className="min-h-screen bg-[#1a233a] font-sans flex flex-col">
         <div className="grow flex items-center justify-center p-6">
@@ -83,7 +113,7 @@ const UserToFreelancer = () => {
               Tu perfil ha sido actualizado.
             </p>
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={handleGoToDashboard}
               className="w-full py-3 px-4 bg-[#2563EB] hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
             >
               Ir a mi Dashboard

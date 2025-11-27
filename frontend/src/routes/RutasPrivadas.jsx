@@ -33,14 +33,10 @@ export const OnlyStandardFreelancers = () => {
 
   console.log("OnlyStandardFreelancers Check - User:", user);
 
-  // 1. Si NO es freelancer, primero tiene que hacerse uno
-  if (user.role !== 'freelancer') {
-    return <Navigate to="/dashboard" replace />;
-  }
 
-  // 2. Si YA es premium, no le cobramos de nuevo -> Dashboard
+  // Si YA es premium, no le cobramos de nuevo -> Dashboard
   if (user.plan === 'premium') {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/dashboard" />;
   }
 
   return <Outlet />;

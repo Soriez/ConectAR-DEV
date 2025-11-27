@@ -77,9 +77,36 @@ const FreeToPremium = () => {
     }, 2500);
   };
 
-  const handleGoToDashboard = () => {
-    navigate('/dashboard');
-    setShowModal(false);
+  const handleGoToDashboard = async () => {
+    try {
+      // Decodificar el token para obtener el ID del usuario
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      const payload = JSON.parse(jsonPayload);
+
+      // Recargar el usuario desde el backend para asegurar que tenemos la data más reciente
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      };
+
+      const { data } = await axios.get(`${BASE_URL}/api/users/${payload.id}`, config);
+      setUser(data);
+
+      // Ahora navegamos al dashboard con la información actualizada
+      setShowModal(false);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error al recargar usuario:', error);
+      // Incluso si falla, navegamos al dashboard
+      setShowModal(false);
+      navigate('/dashboard');
+    }
   };
 
   return (

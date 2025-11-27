@@ -1,10 +1,12 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router';
 import { AuthContext } from '../../context/AuthContext';
 import { CheckCircle, Linkedin, Globe, ArrowRight } from 'lucide-react';
 
 const UserToFreelancer = () => {
   const { token, user, setUser, BASE_URL } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     linkedin: '',
@@ -81,7 +83,7 @@ const UserToFreelancer = () => {
               Tu perfil ha sido actualizado.
             </p>
             <button
-              onClick={() => window.location.href = '/dashboard'}
+              onClick={() => navigate('/dashboard')}
               className="w-full py-3 px-4 bg-[#2563EB] hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
             >
               Ir a mi Dashboard

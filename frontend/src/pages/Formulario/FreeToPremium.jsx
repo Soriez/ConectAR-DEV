@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router';
 import { AuthContext } from '../../context/AuthContext';
 import {
   CheckCircle,
@@ -26,6 +27,7 @@ const BenefitItem = ({ icon: Icon, title, description }) => (
 
 const FreeToPremium = () => {
   const { token, user, setUser, BASE_URL } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -46,6 +48,7 @@ const FreeToPremium = () => {
 
       // Actualizar el estado global con la respuesta del backend
       if (data) {
+        console.log("Frontend: Actualizando contexto con:", data);
         setUser(data);
       }
 
@@ -75,7 +78,7 @@ const FreeToPremium = () => {
   };
 
   const handleGoToDashboard = () => {
-    window.location.href = '/dashboard';
+    navigate('/dashboard');
     setShowModal(false);
   };
 

@@ -27,48 +27,8 @@ import OpinionesDashboard from '../components/Dashboard/OpinionesDashboard'
 import UserToFreelancer from '../pages/Formulario/UserToFreelancer'
 import FreeToPremium from '../pages/Formulario/FreeToPremium'
 
-// ==========================================
-// COMPONENTES PROTECTORES (GUARDS)
-// ==========================================
-
-// 1. Solo Usuarios NO Freelancers (Para /hacerse-freelancer)
-const OnlyNonFreelancers = () => {
-    const { user, isLoading } = useContext(AuthContext);
-    if (isLoading) return null; // O un spinner
-    if (!user) return <Navigate to="/iniciar-sesion" replace />;
-
-    // Si YA es freelancer, lo mandamos al dashboard
-    if (user.role === 'freelancer') return <Navigate to="/dashboard" replace />;
-
-    return <Outlet />;
-};
-
-// 2. Solo Freelancers NO Premium (Para /hacerse-premium)
-const OnlyStandardFreelancers = () => {
-    const { user, isLoading } = useContext(AuthContext);
-    if (isLoading) return null;
-    if (!user) return <Navigate to="/iniciar-sesion" replace />;
-
-    // Si NO es freelancer, primero debe hacerse uno
-    if (user.role !== 'freelancer') return <Navigate to="/hacerse-freelancer" replace />;
-
-    // Si YA es premium, lo mandamos al dashboard
-    if (user.plan === 'premium') return <Navigate to="/dashboard" replace />;
-
-    return <Outlet />;
-};
-
-// 3. Solo Freelancers (Para rutas internas del Dashboard)
-const RequireFreelancer = () => {
-    const { user, isLoading } = useContext(AuthContext);
-    if (isLoading) return null;
-
-    // Si no es freelancer, al inicio del dashboard
-    if (user && user.role !== 'freelancer') {
-        return <Navigate to="/dashboard" replace />;
-    }
-    return <Outlet />;
-};
+// --- Imports de Guards ---
+import { OnlyNonFreelancers, OnlyStandardFreelancers, RequireFreelancer } from './RutasPrivadas';
 
 // ==========================================
 // DEFINICIÓN DE RUTAS

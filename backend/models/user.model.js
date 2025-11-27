@@ -163,7 +163,7 @@ const convertirAFreelancer = async (userId, linkedin, portfolio, descripcion, ro
   }
 
   // Actualizamos los campos manualmente
-  user.role = role;
+  user.role = role || 'freelancer';
   user.linkedin = linkedin;
   user.portfolio = portfolio;
   user.descripcion = descripcion;
@@ -202,6 +202,11 @@ const convertirAPremium = async (userId, plan) => {
   }
 
   user.plan = plan;
+
+  // Aseguramos que sea freelancer al hacerse premium
+  if (user.role !== 'freelancer') {
+    user.role = 'freelancer';
+  }
 
   const userSaved = await user.save();
 

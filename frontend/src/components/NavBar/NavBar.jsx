@@ -113,7 +113,7 @@ const NavBar = () => {
                     <li className="w-full text-center mt-4 border-t border-gray-700 pt-4">
                         {isAuthenticated ? (
                             <>
-                                {(user?.isFreelancer === true || user?.isFreelancer === 'true') && (
+                                {(user?.role === 'freelancer') && (
                                     <NavLink
                                         to="/perfil"
                                         className="block text-xl font-medium text-white hover:text-blue-400 py-3 px-6 text-center"

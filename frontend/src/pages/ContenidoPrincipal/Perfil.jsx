@@ -77,11 +77,18 @@ const Perfil = () => {
           setReviews([]);
         }
 
-        // 4. Cargar Sugeridos (Opcional: Podría ser una llamada a /freelancers con filtro random)
-        // Por ahora lo dejamos vacío o hacemos una llamada simple si quieres
-        // const suggestedRes = await axios.get(`${BASE_URL}/api/users/freelancers?limit=4`);
-        // setSuggested(suggestedRes.data.filter(f => f._id !== id).slice(0, 4));
-        setSuggested([]); // Desactivado temporalmente para simplificar
+        // 4. Cargar Sugeridos
+        try {
+          const suggestedRes = await axios.get(`${BASE_URL}/api/users/freelancers`);
+          // Filtramos para no mostrar el mismo perfil
+          const otherFreelancers = suggestedRes.data.filter(f => f._id !== id);
+          // Mezclar aleatoriamente
+          const shuffled = otherFreelancers.sort(() => 0.5 - Math.random());
+          setSuggested(shuffled.slice(0, 4));
+        } catch (sugErr) {
+          console.warn("Error cargando sugeridos:", sugErr);
+          setSuggested([]);
+        }
 
       } catch (err) {
         console.error("Error cargando perfil:", err);

@@ -367,7 +367,6 @@ const Freelancers = () => {
                                                     <Star key={i} size={14} className={i < stars ? "fill-current" : "text-slate-200"} />
                                                 ))}
                                             </div>
-                                            <span className="text-xs opacity-70">& más</span>
                                         </button>
                                     ))}
                                 </div>

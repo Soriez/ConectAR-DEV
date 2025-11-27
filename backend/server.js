@@ -5,7 +5,7 @@ import opinionRoutes from './routes/opinionRoutes.js';
 import servicioRoutes from './routes/servicioRoutes.js';
 import tipoServicioRoutes from './routes/tipoServicioRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
-import technologyRoutes  from './routes/technologyRoutes.js'; 
+import technologyRoutes from './routes/technologyRoutes.js';
 // Importación necesaria para poder traer variables del .env
 import 'dotenv/config';
 import cors from 'cors'
@@ -45,7 +45,7 @@ app.use('/api/users/', userRoutes)
 app.use('/api/opinions/', opinionRoutes)
 
 //Ruta de servicios
-app.use('/api/services/', servicioRoutes)
+app.use('/api/servicios/', servicioRoutes)
 
 //Ruta de tipos de servicios
 app.use('/api/types/', tipoServicioRoutes)

@@ -140,15 +140,18 @@ const generateToken = (id) => {
   });
 };
 
-const obtenerFreelancers = async () => {
-  const freelancers = await User.find({ role: 'freelancer' });
-  return freelancers
-}
+// Función para obtener freelancers con filtros opcionales
+const obtenerFreelancers = async (filter = {}) => {
+  // Si no se pasa ningún filtro, por defecto buscamos todos los freelancers
+  const baseFilter = { role: 'freelancer', ...filter };
+  const freelancers = await User.find(baseFilter);
+  return freelancers;
+};
 
 const buscarUsuarioSinPassword = async (decoded) => {
   const user = await User.findById(decoded.id).select('-password');
-  return user
-}
+  return user;
+};
 
 // --- NUEVAS FUNCIONES DE ESTADO ---
 

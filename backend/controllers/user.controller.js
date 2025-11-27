@@ -334,3 +334,22 @@ export const actualizarSkillsUser = async (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor al guardar skills.' });
   }
 };
+
+// ! GET /api/users/freelancers/premium
+// ? Obtener SOLO freelancers PREMIUM y DISPONIBLES
+export const getPremiumFreelancers = async (req, res) => {
+  try {
+    // Definimos el filtro estricto directamente en el servidor
+    const filter = {
+      plan: 'premium',
+      isDisponible: true
+    };
+
+    const freelancers = await obtenerFreelancers(filter);
+
+    res.status(200).json(freelancers || []);
+  } catch (error) {
+    console.error("Error en getPremiumFreelancers:", error);
+    res.status(500).json({ message: "Error al obtener freelancers premium", error: error.message });
+  }
+};

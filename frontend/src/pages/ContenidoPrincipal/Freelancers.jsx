@@ -360,7 +360,7 @@ const Freelancers = () => {
                                         <button 
                                             key={stars}
                                             onClick={() => { setFilterRating(filterRating === stars ? 0 : stars); setCurrentPage(1); }}
-                                            className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors w-full ${filterRating === stars ? 'bg-yellow-50 ring-1 ring-yellow-200 text-yellow-700' : 'hover:bg-slate-50 text-slate-600'}`}
+                                            className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors w-full ${filterRating === stars ? 'bg-yellow-50 ring-1 ring-yellow-400 text-yellow-700' : 'hover:bg-slate-50 text-slate-600'}`}
                                         >
                                             <div className="flex text-yellow-400">
                                                 {[...Array(5)].map((_, i) => (

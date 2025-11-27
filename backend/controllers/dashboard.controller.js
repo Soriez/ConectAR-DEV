@@ -33,7 +33,7 @@ export const getDashboardData = async (req, res) => {
         if (!user.isFreelancer) {
             // Obtener opiniones que ha realizado
             const opinionesRealizadas = await obtenerOpinionesRealizadas(userId);
-            
+
             dashboardData.estadisticas = {
                 totalOpinionesRealizadas: opinionesRealizadas.length,
                 ultimasOpiniones: opinionesRealizadas.slice(0, 5) // Últimas 5 opiniones
@@ -41,12 +41,12 @@ export const getDashboardData = async (req, res) => {
 
             dashboardData.mensaje = "Dashboard de Cliente - Aquí puedes ver tu historial de opiniones";
         }
-        
+
         // --- USUARIO FREELANCER (NO PREMIUM) ---
         else if (user.isFreelancer && !user.isPremium) {
             // Obtener opiniones recibidas
             const opinionesRecibidas = await obtenerOpinionesRecibidas(userId);
-            
+
             // Calcular promedio de puntuación
             const promedioCalificacion = opinionesRecibidas.length > 0
                 ? (opinionesRecibidas.reduce((sum, op) => sum + op.puntuacion, 0) / opinionesRecibidas.length).toFixed(1)
@@ -67,12 +67,12 @@ export const getDashboardData = async (req, res) => {
             dashboardData.servicios = servicios;
             dashboardData.mensaje = "Dashboard de Freelancer - Gestiona tu perfil y servicios";
         }
-        
+
         // --- USUARIO FREELANCER PREMIUM ---
         else if (user.isFreelancer && user.isPremium) {
             // Obtener opiniones recibidas
             const opinionesRecibidas = await obtenerOpinionesRecibidas(userId);
-            
+
             // Calcular promedio de puntuación
             const promedioCalificacion = opinionesRecibidas.length > 0
                 ? (opinionesRecibidas.reduce((sum, op) => sum + op.puntuacion, 0) / opinionesRecibidas.length).toFixed(1)
@@ -218,7 +218,7 @@ export const incrementarAccesosPortfolio = async (req, res) => {
 // Calcular distribución de calificaciones (para usuarios Premium)
 const calcularDistribucionCalificaciones = (opiniones) => {
     const distribucion = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    
+
     opiniones.forEach(opinion => {
         distribucion[opinion.puntuacion]++;
     });

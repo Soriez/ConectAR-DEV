@@ -31,16 +31,16 @@ const userSchema = new Schema({
   },
   isDisponible: { type: Boolean, default: true },
 
-  skills: { 
-        type: [String], 
-        default: [], // Por defecto, es un array vacío
-        validate: {
-            validator: function(v) {
-                return v.length <= 5; // Límite de 5 skills
-            },
-            message: props => `El perfil solo puede tener un máximo de 5 skills, pero se intentó guardar ${props.value.length}.`
-        }
-    },
+  skills: {
+    type: [String],
+    default: [], // Por defecto, es un array vacío
+    validate: {
+      validator: function (v) {
+        return v.length <= 5; // Límite de 5 skills
+      },
+      message: props => `El perfil solo puede tener un máximo de 5 skills, pero se intentó guardar ${props.value.length}.`
+    }
+  },
 
   // --- Estadísticas para el Dashboard ---
   cantVisitas: { type: Number, default: 0 },
@@ -200,7 +200,33 @@ const actualizarSkills = async (userId, newSkills) => {
 
   // 🟢 CORRECCIÓN CLAVE: Usamos .toJSON() para serializar el objeto de Mongoose.
   // Esto previene errores si hay propiedades virtuales o tipos complejos.
-  return updatedUser.toJSON(); 
+  return updatedUser.toJSON();
+};
+
+// --- FUNCIONES DE ESTADÍSTICAS ---
+
+const incrementarVisitas = async (userId) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { $inc: { cantVisitas: 1 } },
+    { new: true }
+  ).select('-password');
+};
+
+const incrementarLinkedin = async (userId) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { $inc: { cantAccesosLinkedin: 1 } },
+    { new: true }
+  ).select('-password');
+};
+
+const incrementarPortfolio = async (userId) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { $inc: { cantAccesosPortfolio: 1 } },
+    { new: true }
+  ).select('-password');
 };
 
 module.exports = {
@@ -217,5 +243,9 @@ module.exports = {
   convertirAFreelancer,
   cambiarDisponibilidad,
   convertirAPremium,
-  actualizarSkills
+  convertirAPremium,
+  actualizarSkills,
+  incrementarVisitas,
+  incrementarLinkedin,
+  incrementarPortfolio
 }

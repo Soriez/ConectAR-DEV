@@ -1,5 +1,5 @@
 import userModel from '../models/user.model.js';
-const { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuario, obtenerFreelancers, obtenerTodosLosUsuarios, usuarioExiste, verificarPasword, convertirAFreelancer, cambiarDisponibilidad, buscarUsuarioSinPassword, convertirAPremium, actualizarSkills} = userModel;
+const { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuario, obtenerFreelancers, obtenerTodosLosUsuarios, usuarioExiste, verificarPasword, convertirAFreelancer, cambiarDisponibilidad, buscarUsuarioSinPassword, convertirAPremium, actualizarSkills, incrementarVisitas, incrementarLinkedin, incrementarPortfolio } = userModel;
 
 
 // ! POST /api/users/register
@@ -266,50 +266,81 @@ export const getUserById = async (req, res) => {
 
 // ! PUT /api/users/:id/skills
 // ? actualiza las skills del usuario 
-
 export const actualizarSkillsUser = async (req, res) => {
-    // 🚨 USAMOS req.user._id: El ID seguro y autenticado que viene del token.
-    const userId = req.user._id; 
-    const { skills } = req.body; // Esperamos que el frontend envíe { skills: [...] }
+  // 🚨 USAMOS req.user._id: El ID seguro y autenticado que viene del token.
+  const userId = req.user._id;
+  const { skills } = req.body; // Esperamos que el frontend envíe { skills: [...] }
 
-    // Validación básica: El campo 'skills' debe existir y ser un array
-    if (!skills || !Array.isArray(skills)) {
-        return res.status(400).json({ message: 'El campo skills es obligatorio y debe ser un array.' });
+  // Validación básica: El campo 'skills' debe existir y ser un array
+  if (!skills || !Array.isArray(skills)) {
+    return res.status(400).json({ message: 'El campo skills es obligatorio y debe ser un array.' });
+  }
+
+  // Si tienes el chequeo de req.params.id en la ruta, puedes omitir esto.
+  // Si quieres un chequeo de seguridad adicional:
+  if (req.params.id !== userId.toString()) {
+    return res.status(403).json({ message: 'Acceso denegado: No puedes actualizar otro usuario.' });
+  }
+
+  try {
+    const updatedUser = await actualizarSkills(userId, skills);
+
+    // Si por alguna razón el modelo no encontró el usuario, lanzará un error (si lo implementamos)
+    // o devolverá null. Es bueno chequear esto.
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
     }
-    
-    // Si tienes el chequeo de req.params.id en la ruta, puedes omitir esto.
-    // Si quieres un chequeo de seguridad adicional:
-    if (req.params.id !== userId.toString()) {
-        return res.status(403).json({ message: 'Acceso denegado: No puedes actualizar otro usuario.' });
+
+    // 🟢 RESPUESTA FINAL DE ÉXITO
+    // El problema es que esta línea falla silenciosamente.
+    // Si el .toJSON() en el modelo no resolvió el problema, 
+    // aquí aseguramos que la respuesta se envía correctamente.
+    return res.status(200).json(updatedUser);
+
+  } catch (error) {
+    // 🔴 Manejo de Errores: Esto captura cualquier fallo interno,
+    // incluyendo el error de validación del límite de 5 skills.
+    console.error('Error REAL al actualizar skills en el controlador:', error.message);
+
+    // Manejo de error de validación de Mongoose (límite de 5 skills, etc.)
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: error.message });
     }
 
-    try {
-        const updatedUser = await actualizarSkills(userId, skills); 
-
-        // Si por alguna razón el modelo no encontró el usuario, lanzará un error (si lo implementamos)
-        // o devolverá null. Es bueno chequear esto.
-        if (!updatedUser) {
-            return res.status(404).json({ message: 'Usuario no encontrado.' });
-        }
-
-        // 🟢 RESPUESTA FINAL DE ÉXITO
-        // El problema es que esta línea falla silenciosamente.
-        // Si el .toJSON() en el modelo no resolvió el problema, 
-        // aquí aseguramos que la respuesta se envía correctamente.
-        return res.status(200).json(updatedUser); 
-        
-    } catch (error) {
-        // 🔴 Manejo de Errores: Esto captura cualquier fallo interno,
-        // incluyendo el error de validación del límite de 5 skills.
-        console.error('Error REAL al actualizar skills en el controlador:', error.message);
-        
-        // Manejo de error de validación de Mongoose (límite de 5 skills, etc.)
-        if (error.name === 'ValidationError') {
-             return res.status(400).json({ message: error.message });
-        }
-        
-        // Este es el error "desconocido" que ve el frontend
-        return res.status(500).json({ message: 'Error interno del servidor al guardar skills.' });
-    }
+    // Este es el error "desconocido" que ve el frontend
+    return res.status(500).json({ message: 'Error interno del servidor al guardar skills.' });
+  }
 };
 
+// ! PUT /api/users/:id/visitas
+export const incrementVisit = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await incrementarVisitas(id);
+    res.status(200).json({ message: "Visita registrada" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al registrar visita", error: error.message });
+  }
+};
+
+// ! PUT /api/users/:id/linkedin
+export const incrementLinkedinAccess = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await incrementarLinkedin(id);
+    res.status(200).json({ message: "Acceso a LinkedIn registrado" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al registrar acceso a LinkedIn", error: error.message });
+  }
+};
+
+// ! PUT /api/users/:id/portfolio
+export const incrementPortfolioAccess = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await incrementarPortfolio(id);
+    res.status(200).json({ message: "Acceso a Portfolio registrado" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al registrar acceso a Portfolio", error: error.message });
+  }
+};

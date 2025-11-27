@@ -122,8 +122,6 @@ const Freelancers = () => {
         setShowMobileFilters(false);
     }
 
-    // const especialidadesList = ["Todas", ...new Set(ENRICHED_DB.map(i => i.especialidad))];
-
     // Condición para mostrar el estado vacío
     //const showEmptyState = totalResults === 0;
 

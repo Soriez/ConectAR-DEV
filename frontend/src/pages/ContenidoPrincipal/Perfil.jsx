@@ -189,6 +189,17 @@ const Perfil = () => {
   const fullName = `${freelancer.nombre} ${freelancer.apellido}`;
   const avatar = getAvatarUrl(fullName);
 
+  // Calcular rango de tarifas
+  let tariffDisplay = formatARS(freelancer.tarifa); // Fallback
+  if (services.length > 0) {
+    const prices = services.map(s => s.precio).filter(p => p !== undefined && p !== null);
+    if (prices.length > 0) {
+      const min = Math.min(...prices);
+      const max = Math.max(...prices);
+      tariffDisplay = min === max ? `${formatARS(min)}/h` : `${formatARS(min)} - ${formatARS(max)}/h`;
+    }
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20">
       {/* Contenedor principal */}
@@ -242,7 +253,7 @@ const Perfil = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                   <div>
                     <p className="text-gray-500">Tarifa</p>
-                    <p className="font-semibold">{formatARS(freelancer.tarifa)}/h</p>
+                    <p className="font-semibold">{tariffDisplay}</p>
                   </div>
                   <div>
                     <p className="text-gray-500">Disponibilidad</p>
@@ -281,12 +292,21 @@ const Perfil = () => {
               {services.length > 0 ? (
                 <div className="grid gap-4 sm:grid-cols-2">
                   {services.map((service) => (
-                    <div key={service._id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                      <h3 className="font-bold text-lg text-gray-800 mb-2">{service.nombre}</h3>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-3">{service.descripcion}</p>
-                      <div className="flex justify-between items-center">
-                        <span className="font-semibold text-blue-600">{formatARS(service.precio)}</span>
-                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">{service.duracionEstimada || 'N/A'}</span>
+                    <div key={service._id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow group flex flex-col">
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="font-bold text-lg text-gray-800 group-hover:text-blue-600 transition-colors">
+                          {service.tipoServicio?.nombre || service.nombre}
+                        </h3>
+                        <span className="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded-lg border border-blue-100 whitespace-nowrap ml-2">
+                          {service.tiempoEstimado || service.duracionEstimada || 'N/A'}
+                        </span>
+                      </div>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed flex-1">
+                        {service.descripcionPersonalizada || service.descripcion}
+                      </p>
+                      <div className="pt-3 border-t border-gray-50 flex items-center justify-between mt-auto">
+                        <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">Precio</span>
+                        <span className="font-bold text-xl text-gray-900">{formatARS(service.precio)}</span>
                       </div>
                     </div>
                   ))}
@@ -328,7 +348,9 @@ const Perfil = () => {
                           <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs">
                             {op.autor?.nombre ? op.autor.nombre.charAt(0) : 'A'}
                           </div>
-                          <span className="font-semibold text-gray-900">{op.autor?.nombre || "Anónimo"}</span>
+                          <span className="font-semibold text-gray-900">
+                            {op.autor?.nombre} {op.autor?.apellido || ""}
+                          </span>
                         </div>
                         <div className="flex text-amber-400 text-sm">
                           {[...Array(5)].map((_, i) => (
@@ -356,6 +378,7 @@ const Perfil = () => {
             reviewsCount={reviews.length}
             handleLinkedinClick={handleLinkedinClick}
             handlePortfolioClick={handlePortfolioClick}
+            tariffDisplay={tariffDisplay}
           />
 
         </section>
@@ -482,7 +505,7 @@ const Perfil = () => {
                               {op.autor?.nombre ? op.autor.nombre.charAt(0) : '?'}
                             </div>
                             <div>
-                              <p className="font-bold text-gray-900">{op.autor?.nombre || "Usuario"}</p>
+                              <p className="font-bold text-gray-900">{op.autor?.nombre || "Usuario"} {op.autor?.apellido || ""}</p>
                               <p className="text-xs text-gray-400">{new Date(op.createdAt).toLocaleDateString()}</p>
                             </div>
                           </div>

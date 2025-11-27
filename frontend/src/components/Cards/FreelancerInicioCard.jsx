@@ -129,13 +129,13 @@ const FreelancerCard = ({ data }) => {
             <div className="flex flex-col grow">
 
                 {/* Descripción: Altura fija para mantener simetría en la línea divisoria */}
-                <p className="text-gray-300 leading-relaxed text-left text-sm sm:text-base mb-4 line-clamp-3 h-[4.5rem]">
+                <p className="text-gray-300 leading-relaxed text-left text-sm sm:text-base mb-4 line-clamp-3 h-18">
                     {descripcionCompleta}
                 </p>
 
                 {/* Sección de Habilidades (Tags) */}
                 {/* Quitamos mt-auto para que la línea border-t se quede fija debajo de la descripción */}
-                <div className="flex flex-wrap items-center pt-2 border-t border-gray-700 mb-4 min-h-[40px]">
+                <div className="flex flex-wrap items-center pt-2 border-t border-gray-700 mb-4 min-h-10">
                     {loadingServicios ? (
                         <span className="text-xs text-gray-500 animate-pulse">Cargando etiquetas...</span>
                     ) : (

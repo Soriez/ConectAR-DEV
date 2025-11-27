@@ -275,7 +275,7 @@ const Freelancers = () => {
                     
                     {/* --- SIDEBAR FILTROS --- */}
                     <aside className={`
-                        fixed inset-0 z-40 bg-white p-6 lg:p-0 lg:static lg:bg-transparent lg:z-auto lg:w-72 lg:flex-shrink-0 
+                        fixed inset-0 z-40 bg-white p-6 lg:p-0 lg:static lg:bg-transparent lg:z-auto lg:w-72 lg:shrink-0 
                         ${showMobileFilters ? 'flex flex-col overflow-y-auto' : 'hidden lg:block'}
                     `}>
                         {/* Header Móvil */}

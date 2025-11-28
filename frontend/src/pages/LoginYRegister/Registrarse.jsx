@@ -73,6 +73,38 @@ const Registrar = () => {
         if (password.length < 8 || password.length > 13) {
             console.error('Error de registro:', error);
         }
+        if (password !== confirmPassword) {
+            showCustomMessage('Las contraseñas no coinciden.');
+            return;
+        }
+        if (!terms) {
+            showCustomMessage('Debes aceptar los términos y condiciones.');
+            return;
+        }
+        try {
+            // 2. Petición al Backend
+            // IMPORTANTE: Enviamos role: 'cliente' para coincidir con tu user.model.js
+            const response = await axios.post(`${BASE_URL}/api/users/register`, {
+                nombre,
+                apellido,
+                email,
+                password,
+                role: 'cliente' 
+            });
+
+            // 3. Éxito
+            showCustomMessage('¡Cuenta creada con éxito! Redirigiendo...', false);
+            
+            setTimeout(() => {
+                navigate('/iniciar-sesion');
+            }, 2000);
+
+        } catch (error) {
+            console.error('Error de registro:', error);
+            // Capturamos el mensaje exacto que envía tu backend (ej: "El email ya está en uso")
+            const errorMsg = error.response?.data?.message || 'Error al conectar con el servidor.';
+            showCustomMessage(errorMsg);
+        }
     };
 
     const goToLogin = () => {
@@ -282,7 +314,6 @@ const Registrar = () => {
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     );

@@ -80,13 +80,13 @@ const Rutas = () => {
                 // Rutas accesibles para TODOS (Clientes y Freelancers)
                 { index: true, element: <PerfilDashboard /> },
                 { path: 'configuracion', element: <ConfiguracionDashboard /> },
+                { path: 'opiniones', element: <OpinionesDashboard /> },
 
                 // 🔒 Rutas EXCLUSIVAS para Freelancers
                 {
                     element: <RequireFreelancer />,
                     children: [
-                        { path: 'servicios', element: <ServiciosDashboard /> },
-                        { path: 'opiniones', element: <OpinionesDashboard /> }
+                        { path: 'servicios', element: <ServiciosDashboard /> }
                     ]
                 }
             ]

@@ -14,8 +14,6 @@ const ConfiguracionDashboard = () => {
   const navigate = useNavigate();
 
   // --- ESTADOS PARA MODALES ---
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [showLinkedinModal, setShowLinkedinModal] = useState(false);
   const [showPortfolioModal, setShowPortfolioModal] = useState(false);
@@ -87,13 +85,13 @@ const ConfiguracionDashboard = () => {
             title="Dirección de correo electrónico"
             actionLabel={user.email} // Muestra el email real
             icon={<Mail size={18} />}
-            onClick={() => setShowEmailModal(true)}
+            onClick={() => navigate('/cambiar-email')}
           />
           <ConfigItem
             title="Cambiar contraseña"
             actionLabel="*********"
             icon={<Lock size={18} />}
-            onClick={() => setShowPasswordModal(true)}
+            onClick={() => navigate('/cambiar-password')}
           />
         </div>
       </div>

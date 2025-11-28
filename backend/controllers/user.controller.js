@@ -1,4 +1,5 @@
 import userModel from '../models/user.model.js';
+import bcrypt from 'bcrypt';
 const { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuario, obtenerFreelancers, obtenerTodosLosUsuarios, usuarioExiste, verificarPasword, convertirAFreelancer, cambiarDisponibilidad, buscarUsuarioSinPassword, convertirAPremium, actualizarSkills, incrementarVisitas, incrementarLinkedin, incrementarPortfolio } = userModel;
 
 

@@ -57,7 +57,7 @@ export const loginUser = async (req, res) => {
     // incluya el hash de la contraseña, que por defecto está excluido.
     const user = await buscarUsuarioConPassword(email)
     if (!user) {
-      res.status(404).json({ mensaje: 'No existe un usuario registrado con el email ingresado' })
+      return res.status(404).json({ mensaje: 'No existe un usuario registrado con el email ingresado' })
     }
     // 2. Verificar si el usuario existe y si la contraseña es correcta
     // Usamos bcrypt.compare para comparar el texto plano con el hash

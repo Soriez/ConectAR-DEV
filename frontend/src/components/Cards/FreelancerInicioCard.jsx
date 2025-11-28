@@ -7,46 +7,51 @@ import BotonPrincipal from "../Botones/BotonPrincipal"
  * @component
  * @description Tarjeta de presentación de un Freelancer para la sección de inicio.
  * Obtiene dinámicamente los servicios para mostrar precios y etiquetas reales.
+ * También obtiene las opiniones para calcular el rating promedio.
  */
-const FreelancerCard = ({ data }) => {
+const FreelancerInicioCard = ({ data }) => {
     const { BASE_URL } = useAuth();
 
-    // Estado local para los datos enriquecidos (precios y etiquetas)
+    // Estado local para los datos enriquecidos
     const [rangoPrecios, setRangoPrecios] = useState("$0/hora");
     const [etiquetasServicios, setEtiquetasServicios] = useState([]);
     const [loadingServicios, setLoadingServicios] = useState(true);
+
+    // Estado para el rating real
+    const [ratingCalculado, setRatingCalculado] = useState(0);
+    const [numReviews, setNumReviews] = useState(0);
 
     // 💡 MAPEO DE PROPIEDADES BÁSICAS
     const nombreCompleto = `${data.nombre || ''} ${data.apellido || ''}`.trim();
     const descripcionCompleta = data.descripcion || 'Especialista de desarrollo de software.';
     const especialidadPrincipal = descripcionCompleta.split('.')[0] + (descripcionCompleta.includes('.') ? '.' : '...');
-    const rating = data.rating || '4.5';
-    const numReviews = data.opiniones ? data.opiniones.length : 0;
 
-    // EFECTO: Obtener los servicios detallados del freelancer
+    // EFECTO: Obtener servicios y opiniones
     useEffect(() => {
-        const fetchServicios = async () => {
+        const fetchData = async () => {
             if (!data._id || !BASE_URL) return;
 
             try {
-                // Usamos el endpoint existente que YA trae los servicios con populate
-                const response = await axios.get(`${BASE_URL}/api/servicios/freelancer/${data._id}`);
-                const servicios = response.data;
+                // 1. Fetch Servicios
+                const serviciosRes = await axios.get(`${BASE_URL}/api/servicios/freelancer/${data._id}`);
+                const servicios = serviciosRes.data;
 
                 if (servicios && servicios.length > 0) {
-                    // 1. Calcular Rango de Precios
+                    // Calcular Rango de Precios
                     const precios = servicios.map(s => s.precio).filter(p => p !== undefined && p !== null);
                     if (precios.length > 0) {
                         const minPrecio = Math.min(...precios);
                         const maxPrecio = Math.max(...precios);
+                        const format = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
+
                         if (minPrecio === maxPrecio) {
-                            setRangoPrecios(`$${minPrecio}/hora`);
+                            setRangoPrecios(`${format(minPrecio)}/h`);
                         } else {
-                            setRangoPrecios(`$${minPrecio} ~ ${maxPrecio}/hora`);
+                            setRangoPrecios(`${format(minPrecio)} ~ ${format(maxPrecio)}/h`);
                         }
                     }
 
-                    // 2. Extraer Etiquetas (Nombres de Tipos de Servicio)
+                    // Extraer Etiquetas
                     const tiposUnicos = new Set();
                     servicios.forEach(servicio => {
                         if (servicio.tipoServicio && servicio.tipoServicio.nombre) {
@@ -55,24 +60,50 @@ const FreelancerCard = ({ data }) => {
                     });
                     setEtiquetasServicios(Array.from(tiposUnicos));
                 } else {
-                    // Fallback si no tiene servicios pero tiene tarifa antigua
-                    if (data.tarifa) setRangoPrecios(`$${data.tarifa}/hora`);
-                    // Fallback de skills antiguas
+                    // Fallbacks
+                    if (data.tarifa) {
+                        const format = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
+                        setRangoPrecios(`${format(data.tarifa)}/h`);
+                    }
                     if (data.skills) setEtiquetasServicios(data.skills);
                 }
 
+                // 2. Fetch Opiniones (Para el rating)
+                try {
+                    const opinionesRes = await axios.get(`${BASE_URL}/api/opinions/recibidas/${data._id}`);
+                    const opiniones = opinionesRes.data;
+
+                    if (opiniones && opiniones.length > 0) {
+                        setNumReviews(opiniones.length);
+                        // Asumimos que la opinión tiene 'calificacion' o 'puntuacion'
+                        const suma = opiniones.reduce((acc, curr) => acc + (curr.calificacion || curr.puntuacion || 0), 0);
+                        const promedio = suma / opiniones.length;
+                        setRatingCalculado(promedio.toFixed(1));
+                    } else {
+                        setNumReviews(0);
+                        setRatingCalculado(data.rating || 0); // Fallback a data.rating si existe, sino 0
+                    }
+                } catch (opErr) {
+                    console.warn("Error cargando opiniones:", opErr);
+                    setRatingCalculado(data.rating || 0);
+                }
+
             } catch (error) {
-                console.error("Error cargando servicios para tarjeta:", error);
-                // En caso de error, intentamos usar datos antiguos si existen
-                if (data.tarifa) setRangoPrecios(`$${data.tarifa}/hora`);
+                console.error("Error cargando datos de tarjeta:", error);
+                // Fallbacks generales
+                if (data.tarifa) {
+                    const format = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
+                    setRangoPrecios(`${format(data.tarifa)}/h`);
+                }
                 if (data.skills) setEtiquetasServicios(data.skills);
+                setRatingCalculado(data.rating || 0);
             } finally {
                 setLoadingServicios(false);
             }
         };
 
-        fetchServicios();
-    }, [data._id, BASE_URL, data.tarifa, data.skills]);
+        fetchData();
+    }, [data._id, BASE_URL, data.tarifa, data.skills, data.rating]);
 
 
     return (
@@ -121,7 +152,7 @@ const FreelancerCard = ({ data }) => {
             {/* Sección de Descripción */}
             <div className="mb-4 text-xs sm:text-sm text-gray-400 text-left">
                 <p className="flex items-center">
-                    ⭐ <span className="text-yellow-400 mr-1 ml-1 font-semibold">{rating}</span> ({numReviews})
+                    ⭐ <span className="text-yellow-400 mr-1 ml-1 font-semibold">{ratingCalculado > 0 ? ratingCalculado : "N/A"}</span> ({numReviews})
                 </p>
             </div>
 
@@ -174,4 +205,4 @@ const FreelancerCard = ({ data }) => {
     )
 }
 
-export default FreelancerCard
+export default FreelancerInicioCard;

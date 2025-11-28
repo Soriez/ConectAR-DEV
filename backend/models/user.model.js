@@ -236,6 +236,32 @@ const actualizarSkills = async (userId, newSkills) => {
   return updatedUser.toJSON();
 };
 
+// --- FUNCIONES DE ESTADÍSTICAS ---
+
+const incrementarVisitas = async (userId) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { $inc: { cantVisitas: 1 } },
+    { new: true }
+  ).select('-password');
+};
+
+const incrementarLinkedin = async (userId) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { $inc: { cantAccesosLinkedin: 1 } },
+    { new: true }
+  ).select('-password');
+};
+
+const incrementarPortfolio = async (userId) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { $inc: { cantAccesosPortfolio: 1 } },
+    { new: true }
+  ).select('-password');
+};
+
 module.exports = {
   User,
   obtenerTodosLosUsuarios,
@@ -250,5 +276,9 @@ module.exports = {
   convertirAFreelancer,
   cambiarDisponibilidad,
   convertirAPremium,
-  actualizarSkills
+  convertirAPremium,
+  actualizarSkills,
+  incrementarVisitas,
+  incrementarLinkedin,
+  incrementarPortfolio
 }

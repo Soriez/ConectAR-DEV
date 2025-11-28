@@ -71,30 +71,36 @@ const ItemNavBar = ( { link, isMobile, setOpen } ) => {
         }
     };
 
-    // Estilos específicos para NavLink (usando una función para manejar el estado 'isActive')
+    // --- AQUÍ ESTÁ EL CAMBIO DE ESTILO ---
     const navLinkClass = ({ isActive }) => {
-        // Estilos base de interacción y responsividad
-        let finalClasses = `${commonClasses} font-medium`;
+        // Base
+        let finalClasses = "flex items-center gap-3 transition-all duration-300 ";
 
         if (isMobile) {
-            // Estilos específicos para el MODO MÓVIL (Menú completo)
-            finalClasses += ` block w-full text-xl py-3 border-b border-gray-700/50`;
+            // Mobile: Estilo de "botón ancho" con bordes redondeados
+            finalClasses += " w-full px-4 py-3 rounded-xl text-base ";
         } else {
-            // Estilos específicos para el MODO DESKTOP (Barra horizontal)
-            finalClasses += ` text-sm px-3 py-2 rounded-md hover:bg-gray-700/50`;
+            // Desktop: Estilo original
+            finalClasses += " text-sm px-3 py-2 rounded-md hover:bg-gray-700/50 font-medium ";
         }
 
-        // Estilo cuando el enlace está activo
+        // Estado Activo vs Inactivo
         if (isActive && !link.scrollTo) {
             if (isMobile) {
-                 // Ítem activo en móvil: Fondo azul más oscuro para contraste total
-                finalClasses += ` !text-blue-400 !font-bold bg-gray-900/50`;
+                // Mobile Activo: Fondo azul oscuro sutil + texto azul brillante + negrita
+                finalClasses += " bg-blue-500/10 text-blue-400 font-bold border border-blue-500/20";
             } else {
-                // Ítem activo en desktop: Resaltado con color azul
-                finalClasses += ` !text-blue-400 bg-gray-700/70`; 
+                // Desktop Activo
+                finalClasses += " !text-blue-400 bg-gray-700/70"; 
+            }
+        } else {
+            // Inactivo
+            if (isMobile) {
+                finalClasses += " text-slate-300 hover:bg-slate-800 hover:text-white font-medium";
+            } else {
+                finalClasses += " text-white hover:text-blue-400";
             }
         }
-        
         return finalClasses;
     };
     

@@ -144,7 +144,14 @@ const generateToken = (id) => {
 const obtenerFreelancers = async (filter = {}) => {
   // Si no se pasa ningún filtro, por defecto buscamos todos los freelancers
   const baseFilter = { role: 'freelancer', ...filter };
-  const freelancers = await User.find(baseFilter);
+  const freelancers = await User.find(baseFilter)
+    .populate({
+      path: 'servicios',
+      populate: {
+        path: 'tipoServicio',
+        model: 'TipoServicio'
+      }
+    });
   return freelancers;
 };
 

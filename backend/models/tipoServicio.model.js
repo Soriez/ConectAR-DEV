@@ -11,7 +11,13 @@ const tipoServicioSchema = new Schema({
     categoria: {
         type: String,
         required: true,
-        enum: ['Programación', 'Diseño', 'Marketing', 'Finanzas', 'Legal', 'Otros']
+        trim: true
+    },
+    categoria_principal: {
+        type: String,
+        required: true,
+        trim: true,
+        index: true
     },
     descripcionBase: {
         type: String

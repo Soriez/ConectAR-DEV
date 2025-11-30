@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
+import LinkedinModal from "../../components/Modals/ModalsConfiguracion/LinkedinModal"; // Importar Modal
 
 // Lista preestablecida de tecnologías (si fallara la carga del backend)
 const FALLBACK_TECHS = ["React", "NodeJS", "MongoDB", "JavaScript"];
@@ -47,7 +48,7 @@ const PerfilDashboard = () => {
   // 1. TODOS LOS HOOKS DEBEN IR AQUÍ, ANTES DE CUALQUIER RETURN CONDICIONAL
 
   // Hook 1: Obtener el contexto de autenticación
-  const { user, isLoading, BASE_URL, setUser } = useContext(AuthContext);
+  const { user, isLoading, BASE_URL, setUser, token } = useContext(AuthContext); // Agregamos token
   const navigate = useNavigate();
 
   // Hook 2: Lista de tecnologías disponibles (del backend)
@@ -62,6 +63,9 @@ const PerfilDashboard = () => {
 
   //Hook 5: Estado para el boton freelancer premium
   const [isUpgrading, setIsUpgrading] = useState(false); // Estado para loading del botón
+
+  // Hook 6: Estado para el modal de LinkedIn
+  const [showLinkedinModal, setShowLinkedinModal] = useState(false);
 
   // 2. EFECTO: Sincronizar 'technologies' con 'user.skills' cuando el usuario carga
   useEffect(() => {
@@ -407,11 +411,12 @@ const PerfilDashboard = () => {
                 Convierte tu cuenta a perfil Freelancer y comienza a ofrecer tus
                 servicios hoy mismo.
               </p>
-              <a href="/hacerse-freelancer">
-                <button className="w-full bg-white text-blue-700 font-bold py-2 rounded-lg hover:bg-blue-50 transition shadow-sm">
-                  Convertirme en Freelancer
-                </button>
-              </a>
+              <button
+                onClick={() => setShowLinkedinModal(true)}
+                className="w-full bg-white text-blue-700 font-bold py-2 rounded-lg hover:bg-blue-50 transition shadow-sm"
+              >
+                Convertirme en Freelancer
+              </button>
             </div>
           )}
           {/* Stats simples */}
@@ -483,6 +488,15 @@ const PerfilDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* MODAL DE LINKEDIN */}
+      <LinkedinModal
+        show={showLinkedinModal}
+        onClose={() => setShowLinkedinModal(false)}
+        isConnected={!!user.linkedin}
+        baseUrl={BASE_URL}
+        token={token}
+      />
     </div>
   );
 };

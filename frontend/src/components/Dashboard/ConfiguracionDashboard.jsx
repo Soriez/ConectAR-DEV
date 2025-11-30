@@ -10,7 +10,7 @@ import GoogleModal from '../Modals/ModalsConfiguracion/GoogleModal';
 import LinkedinModal from '../Modals/ModalsConfiguracion/LinkedinModal';
 
 const ConfiguracionDashboard = () => {
-  const { user, setUser, BASE_URL } = useContext(AuthContext); // Datos reales
+  const { user, setUser, BASE_URL, token } = useContext(AuthContext); // Datos reales
   const navigate = useNavigate();
 
   // --- ESTADOS PARA MODALES ---
@@ -171,7 +171,7 @@ const ConfiguracionDashboard = () => {
               subtitle="Empieza a vender tus servicios hoy"
               icon={<Briefcase size={18} />}
               actionLabel="Empezar"
-              onClick={() => navigate('/hacerse-freelancer')}
+              onClick={() => setShowLinkedinModal(true)}
             />
           </div>
         </div>
@@ -194,6 +194,8 @@ const ConfiguracionDashboard = () => {
         show={showLinkedinModal}
         onClose={() => setShowLinkedinModal(false)}
         isConnected={!!user.linkedin}
+        baseUrl={BASE_URL}
+        token={token}
       />
 
     </div>

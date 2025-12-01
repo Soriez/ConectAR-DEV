@@ -135,13 +135,13 @@ const Perfil = () => {
     try {
       // Endpoint para crear opinión: POST /api/opinions
       const reviewData = {
-        destinatario: id,
+        destinatarioId: id,
         puntuacion: newReview.score,
         opinion: newReview.description
       };
 
       const res = await axios.post(`${BASE_URL}/api/opinions`, reviewData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } // Asumiendo token en localStorage o usar context
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
       // Agregar la nueva opinión a la lista localmente
@@ -161,11 +161,11 @@ const Perfil = () => {
   // --- RENDER HELPERS ---
   const filteredReviews = starFilter === 0
     ? reviews
-    : reviews.filter(r => r.puntuacion === starFilter); // Nota: Backend suele devolver 'puntuacion', no 'calificacion'
+    : reviews.filter(r => r.puntuacion === starFilter);
 
   const averageRating = reviews.length > 0
     ? (reviews.reduce((acc, curr) => acc + (curr.puntuacion || curr.calificacion || 0), 0) / reviews.length).toFixed(1)
-    : "0.0"; // Corregido a 0.0 si no hay opiniones
+    : "0.0";
 
   if (loading) {
     return (
@@ -190,7 +190,7 @@ const Perfil = () => {
   const avatar = getAvatarUrl(fullName);
 
   // Calcular rango de tarifas
-  let tariffDisplay = formatARS(freelancer.tarifa); // Fallback
+  let tariffDisplay = formatARS(freelancer.tarifa);
   if (services.length > 0) {
     const prices = services.map(s => s.precio).filter(p => p !== undefined && p !== null);
     if (prices.length > 0) {

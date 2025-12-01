@@ -7,16 +7,14 @@ import ServiciosInicio from '../../components/SeccionesInicio/ServiciosInicio'
 const Inicio = () => {
   return (
     // Opcion gradiente completo
-    <div className='from-blue-950 to-blue-200 bg-linear-to-b'>
-      <div className=''>
+    <div className='bg-white min-h-screen flex flex-col'>
+      {/* Header ocupa la parte superior (Hero) */}
         <HeaderInicio />
-      </div>
-
-      <div className=''>
+      <main>
         <ServiciosInicio />
         <FreelancersInicio />
         <ContactoInicio />
-      </div>
+      </main>
     </div>
   )
 }

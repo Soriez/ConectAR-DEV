@@ -6,7 +6,6 @@ import axios from 'axios';
 
 //import de modales
 import PortfolioModal from '../Modals/ModalsConfiguracion/PortfolioModal';
-import GoogleModal from '../Modals/ModalsConfiguracion/GoogleModal';
 import LinkedinModal from '../Modals/ModalsConfiguracion/LinkedinModal';
 
 const ConfiguracionDashboard = () => {
@@ -14,7 +13,6 @@ const ConfiguracionDashboard = () => {
   const navigate = useNavigate();
 
   // --- ESTADOS PARA MODALES ---
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [showLinkedinModal, setShowLinkedinModal] = useState(false);
   const [showPortfolioModal, setShowPortfolioModal] = useState(false);
 
@@ -142,13 +140,6 @@ const ConfiguracionDashboard = () => {
       <div className="mb-8">
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Integraciones</h3>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <ConfigItem
-            title="Google"
-            subtitle="Inicio de sesión social"
-            icon={<Globe size={18} />}
-            actionLabel="Configurar"
-            onClick={() => setShowGoogleModal(true)}
-          />
           {/* Si no es freelancer, mostramos LinkedIn aquí como integración social */}
           {!isFreelancer && (
             <ConfigItem
@@ -183,11 +174,6 @@ const ConfiguracionDashboard = () => {
         onClose={() => setShowPortfolioModal(false)}
         currentPortfolio={user.portfolio}
         onSave={handleSavePortfolio}
-      />
-
-      <GoogleModal
-        show={showGoogleModal}
-        onClose={() => setShowGoogleModal(false)}
       />
 
       <LinkedinModal

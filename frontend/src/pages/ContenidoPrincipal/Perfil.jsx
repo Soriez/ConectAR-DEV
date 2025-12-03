@@ -41,6 +41,7 @@ const Perfil = () => {
   // Estados de Modales
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showAllReviewsModal, setShowAllReviewsModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Estado formulario opinión
   const [newReview, setNewReview] = useState({ score: 5, description: "" });
@@ -140,15 +141,17 @@ const Perfil = () => {
         opinion: newReview.description
       };
 
-      const res = await axios.post(`${BASE_URL}/api/opinions`, reviewData, {
+      await axios.post(`${BASE_URL}/api/opinions`, reviewData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
-      // Agregar la nueva opinión a la lista localmente
-      setReviews([res.data, ...reviews]);
+      // Recargar opiniones para evitar errores de renderizado y mostrar la data actualizada
+      const reviewsRes = await axios.get(`${BASE_URL}/api/opinions/recibidas/${id}`);
+      setReviews(reviewsRes.data);
+
       setShowReviewModal(false);
       setNewReview({ score: 5, description: "" });
-      alert("¡Opinión publicada con éxito!");
+      setShowSuccessModal(true);
 
     } catch (error) {
       console.error("Error publicando opinión:", error);
@@ -319,14 +322,18 @@ const Perfil = () => {
             {/* Opiniones */}
             <section className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Opiniones</h2>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Opiniones <span className="text-lg text-gray-500 font-medium ml-1">({reviews.length})</span>
+                </h2>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowReviewModal(true)}
-                    className="text-sm font-medium text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
-                  >
-                    + Agregar opinión
-                  </button>
+                  {currentUser && (
+                    <button
+                      onClick={() => setShowReviewModal(true)}
+                      className="text-sm font-medium text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      + Agregar opinión
+                    </button>
+                  )}
                   {reviews.length > 0 && (
                     <button
                       onClick={() => setShowAllReviewsModal(true)}
@@ -525,6 +532,25 @@ const Perfil = () => {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===== MODAL: ÉXITO ===== */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center animate-in fade-in zoom-in duration-200">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">🎉</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">¡Opinión enviada!</h3>
+              <p className="text-gray-600 mb-6">Gracias por compartir tu experiencia. Tu opinión ha sido publicada correctamente.</p>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full bg-blue-600 text-white py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors"
+              >
+                Entendido
+              </button>
             </div>
           </div>
         )}

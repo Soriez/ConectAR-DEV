@@ -3,7 +3,8 @@ import { protect } from '../middleware/authMiddleware.js';
 import {
     createOpinion,
     getReceivedOpinions,
-    getGivenOpinions
+    getGivenOpinions,
+    deleteOpinion
 } from '../controllers/opinion.controller.js';
 
 const router = express.Router();
@@ -20,5 +21,9 @@ router.get('/recibidas/:usuarioId', getReceivedOpinions);
 // (R) READ - Leer opiniones REALIZADAS (Historial Cliente)
 // GET a /api/opinions/realizadas/:usuarioId
 router.get('/realizadas/:usuarioId', getGivenOpinions);
+
+// (D) DELETE - Eliminar opinión
+// DELETE a /api/opinions/:id
+router.delete('/:id', protect, deleteOpinion);
 
 export default router;

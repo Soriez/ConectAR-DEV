@@ -16,9 +16,9 @@ const DesktopNavBar = ({ isLoggedIn, user }) => {
     navigate("/"); // Redirige al home
   };
 
-  // 💡 CLASES CORREGIDAS: Fondo azul claro (bg-blue-950) y hover amarillo (bg-yellow-300)
+  // 💡 CLASES CORREGIDAS: Fondo azul claro (bg-blue-300) y hover amarillo (bg-yellow-300)
   const menuLinkClasses =
-    "flex items-center gap-3 px-4 py-2 text-base font-medium transition duration-150 ease-in-out mx-3 rounded-md text-white hover:bg-yellow-300 hover:text-black";
+    "flex items-center gap-3 px-4 py-2 text-base font-medium transition duration-150 ease-in-out mx-3 rounded-md text-white hover:bg-blue-300 hover:text-black";
 
   // CLAVE: Determinamos el ID de usuario de forma robusta
   const userId = user?.id || user?._id; 
@@ -46,7 +46,7 @@ const DesktopNavBar = ({ isLoggedIn, user }) => {
           {isMenuOpen && (
             <div
               // Fondo azul claro (bg-blue-300), Centrado
-              className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 bg-blue-950 rounded-lg shadow-xl py-2 z-10 text-white"
+              className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 bg-blue-950 rounded-lg shadow-xl py-2 z-10 text-black"
               style={{ borderTop: "1px solid #a8caff" }} 
             >
               

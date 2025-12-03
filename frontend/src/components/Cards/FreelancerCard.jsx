@@ -35,19 +35,15 @@ const FreelancerCard = ({ data }) => {
                 const servicios = response.data;
 
                 if (servicios && servicios.length > 0) {
-                    // 1. Calcular Rango de Precios
+                    // 1. Calcular Promedio de Precios
                     const precios = servicios.map(s => s.precio).filter(p => p !== undefined && p !== null);
                     if (precios.length > 0) {
-                        const minPrecio = Math.min(...precios);
-                        const maxPrecio = Math.max(...precios);
+                        const sumaTotal = precios.reduce((acc, curr) => acc + curr, 0);
+                        const promedio = sumaTotal / precios.length;
 
                         const format = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
 
-                        if (minPrecio === maxPrecio) {
-                            setRangoPrecios(`${format(minPrecio)}/h`);
-                        } else {
-                            setRangoPrecios(`${format(minPrecio)} - ${format(maxPrecio)}/h`);
-                        }
+                        setRangoPrecios(`${format(promedio)}/h`);
                     }
 
                     // 2. Extraer Etiquetas (Tipos de Servicio)
@@ -154,7 +150,7 @@ const FreelancerCard = ({ data }) => {
             {/* Footer */}
             <div className="px-5 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
                 <div>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tarifa Hora</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tarifa Promedio</p>
                     <p className="text-lg font-bold text-slate-800">
                         {loadingServicios ? (
                             <span className="text-sm font-normal text-slate-400">...</span>
@@ -165,7 +161,7 @@ const FreelancerCard = ({ data }) => {
                 </div>
                 <NavLink
                     to={`/perfil/${data._id}`}
-                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shadow-sm hover:shadow-md flex items-center gap-2"
+                    className="whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shadow-sm hover:shadow-md flex items-center gap-2"
                 >
                     Ver Perfil
                 </NavLink>

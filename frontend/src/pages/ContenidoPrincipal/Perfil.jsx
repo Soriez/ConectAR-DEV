@@ -189,14 +189,14 @@ const Perfil = () => {
   const fullName = `${freelancer.nombre} ${freelancer.apellido}`;
   const avatar = getAvatarUrl(fullName);
 
-  // Calcular rango de tarifas
+  // Calcular promedio de tarifas
   let tariffDisplay = formatARS(freelancer.tarifa);
   if (services.length > 0) {
     const prices = services.map(s => s.precio).filter(p => p !== undefined && p !== null);
     if (prices.length > 0) {
-      const min = Math.min(...prices);
-      const max = Math.max(...prices);
-      tariffDisplay = min === max ? `${formatARS(min)}/h` : `${formatARS(min)} - ${formatARS(max)}/h`;
+      const total = prices.reduce((acc, curr) => acc + curr, 0);
+      const average = total / prices.length;
+      tariffDisplay = `${formatARS(average)}/h`;
     }
   }
 
@@ -252,7 +252,7 @@ const Perfil = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                   <div>
-                    <p className="text-gray-500">Tarifa</p>
+                    <p className="text-gray-500">Tarifa Promedio</p>
                     <p className="font-semibold">{tariffDisplay}</p>
                   </div>
                   <div>

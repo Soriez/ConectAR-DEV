@@ -127,8 +127,8 @@ const FreelancerCard = ({ data }) => {
                         etiquetasServicios.slice(0, 3).map((srv, idx) => (
                             <NavLink
                                 key={idx}
-                                to={`/freelancers?especialidad=${encodeURIComponent(srv)}`}
-                                className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] uppercase font-bold rounded-md tracking-wide border border-slate-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors"
+                                to={`/perfil/${data._id}`}
+                                className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] uppercase font-bold rounded-md tracking-wide border border-slate-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors cursor-pointer"
                             >
                                 {srv}
                             </NavLink>

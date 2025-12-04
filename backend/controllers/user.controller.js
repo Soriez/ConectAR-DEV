@@ -438,3 +438,29 @@ export const getPremiumFreelancers = async (req, res) => {
     res.status(500).json({ message: "Error al obtener freelancers premium", error: error.message });
   }
 };
+
+// ! GET /api/users/freelancers/category-main/:category
+// ? Obtener freelancers por Categoría Principal
+export const getFreelancersByMainCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    const freelancers = await userModel.obtenerFreelancersPorCategoria(category);
+    res.status(200).json(freelancers);
+  } catch (error) {
+    console.error("Error en getFreelancersByMainCategory:", error);
+    res.status(500).json({ message: "Error al filtrar por categoría principal", error: error.message });
+  }
+};
+
+// ! GET /api/users/freelancers/category-specific/:category
+// ? Obtener freelancers por Categoría Específica (Subcategoría)
+export const getFreelancersBySpecificCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    const freelancers = await userModel.obtenerFreelancersPorSubCategoria(category);
+    res.status(200).json(freelancers);
+  } catch (error) {
+    console.error("Error en getFreelancersBySpecificCategory:", error);
+    res.status(500).json({ message: "Error al filtrar por subcategoría", error: error.message });
+  }
+};

@@ -4,20 +4,23 @@ import FreelancerCard from '../../components/Cards/FreelancerCard';
 import FreelancersInicio from '../../components/SeccionesInicio/FreelancersInicio';
 import { useSearchParams } from 'react-router';
 import axios from 'axios';
-import { cards_data } from '../../constants/item-services-cards';
+
 
 const Freelancers = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const initialEspecialidad = searchParams.get('especialidad') || 'Todas';
 
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterEspecialidad, setFilterEspecialidad] = useState(initialEspecialidad);
+    const [filterCategoriaPrincipal, setFilterCategoriaPrincipal] = useState('Todas');
+    const [filterCategoriaEspecifica, setFilterCategoriaEspecifica] = useState('Todas');
 
     // Sincronizar filtro con URL si cambia externamente
     useEffect(() => {
-        const currentEsp = searchParams.get('especialidad') || 'Todas';
-        setFilterEspecialidad(currentEsp);
+        const currentCat = searchParams.get('categoria') || 'Todas';
+        setFilterCategoriaPrincipal(currentCat);
+        setFilterCategoriaEspecifica('Todas'); // Resetear subcategoría al cambiar la principal desde URL
     }, [searchParams]);
+
     const [filterRating, setFilterRating] = useState(0);
     const [filterTarifaMax, setFilterTarifaMax] = useState(200000);
     const [currentPage, setCurrentPage] = useState(1);
@@ -25,15 +28,44 @@ const Freelancers = () => {
     const itemsPerPage = 8;
 
     const [freelancersDB, setFreelancersDB] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [tiposServiciosDB, setTiposServiciosDB] = useState([]);
 
-    // --- Fetch de datos ---
+    // --- Fetch de datos (Freelancers y Tipos de Servicios) ---
+    // --- Fetch de Tipos de Servicios (Solo una vez al montar) ---
     useEffect(() => {
-        const fetchFreelancers = async () => {
+        const fetchTypes = async () => {
             try {
                 const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
-                const res = await axios.get(`${BASE_URL}/api/users/freelancers`);
+                const res = await axios.get(`${BASE_URL}/api/types`);
+                setTiposServiciosDB(res.data);
+            } catch (err) {
+                console.error("Error fetching types:", err);
+            } finally {
+                setInitialLoading(false);
+            }
+        };
+        fetchTypes();
+    }, []);
+
+    // --- Fetch de Freelancers (Dinámico según filtros de categoría) ---
+    useEffect(() => {
+        const fetchFreelancers = async () => {
+            setLoading(true);
+            try {
+                const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
+                let url = `${BASE_URL}/api/users/freelancers`;
+
+                // Lógica de Endpoints
+                if (filterCategoriaEspecifica !== 'Todas') {
+                    url = `${BASE_URL}/api/users/freelancers/category-specific/${encodeURIComponent(filterCategoriaEspecifica)}`;
+                } else if (filterCategoriaPrincipal !== 'Todas') {
+                    url = `${BASE_URL}/api/users/freelancers/category-main/${encodeURIComponent(filterCategoriaPrincipal)}`;
+                }
+
+                const res = await axios.get(url);
                 setFreelancersDB(res.data);
                 setLoading(false);
             } catch (err) {
@@ -42,8 +74,34 @@ const Freelancers = () => {
                 setLoading(false);
             }
         };
+
         fetchFreelancers();
-    }, []);
+    }, [filterCategoriaPrincipal, filterCategoriaEspecifica]);
+
+    // --- Extracción de Categorías Dinámicas ---
+    const { categoriasPrincipales, categoriasEspecificas } = useMemo(() => {
+        const principales = new Set();
+        const especificas = new Set();
+
+        // Usamos el catálogo completo de tipos de servicios
+        tiposServiciosDB.forEach(tipo => {
+            if (tipo.categoria_principal) {
+                principales.add(tipo.categoria_principal);
+
+                // Si hay una categoría principal seleccionada, filtramos las específicas
+                if (filterCategoriaPrincipal !== 'Todas' && tipo.categoria_principal === filterCategoriaPrincipal) {
+                    if (tipo.categoria) especificas.add(tipo.categoria);
+                }
+            }
+        });
+
+        return {
+            categoriasPrincipales: ["Todas", ...Array.from(principales).sort()],
+            categoriasEspecificas: ["Todas", ...Array.from(especificas).sort()]
+        };
+    }, [tiposServiciosDB, filterCategoriaPrincipal]);
+
+
 
     // --- Lógica de Filtrado ---
     const { premiumData, generalData, totalResults } = useMemo(() => {
@@ -51,73 +109,22 @@ const Freelancers = () => {
         let filtered = freelancersDB.filter(item => {
             const term = searchTerm.toLowerCase();
 
-            // Búsqueda segura (manejo de nulls)
+            // Búsqueda por texto (Nombre, Título, Descripción)
             const matchesSearch =
                 (item.nombre || "").toLowerCase().includes(term) ||
                 (item.apellido || "").toLowerCase().includes(term) ||
                 (item.descripcion || "").toLowerCase().includes(term) ||
                 (item.titulo || "").toLowerCase().includes(term);
 
-            // Filtro de especialidad (Skills y Servicios con Mapeo Inteligente)
-            let matchesEsp = true;
-            if (filterEspecialidad !== "Todas") {
-                const filterLower = filterEspecialidad.toLowerCase().trim();
-
-                // Mapeo de palabras clave por categoría
-                const CATEGORY_KEYWORDS = {
-                    "desarrollo web": ["web", "frontend", "backend", "fullstack", "html", "css", "javascript", "react", "angular", "vue", "node", "php", "desarrollador"],
-                    "apps móviles": ["mobile", "ios", "android", "flutter", "react native", "swift", "kotlin", "app"],
-                    "bases de datos": ["sql", "mysql", "postgres", "mongodb", "database", "datos", "data"],
-                    "inteligencia artificial": ["ia", "ai", "machine learning", "python", "data science", "nlp", "bot", "inteligencia"],
-                    "devops & cloud": ["devops", "cloud", "aws", "azure", "google cloud", "docker", "kubernetes", "ci/cd", "nube"],
-                    "consultoría it": ["consultoria", "consultoría", "asesoria", "asesoría", "it", "tecnologia", "propiedad intelectual", "legal", "auditoria"],
-                    "mentorías": ["mentoria", "mentoría", "coaching", "clases", "enseñanza", "profesor", "tutor"],
-                    "ui/ux design": ["ui", "ux", "diseño", "design", "figma", "adobe", "interfaz", "usuario"]
-                };
-
-                // Obtener keywords asociadas o usar el filtro directo si no hay mapeo
-                const keywords = CATEGORY_KEYWORDS[filterLower] || [filterLower];
-
-                // Función auxiliar para verificar si algún texto contiene alguna keyword
-                const checkMatch = (text) => {
-                    if (!text) return false;
-                    const textLower = text.toLowerCase();
-                    return keywords.some(keyword => textLower.includes(keyword));
-                };
-
-                // 1. Verificamos si está en skills (búsqueda flexible)
-                const hasSkill = item.skills && item.skills.some(skill => checkMatch(skill));
-
-                // 2. Verificamos si está en servicios
-                const hasService = item.servicios && item.servicios.some(s => {
-                    const tipo = s.tipoServicio;
-                    // Debug log for services
-                    // console.log(`Checking service for ${item.nombre}:`, s);
-
-                    if (!tipo) return false;
-
-                    // A. Coincidencia directa con categoria_principal (Ahora sí disponible en el backend)
-                    if (tipo.categoria_principal && tipo.categoria_principal.toLowerCase().trim() === filterLower) {
-                        return true;
-                    }
-
-                    // B. Coincidencia flexible en el nombre del servicio
-                    if (tipo.nombre && checkMatch(tipo.nombre)) {
-                        return true;
-                    }
-
-                    return false;
-                });
-
-                matchesEsp = hasSkill || hasService;
-
-                // Debug log removed
-            }
+            // Filtro por Categoría Principal y Específica (YA HECHO EN BACKEND)
+            // Solo necesitamos verificar que la respuesta del backend sea consistente.
+            // Eliminamos el filtrado local de categorías.
+            let matchesCategoria = true;
 
             const matchesRating = (item.rating || 5) >= filterRating;
             const matchesTarifa = (item.tarifa || 0) <= filterTarifaMax;
 
-            return matchesSearch && matchesEsp && matchesRating && matchesTarifa;
+            return matchesSearch && matchesCategoria && matchesRating && matchesTarifa;
         });
 
         // 2. División de listas
@@ -134,7 +141,7 @@ const Freelancers = () => {
             totalResults: filtered.length
         };
 
-    }, [freelancersDB, searchTerm, filterEspecialidad, filterRating, filterTarifaMax]);
+    }, [freelancersDB, searchTerm, filterCategoriaPrincipal, filterCategoriaEspecifica, filterRating, filterTarifaMax, tiposServiciosDB]);
 
     // --- Paginación Lógica ---
     const totalPages = Math.ceil(generalData.length / itemsPerPage);
@@ -151,19 +158,7 @@ const Freelancers = () => {
         }
     };
 
-    // Generar lista de especialidades dinámicamente basada en SKILLS y CATEGORÍAS ESTÁNDAR
-    const especialidadesList = useMemo(() => {
-        const allSkills = freelancersDB.flatMap(f => f.skills || []);
-        const standardCategories = cards_data.map(c => c.title);
-
-        const combined = [...allSkills, ...standardCategories];
-        const uniqueItems = [...new Set(combined)];
-
-        return ["Todas", ...uniqueItems.sort()];
-    }, [freelancersDB]);
-
-
-    if (loading) return <div className="min-h-screen grid place-items-center">Cargando freelancers...</div>;
+    if (initialLoading) return <div className="min-h-screen grid place-items-center">Cargando freelancers...</div>;
     if (error) return <div className="min-h-screen grid place-items-center text-red-500">{error}</div>;
 
     // --- Función para aplicar filtros en móvil ---
@@ -233,34 +228,65 @@ const Freelancers = () => {
                                 <h3 className="font-bold text-slate-800">Filtros</h3>
                             </div>
 
-                            {/* Especialidad (Basado en Skills) */}
+                            {/* Categoría Principal */}
                             <div>
-                                <h3 className="text-xs font-bold text-slate-500 uppercase mb-3">Especialidad (Skills)</h3>
+                                <h3 className="text-xs font-bold text-slate-500 uppercase mb-3">Categoría Principal</h3>
                                 <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
-                                    {especialidadesList.map(esp => (
-                                        <label key={esp} className="flex items-center gap-3 cursor-pointer group p-1 rounded hover:bg-slate-50">
-                                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${filterEspecialidad === esp ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'}`}>
-                                                {filterEspecialidad === esp && <Check size={10} className="text-white" />}
+                                    {categoriasPrincipales.map(cat => (
+                                        <label key={cat} className="flex items-center gap-3 cursor-pointer group p-1 rounded hover:bg-slate-50">
+                                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${filterCategoriaPrincipal === cat ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'}`}>
+                                                {filterCategoriaPrincipal === cat && <Check size={10} className="text-white" />}
                                             </div>
                                             <input
                                                 type="radio"
-                                                name="especialidad"
+                                                name="categoriaPrincipal"
                                                 className="hidden"
-                                                checked={filterEspecialidad === esp}
+                                                checked={filterCategoriaPrincipal === cat}
                                                 onChange={() => {
-                                                    setFilterEspecialidad(esp);
-                                                    setSearchParams(esp === 'Todas' ? {} : { especialidad: esp });
+                                                    setFilterCategoriaPrincipal(cat);
+                                                    setFilterCategoriaEspecifica('Todas'); // Reset subcategoría
+                                                    setSearchParams(cat === 'Todas' ? {} : { categoria: cat });
                                                     setCurrentPage(1);
-                                                    setShowMobileFilters(false);
                                                 }}
                                             />
-                                            <span className={`text-sm ${filterEspecialidad === esp ? 'text-blue-700 font-medium' : 'text-slate-600'}`}>
-                                                {esp}
+                                            <span className={`text-sm ${filterCategoriaPrincipal === cat ? 'text-blue-700 font-medium' : 'text-slate-600'}`}>
+                                                {cat}
                                             </span>
                                         </label>
                                     ))}
                                 </div>
                             </div>
+
+                            {/* Categoría Específica (Solo si hay principal seleccionada) */}
+                            {filterCategoriaPrincipal !== 'Todas' && categoriasEspecificas.length > 1 && (
+                                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <h3 className="text-xs font-bold text-slate-500 uppercase mb-3">Subcategoría</h3>
+                                    <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pl-2 border-l-2 border-slate-100">
+                                        {categoriasEspecificas.map(subCat => (
+                                            <label key={subCat} className="flex items-center gap-3 cursor-pointer group p-1 rounded hover:bg-slate-50">
+                                                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${filterCategoriaEspecifica === subCat ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'}`}>
+                                                    {filterCategoriaEspecifica === subCat && <Check size={10} className="text-white" />}
+                                                </div>
+                                                <input
+                                                    type="radio"
+                                                    name="categoriaEspecifica"
+                                                    className="hidden"
+                                                    checked={filterCategoriaEspecifica === subCat}
+                                                    onChange={() => {
+                                                        setFilterCategoriaEspecifica(subCat);
+                                                        setCurrentPage(1);
+                                                    }}
+                                                />
+                                                <span className={`text-sm ${filterCategoriaEspecifica === subCat ? 'text-blue-700 font-medium' : 'text-slate-600'}`}>
+                                                    {subCat}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+
 
                             {/* Tarifa Slider */}
                             <div>
@@ -315,96 +341,106 @@ const Freelancers = () => {
                     </aside>
 
                     {/* --- GRID RESULTADOS --- */}
-                    <div className="flex-1">
-                        <div className="mb-6 flex justify-between items-center">
-                            <p className="text-slate-500 text-sm">
-                                Se encontraron <span className="font-bold text-slate-900">{generalData.length}</span> resultados en el Catálogo General
-                            </p>
+                    <div className="flex-1 relative">
+                        {loading && (
+                            <div className="absolute inset-0 bg-white/60 z-10 flex items-start justify-center pt-20 backdrop-blur-sm transition-all duration-300">
+                                <div className="flex flex-col items-center gap-3">
+                                    <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                    <span className="text-sm font-medium text-blue-700">Actualizando resultados...</span>
+                                </div>
+                            </div>
+                        )}
+                        <div className={`transition-opacity duration-300 ${loading ? 'opacity-40' : 'opacity-100'}`}>
+                            <div className="mb-6 flex justify-between items-center">
+                                <p className="text-slate-500 text-sm">
+                                    Se encontraron <span className="font-bold text-slate-900">{generalData.length}</span> resultados en el Catálogo General
+                                </p>
 
-                            {generalData.length > 0 && (
-                                <div className="flex items-center gap-2">
-                                    <span className="text-xs font-medium text-slate-400 mr-2 hidden sm:inline">
-                                        Pág {currentPage} de {totalPages}
-                                    </span>
+                                {generalData.length > 0 && (
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-medium text-slate-400 mr-2 hidden sm:inline">
+                                            Pág {currentPage} de {totalPages}
+                                        </span>
+                                        <button
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                            className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
+                                        >
+                                            <ChevronLeft size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                            className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
+                                        >
+                                            <ChevronRight size={16} />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {paginatedGeneralData.length > 0 ? (
+                                <>
+                                    <h2 className="text-xl font-bold text-slate-800 mb-4">Catálogo General</h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                                        {paginatedGeneralData.map((freelancer) => (
+                                            <FreelancerCard key={freelancer._id} data={freelancer} />
+                                        ))}
+                                    </div>
+                                </>
+                            ) : totalResults === 0 ? (
+                                <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-slate-200">
+                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-full mb-4">
+                                        <Search className="w-8 h-8 text-slate-300" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-900 mb-1">No encontramos resultados</h3>
+                                    <p className="text-slate-500 mb-6">Intenta ajustar tus filtros o busca con otros términos.</p>
+
                                     <button
-                                        onClick={() => handlePageChange(currentPage - 1)}
-                                        disabled={currentPage === 1}
-                                        className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
+                                        onClick={() => { setSearchTerm(""); setFilterCategoriaPrincipal("Todas"); setFilterCategoriaEspecifica("Todas"); setFilterRating(0); setFilterTarifaMax(200000); }}
+                                        className="text-blue-600 font-semibold hover:underline text-sm"
                                     >
-                                        <ChevronLeft size={16} />
+                                        Limpiar todos los filtros
                                     </button>
-                                    <button
-                                        onClick={() => handlePageChange(currentPage + 1)}
-                                        disabled={currentPage === totalPages}
-                                        className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
-                                    >
-                                        <ChevronRight size={16} />
-                                    </button>
+                                </div>
+                            ) : (
+                                <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-slate-200">
+                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-full mb-4">
+                                        <Search className="w-8 h-8 text-slate-300" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-900 mb-1">No encontramos resultados en el Catálogo General</h3>
+                                    <p className="text-slate-500">Los resultados Premium que cumplen tus filtros se muestran arriba.</p>
+                                </div>
+                            )}
+
+                            {totalPages > 1 && paginatedGeneralData.length > 0 && (
+                                <div className="mt-12 flex justify-center">
+                                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-100">
+                                        <button
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                            className="flex items-center gap-1 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        >
+                                            <ChevronLeft size={16} /> Anterior
+                                        </button>
+
+                                        <div className="hidden sm:flex items-center px-4 text-sm font-medium text-slate-600">
+                                            Página {currentPage} de {totalPages}
+                                        </div>
+
+                                        <button
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                            className="flex items-center gap-1 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        >
+                                            Siguiente <ChevronRight size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
 
-                        {paginatedGeneralData.length > 0 ? (
-                            <>
-                                <h2 className="text-xl font-bold text-slate-800 mb-4">Catálogo General</h2>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-                                    {paginatedGeneralData.map((freelancer) => (
-                                        <FreelancerCard key={freelancer._id} data={freelancer} />
-                                    ))}
-                                </div>
-                            </>
-                        ) : totalResults === 0 ? (
-                            <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-slate-200">
-                                <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-full mb-4">
-                                    <Search className="w-8 h-8 text-slate-300" />
-                                </div>
-                                <h3 className="text-lg font-bold text-slate-900 mb-1">No encontramos resultados</h3>
-                                <p className="text-slate-500 mb-6">Intenta ajustar tus filtros o busca con otros términos.</p>
-
-                                <button
-                                    onClick={() => { setSearchTerm(""); setFilterEspecialidad("Todas"); setFilterRating(0); setFilterTarifaMax(200000); }}
-                                    className="text-blue-600 font-semibold hover:underline text-sm"
-                                >
-                                    Limpiar todos los filtros
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-slate-200">
-                                <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-full mb-4">
-                                    <Search className="w-8 h-8 text-slate-300" />
-                                </div>
-                                <h3 className="text-lg font-bold text-slate-900 mb-1">No encontramos resultados en el Catálogo General</h3>
-                                <p className="text-slate-500">Los resultados Premium que cumplen tus filtros se muestran arriba.</p>
-                            </div>
-                        )}
-
-                        {totalPages > 1 && paginatedGeneralData.length > 0 && (
-                            <div className="mt-12 flex justify-center">
-                                <div className="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-100">
-                                    <button
-                                        onClick={() => handlePageChange(currentPage - 1)}
-                                        disabled={currentPage === 1}
-                                        className="flex items-center gap-1 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                    >
-                                        <ChevronLeft size={16} /> Anterior
-                                    </button>
-
-                                    <div className="hidden sm:flex items-center px-4 text-sm font-medium text-slate-600">
-                                        Página {currentPage} de {totalPages}
-                                    </div>
-
-                                    <button
-                                        onClick={() => handlePageChange(currentPage + 1)}
-                                        disabled={currentPage === totalPages}
-                                        className="flex items-center gap-1 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                    >
-                                        Siguiente <ChevronRight size={16} />
-                                    </button>
-                                </div>
-                            </div>
-                        )}
                     </div>
-
                 </div>
             </div>
         </div>

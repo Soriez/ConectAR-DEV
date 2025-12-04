@@ -297,6 +297,72 @@ const incrementarPortfolio = async (userId) => {
   ).select('-password');
 };
 
+
+
+// Obtener freelancers por Categoría Principal (ej: "Desarrollo Web")
+const obtenerFreelancersPorCategoria = async (categoriaPrincipal) => {
+  // 1. Buscar los Tipos de Servicio que coinciden con la categoría principal
+  const tipos = await mongoose.model('TipoServicio').find({
+    categoria_principal: { $regex: new RegExp(`^${categoriaPrincipal}$`, 'i') } // Case insensitive
+  });
+
+  const tiposIds = tipos.map(t => t._id);
+
+  // 2. Buscar los Servicios que usan esos tipos
+  const servicios = await mongoose.model('Servicio').find({
+    tipoServicio: { $in: tiposIds }
+  });
+
+  const freelancerIds = [...new Set(servicios.map(s => s.freelancer))];
+
+  // 3. Buscar los Freelancers dueños de esos servicios
+  const freelancers = await User.find({
+    _id: { $in: freelancerIds },
+    role: 'freelancer'
+  })
+    .populate({
+      path: 'servicios',
+      populate: {
+        path: 'tipoServicio',
+        model: 'TipoServicio'
+      }
+    });
+
+  return freelancers;
+};
+
+// Obtener freelancers por Categoría Específica (ej: "Full Stack")
+const obtenerFreelancersPorSubCategoria = async (categoriaEspecifica) => {
+  // 1. Buscar los Tipos de Servicio que coinciden con la categoría específica
+  const tipos = await mongoose.model('TipoServicio').find({
+    categoria: { $regex: new RegExp(`^${categoriaEspecifica}$`, 'i') }
+  });
+
+  const tiposIds = tipos.map(t => t._id);
+
+  // 2. Buscar los Servicios que usan esos tipos
+  const servicios = await mongoose.model('Servicio').find({
+    tipoServicio: { $in: tiposIds }
+  });
+
+  const freelancerIds = [...new Set(servicios.map(s => s.freelancer))];
+
+  // 3. Buscar los Freelancers
+  const freelancers = await User.find({
+    _id: { $in: freelancerIds },
+    role: 'freelancer'
+  })
+    .populate({
+      path: 'servicios',
+      populate: {
+        path: 'tipoServicio',
+        model: 'TipoServicio'
+      }
+    });
+
+  return freelancers;
+};
+
 module.exports = {
   User,
   obtenerTodosLosUsuarios,
@@ -315,5 +381,7 @@ module.exports = {
   actualizarSkills,
   incrementarVisitas,
   incrementarLinkedin,
-  incrementarPortfolio
+  incrementarPortfolio,
+  obtenerFreelancersPorCategoria,
+  obtenerFreelancersPorSubCategoria
 }

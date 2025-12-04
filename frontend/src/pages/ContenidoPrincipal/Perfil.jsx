@@ -275,6 +275,11 @@ const Perfil = () => {
             {/* Header Perfil */}
             <header className="space-y-6">
               <div className="flex flex-wrap gap-2">
+                {freelancer.plan === 'premium' && (
+                  <span className="px-3 py-1 rounded-full bg-linear-to-r from-amber-400 to-orange-500 text-white text-xs font-bold uppercase tracking-wide flex items-center gap-1 shadow-sm">
+                    ⭐ Premium
+                  </span>
+                )}
                 {freelancer.skills?.map((skill, idx) => (
                   <span key={idx} className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wide">
                     {skill}

@@ -105,38 +105,71 @@ export const getAllUsers = async (req, res) => {
 // ? Obtener todos los freelancers (¡CON FILTROS!)
 export const getAllFreelancers = async (req, res) => {
   try {
-    // 1. Obtener parámetros de consulta. Capturamos isPremium y isDisponible/isAvailable
     const { isPremium, isDisponible, isAvailable } = req.query;
 
-    // 2. Construir el objeto de filtro para MongoDB
-    const filter = {}
+    // 1. Filtro base
+    const filter = {};
+    if (isPremium === 'true') filter.plan = 'premium';
 
-    // 3. Aplicar filtro Premium
-    if (isPremium === 'true') {
-      filter.plan = 'premium';
-    }
-
-    // 4. Aplicar filtro de Disponibilidad
-    // Usamos la variable 'isDisponible' del query, o la variable 'isAvailable' como fallback.
     const availabilityQuery = isDisponible || isAvailable;
+    if (availabilityQuery === 'true') filter.isDisponible = true;
 
-    if (availabilityQuery === 'true') {
-      // El campo en el modelo es 'isDisponible'
-      filter.isDisponible = true;
-    }
+    const baseFilter = { role: 'freelancer', ...filter };
 
-    // 5. Llamar al modelo con el filtro
-    const freelancers = await obtenerFreelancers(filter);
+    // 2. Traemos freelancers + servicios + tipoServicio
+    //    (NO tocamos skills, las dejamos como vengan del schema)
+    const freelancersRaw = await userModel.User.find(baseFilter)
+      .populate({
+        path: 'servicios',
+        populate: {
+          path: 'tipoServicio',
+          model: 'TipoServicio',
+        },
+      });
 
-    // 6. RESPUESTA ROBUSTA: Aseguramos que la respuesta SIEMPRE sea un array o vacío.
+    // 3. Normalizamos la data para que el front trabaje cómodo
+    const freelancers = freelancersRaw.map((f) => {
+      const obj = f.toObject();
+
+      // A) Normalizar skills a array de strings, sin hacer populate
+      obj.skills = (obj.skills || []).map((skill) => {
+        if (typeof skill === 'string') return skill;
+        if (skill && typeof skill === 'object') {
+          return skill.name || skill.nombre || '';
+        }
+        return '';
+      });
+
+      // B) Asegurarnos que cada servicio tenga tipoServicio con la estructura esperada
+      obj.servicios = (obj.servicios || []).map((s) => {
+        if (!s.tipoServicio || typeof s.tipoServicio !== 'object') {
+          return s;
+        }
+
+        return {
+          ...s,
+          tipoServicio: {
+            _id: s.tipoServicio._id,
+            nombre: s.tipoServicio.nombre,
+            categoria: s.tipoServicio.categoria,
+            categoria_principal: s.tipoServicio.categoria_principal,
+          },
+        };
+      });
+
+      return obj;
+    });
+
+    // Debug opcional eliminado
+
+
     res.status(200).json(freelancers || []);
-
   } catch (error) {
-    // 7. MANEJO DE ERRORES: Devolvemos el mensaje de error real para debugging
-    console.error("Error REAL en getAllFreelancers:", error.message);
+    console.error('Error REAL en getAllFreelancers:', error);
     res.status(500).json({
-      message: 'Error interno del servidor al obtener la lista de profesionales.',
-      details: error.message // Útil para ver el error exacto en el frontend
+      message:
+        'Error interno del servidor al obtener la lista de profesionales.',
+      details: error.message,
     });
   }
 };
@@ -153,7 +186,6 @@ export const updateUser = async (req, res) => {
     // Esto elimina la necesidad de comparar req.params.id con req.user._id.
     // Si el token es válido, solo permitimos modificar el ID asociado al token.
     const authenticatedUserId = req.user._id;
-    console.log(authenticatedUserId);
     // Obtenemos los campos a actualizar del cuerpo de la petición
     const updates = req.body;
 
@@ -183,7 +215,6 @@ export const updateUser = async (req, res) => {
     // 4. Verificamos si el usuario fue encontrado (aunque el token sea válido, es buena práctica)
     if (!updatedUser) {
       // Este caso es muy raro, solo si el usuario fue borrado entre el token y la petición
-      console.log(updateUser);
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
@@ -336,7 +367,10 @@ export const actualizarSkillsUser = async (req, res) => {
 export const incrementVisit = async (req, res) => {
   try {
     const { id } = req.params;
-    await incrementarVisitas(id);
+    // Obtener IP del cliente (considerando proxies)
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+
+    await incrementarVisitas(id, ip);
     res.status(200).json({ message: "Visita registrada" });
   } catch (error) {
     res.status(500).json({ message: "Error al registrar visita", error: error.message });

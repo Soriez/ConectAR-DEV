@@ -125,9 +125,13 @@ const FreelancerCard = ({ data }) => {
                         <span className="text-xs text-slate-400 animate-pulse">Cargando...</span>
                     ) : etiquetasServicios.length > 0 ? (
                         etiquetasServicios.slice(0, 3).map((srv, idx) => (
-                            <span key={idx} className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] uppercase font-bold rounded-md tracking-wide border border-slate-200">
+                            <NavLink
+                                key={idx}
+                                to={`/freelancers?especialidad=${encodeURIComponent(srv)}`}
+                                className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] uppercase font-bold rounded-md tracking-wide border border-slate-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors"
+                            >
                                 {srv}
-                            </span>
+                            </NavLink>
                         ))
                     ) : (
                         <span className="text-xs text-slate-400 italic">Sin etiquetas</span>

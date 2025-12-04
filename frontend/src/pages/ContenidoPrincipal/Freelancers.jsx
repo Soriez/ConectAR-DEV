@@ -1,58 +1,51 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Filter, Star, ChevronLeft, ChevronRight, Check, X } from 'lucide-react';
-import axios from 'axios';
-
-// Componente reutilizado del carrusel
-import FreelancersInicio from '../../components/SeccionesInicio/FreelancersInicio';
-// Componente de Tarjeta Unificado
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, Filter, X, Check, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import FreelancerCard from '../../components/Cards/FreelancerCard';
+import FreelancersInicio from '../../components/SeccionesInicio/FreelancersInicio';
+import { useSearchParams } from 'react-router';
+import axios from 'axios';
+import { cards_data } from '../../constants/item-services-cards';
 
-// URL Base correcta
-const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
-
-/* ========================================================================
-   PÁGINA PRINCIPAL
-   ======================================================================== */
 const Freelancers = () => {
-    // --- Estados de Datos ---
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialEspecialidad = searchParams.get('especialidad') || 'Todas';
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterEspecialidad, setFilterEspecialidad] = useState(initialEspecialidad);
+
+    // Sincronizar filtro con URL si cambia externamente
+    useEffect(() => {
+        const currentEsp = searchParams.get('especialidad') || 'Todas';
+        setFilterEspecialidad(currentEsp);
+    }, [searchParams]);
+    const [filterRating, setFilterRating] = useState(0);
+    const [filterTarifaMax, setFilterTarifaMax] = useState(200000);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
+    const itemsPerPage = 8;
+
     const [freelancersDB, setFreelancersDB] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // --- Estados de Filtros ---
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filterEspecialidad, setFilterEspecialidad] = useState("Todas");
-    const [filterRating, setFilterRating] = useState(0);
-    const [filterTarifaMax, setFilterTarifaMax] = useState(200000);
-
-    // Estado para filtros móviles
-    const [showMobileFilters, setShowMobileFilters] = useState(false);
-
-    // --- Paginación ---
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 24;
-
-    // --- FETCH DE DATOS ---
+    // --- Fetch de datos ---
     useEffect(() => {
         const fetchFreelancers = async () => {
             try {
-                // Petición al puerto correcto
-                const response = await axios.get(`${BASE_URL}/api/users/freelancers`);
-                setFreelancersDB(response.data);
+                const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
+                const res = await axios.get(`${BASE_URL}/api/users/freelancers`);
+                setFreelancersDB(res.data);
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching freelancers:", err);
-                setError("Error al cargar los freelancers.");
+                setError("Hubo un problema al cargar los freelancers. Intenta nuevamente.");
                 setLoading(false);
             }
         };
-
-        if (BASE_URL) {
-            fetchFreelancers();
-        }
+        fetchFreelancers();
     }, []);
 
-    // --- Filtrado y División ---
+    // --- Lógica de Filtrado ---
     const { premiumData, generalData, totalResults } = useMemo(() => {
         // 1. Filtrado
         let filtered = freelancersDB.filter(item => {
@@ -65,9 +58,61 @@ const Freelancers = () => {
                 (item.descripcion || "").toLowerCase().includes(term) ||
                 (item.titulo || "").toLowerCase().includes(term);
 
-            // Filtro de especialidad basado en SKILLS reales
-            // Si filterEspecialidad es "Todas", pasa. Si no, revisamos si el array de skills incluye la especialidad seleccionada.
-            const matchesEsp = filterEspecialidad === "Todas" || (item.skills && item.skills.includes(filterEspecialidad));
+            // Filtro de especialidad (Skills y Servicios con Mapeo Inteligente)
+            let matchesEsp = true;
+            if (filterEspecialidad !== "Todas") {
+                const filterLower = filterEspecialidad.toLowerCase().trim();
+
+                // Mapeo de palabras clave por categoría
+                const CATEGORY_KEYWORDS = {
+                    "desarrollo web": ["web", "frontend", "backend", "fullstack", "html", "css", "javascript", "react", "angular", "vue", "node", "php", "desarrollador"],
+                    "apps móviles": ["mobile", "ios", "android", "flutter", "react native", "swift", "kotlin", "app"],
+                    "bases de datos": ["sql", "mysql", "postgres", "mongodb", "database", "datos", "data"],
+                    "inteligencia artificial": ["ia", "ai", "machine learning", "python", "data science", "nlp", "bot", "inteligencia"],
+                    "devops & cloud": ["devops", "cloud", "aws", "azure", "google cloud", "docker", "kubernetes", "ci/cd", "nube"],
+                    "consultoría it": ["consultoria", "consultoría", "asesoria", "asesoría", "it", "tecnologia", "propiedad intelectual", "legal", "auditoria"],
+                    "mentorías": ["mentoria", "mentoría", "coaching", "clases", "enseñanza", "profesor", "tutor"],
+                    "ui/ux design": ["ui", "ux", "diseño", "design", "figma", "adobe", "interfaz", "usuario"]
+                };
+
+                // Obtener keywords asociadas o usar el filtro directo si no hay mapeo
+                const keywords = CATEGORY_KEYWORDS[filterLower] || [filterLower];
+
+                // Función auxiliar para verificar si algún texto contiene alguna keyword
+                const checkMatch = (text) => {
+                    if (!text) return false;
+                    const textLower = text.toLowerCase();
+                    return keywords.some(keyword => textLower.includes(keyword));
+                };
+
+                // 1. Verificamos si está en skills (búsqueda flexible)
+                const hasSkill = item.skills && item.skills.some(skill => checkMatch(skill));
+
+                // 2. Verificamos si está en servicios
+                const hasService = item.servicios && item.servicios.some(s => {
+                    const tipo = s.tipoServicio;
+                    // Debug log for services
+                    // console.log(`Checking service for ${item.nombre}:`, s);
+
+                    if (!tipo) return false;
+
+                    // A. Coincidencia directa con categoria_principal (Ahora sí disponible en el backend)
+                    if (tipo.categoria_principal && tipo.categoria_principal.toLowerCase().trim() === filterLower) {
+                        return true;
+                    }
+
+                    // B. Coincidencia flexible en el nombre del servicio
+                    if (tipo.nombre && checkMatch(tipo.nombre)) {
+                        return true;
+                    }
+
+                    return false;
+                });
+
+                matchesEsp = hasSkill || hasService;
+
+                // Debug log removed
+            }
 
             const matchesRating = (item.rating || 5) >= filterRating;
             const matchesTarifa = (item.tarifa || 0) <= filterTarifaMax;
@@ -106,24 +151,26 @@ const Freelancers = () => {
         }
     };
 
-    // Generar lista de especialidades dinámicamente basada en las SKILLS reales de la BD
+    // Generar lista de especialidades dinámicamente basada en SKILLS y CATEGORÍAS ESTÁNDAR
     const especialidadesList = useMemo(() => {
         const allSkills = freelancersDB.flatMap(f => f.skills || []);
-        const uniqueSkills = [...new Set(allSkills)];
-        return ["Todas", ...uniqueSkills.sort()];
+        const standardCategories = cards_data.map(c => c.title);
+
+        const combined = [...allSkills, ...standardCategories];
+        const uniqueItems = [...new Set(combined)];
+
+        return ["Todas", ...uniqueItems.sort()];
     }, [freelancersDB]);
 
 
     if (loading) return <div className="min-h-screen grid place-items-center">Cargando freelancers...</div>;
     if (error) return <div className="min-h-screen grid place-items-center text-red-500">{error}</div>;
+
     // --- Función para aplicar filtros en móvil ---
     const handleApplyMobileFilters = () => {
         setCurrentPage(1);
         setShowMobileFilters(false);
     }
-
-    // Condición para mostrar el estado vacío
-    //const showEmptyState = totalResults === 0;
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-20">
@@ -159,8 +206,9 @@ const Freelancers = () => {
                 </div>
             </div>
 
-            {/* 2. CARRUSEL PREMIUM */}
-            {<FreelancersInicio />}
+            {/* 2. CARRUSEL PREMIUM (Ahora recibe datos filtrados) */}
+            {premiumData.length > 0 && <FreelancersInicio data={premiumData} />}
+
             {/* ===== LAYOUT PRINCIPAL ===== */}
             <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="flex flex-col lg:flex-row gap-8">
@@ -199,7 +247,12 @@ const Freelancers = () => {
                                                 name="especialidad"
                                                 className="hidden"
                                                 checked={filterEspecialidad === esp}
-                                                onChange={() => { setFilterEspecialidad(esp); setCurrentPage(1); setShowMobileFilters(false); }}
+                                                onChange={() => {
+                                                    setFilterEspecialidad(esp);
+                                                    setSearchParams(esp === 'Todas' ? {} : { especialidad: esp });
+                                                    setCurrentPage(1);
+                                                    setShowMobileFilters(false);
+                                                }}
                                             />
                                             <span className={`text-sm ${filterEspecialidad === esp ? 'text-blue-700 font-medium' : 'text-slate-600'}`}>
                                                 {esp}
@@ -219,9 +272,9 @@ const Freelancers = () => {
                                 </div>
                                 <input
                                     type="range"
-                                    min="0"
+                                    min="1"
                                     max="200000"
-                                    step="5000"
+                                    step="1000"
                                     value={filterTarifaMax}
                                     onChange={(e) => { setFilterTarifaMax(Number(e.target.value)); setCurrentPage(1); }}
                                     className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
@@ -307,6 +360,7 @@ const Freelancers = () => {
                                 </div>
                                 <h3 className="text-lg font-bold text-slate-900 mb-1">No encontramos resultados</h3>
                                 <p className="text-slate-500 mb-6">Intenta ajustar tus filtros o busca con otros términos.</p>
+
                                 <button
                                     onClick={() => { setSearchTerm(""); setFilterEspecialidad("Todas"); setFilterRating(0); setFilterTarifaMax(200000); }}
                                     className="text-blue-600 font-semibold hover:underline text-sm"

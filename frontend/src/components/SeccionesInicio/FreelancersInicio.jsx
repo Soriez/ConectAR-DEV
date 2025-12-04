@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, Star, Crown, Briefcase, ExternalLink, Quote 
 import { useNavigate } from 'react-router';
 import axios from 'axios';
 
-const FreelancerCard = ({ user }) => {
+const FreelancerCard = ({ user, showPremiumBadge }) => {
     const navigate = useNavigate();
     const [services, setServices] = useState([]);
     const [loadingServices, setLoadingServices] = useState(true);
@@ -42,15 +42,19 @@ const FreelancerCard = ({ user }) => {
 
     return (
         <div className="w-full md:w-1/2 lg:w-1/3 shrink-0 px-3 h-full">
-            <div className="group relative bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
-                {/* Borde superior decorativo */}
-                <div className="absolute top-0 left-6 right-6 h-0.5 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-40 group-hover:opacity-100 transition-opacity"></div>
+            <div className={`group relative bg-white rounded-2xl p-6 border ${showPremiumBadge ? 'border-slate-200 hover:shadow-amber-500/10' : 'border-slate-100 hover:shadow-blue-500/10'} shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col`}>
+                {/* Borde superior decorativo (Solo Premium) */}
+                {showPremiumBadge && (
+                    <div className="absolute top-0 left-6 right-6 h-0.5 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-40 group-hover:opacity-100 transition-opacity"></div>
+                )}
 
                 {/* Badge Premium */}
-                <div className="absolute top-4 right-4 bg-amber-50 text-amber-700 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-100 flex items-center gap-1 z-10">
-                    <Crown size={10} fill="currentColor" />
-                    PREMIUM
-                </div>
+                {showPremiumBadge && (
+                    <div className="absolute top-4 right-4 bg-amber-50 text-amber-700 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-100 flex items-center gap-1 z-10">
+                        <Crown size={10} fill="currentColor" />
+                        PREMIUM
+                    </div>
+                )}
 
                 {/* Perfil Header */}
                 <div className="flex items-start gap-4 mb-4">
@@ -79,12 +83,12 @@ const FreelancerCard = ({ user }) => {
                 </div>
 
                 {/* Descripción */}
-                <div className="relative mb-5 bg-yellow-50/50 p-4 rounded-xl border border-yellow-100 h-[120px] transition-colors flex flex-col justify-center">
-                    <Quote size={16} className="text-yellow-400 absolute top-3 left-3 rotate-180" />
+                <div className={`relative mb-5 ${showPremiumBadge ? 'bg-yellow-50/50 border-yellow-100' : 'bg-slate-50/50 border-slate-100'} p-4 rounded-xl border h-[120px] transition-colors flex flex-col justify-center`}>
+                    <Quote size={16} className={`${showPremiumBadge ? 'text-yellow-400' : 'text-slate-300'} absolute top-3 left-3 rotate-180`} />
                     <p className="text-sm text-slate-600 italic line-clamp-3 text-center px-3 py-1">
                         {user.descripcion ? user.descripcion.replace(/^["']|["']$/g, '') : 'Profesional enfocado en resultados de alta calidad.'}
                     </p>
-                    <Quote size={16} className="text-yellow-400 absolute bottom-3 right-3" />
+                    <Quote size={16} className={`${showPremiumBadge ? 'text-yellow-400' : 'text-slate-300'} absolute bottom-3 right-3`} />
                 </div>
 
                 {/* Servicios (Tags) */}
@@ -127,33 +131,37 @@ const FreelancerCard = ({ user }) => {
     );
 };
 
-const FreelancersInicio = () => {
+const FreelancersInicio = ({ data, title, subtitle, showPremiumBadge = true }) => {
     const [freelancers, setFreelancers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!data);
     const [activeIndex, setActiveIndex] = useState(0);
-    // NUEVO: Estado para saber cuántos se ven por pantalla
     const [itemsPerPage, setItemsPerPage] = useState(3);
     const timeoutRef = useRef(null);
     const navigate = useNavigate();
 
     const delay = 4500;
 
-    // 1. NUEVO: Detectar tamaño de pantalla para calcular paginación correcta
     useEffect(() => {
         const handleResize = () => {
-            if (window.innerWidth >= 1024) setItemsPerPage(3);      // Desktop
-            else if (window.innerWidth >= 768) setItemsPerPage(2);  // Tablet
-            else setItemsPerPage(1);                                // Mobile
+            if (window.innerWidth >= 1024) setItemsPerPage(3);
+            else if (window.innerWidth >= 768) setItemsPerPage(2);
+            else setItemsPerPage(1);
         };
-
-        // Ejecutar al inicio y al cambiar tamaño
         handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Fetch de datos (Igual que antes)
     useEffect(() => {
+        if (data) {
+            setFreelancers(data);
+            setLoading(false);
+            setActiveIndex(0);
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (data) return;
         const fetchPremium = async () => {
             try {
                 const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
@@ -166,12 +174,10 @@ const FreelancersInicio = () => {
             }
         };
         fetchPremium();
-    }, []);
+    }, [data]);
 
-    // Calculamos el número total de páginas (vistas)
     const totalPages = Math.ceil(freelancers.length / itemsPerPage);
 
-    // 2. CORREGIDO: Lógica de Autoplay basada en PÁGINAS, no en ítems
     const resetTimeout = () => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
@@ -186,7 +192,6 @@ const FreelancersInicio = () => {
         return () => resetTimeout();
     }, [activeIndex, totalPages]);
 
-    // 3. CORREGIDO: Handlers de navegación
     const handlePrev = () => {
         setActiveIndex((prev) => (prev === 0 ? totalPages - 1 : prev - 1));
     };
@@ -199,24 +204,28 @@ const FreelancersInicio = () => {
     if (freelancers.length === 0) return null;
     return (
         <section className="bg-slate-50 py-12 border-b border-slate-200 overflow-hidden relative">
-            {/* Fondo: Gradiente dorado sutil y profesional */}
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-amber-300 via-yellow-500 to-amber-300 opacity-80 shadow-sm"></div>
+            {/* Fondo: Gradiente dorado sutil y profesional (Solo Premium) */}
+            {showPremiumBadge && (
+                <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-amber-300 via-yellow-500 to-amber-300 opacity-80 shadow-sm"></div>
+            )}
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">
-                        {/* Icono Crown: Fondo ámbar suave */}
-                        <div className="p-2.5 bg-amber-50 rounded-xl text-amber-600 shadow-sm border border-amber-100 ring-1 ring-amber-200/50">
-                            <Crown size={28} strokeWidth={2.5} />
-                        </div>
+                        {/* Icono Crown: Fondo ámbar suave (Solo Premium) */}
+                        {showPremiumBadge && (
+                            <div className="p-2.5 bg-amber-50 rounded-xl text-amber-600 shadow-sm border border-amber-100 ring-1 ring-amber-200/50">
+                                <Crown size={28} strokeWidth={2.5} />
+                            </div>
+                        )}
                         <div>
                             <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-                                Talento <span className="text-transparent bg-clip-text bg-linear-to-r from-amber-600 to-yellow-500">Premium</span>
+                                {title || <>Talento <span className="text-transparent bg-clip-text bg-linear-to-r from-amber-600 to-yellow-500">Premium</span></>}
                             </h2>
                             <p className="text-sm text-slate-500 font-medium">
-                                Profesionales verificados y altamente calificados
+                                {subtitle || "Profesionales verificados y altamente calificados"}
                             </p>
                         </div>
                     </div>
@@ -249,7 +258,7 @@ const FreelancersInicio = () => {
                         style={{ transform: `translate3d(${-activeIndex * 100}%, 0, 0)` }}
                     >
                         {freelancers.map((user) => (
-                            <FreelancerCard key={user._id} user={user} />
+                            <FreelancerCard key={user._id} user={user} showPremiumBadge={showPremiumBadge} />
                         ))}
                     </div>
                 </div>

@@ -43,6 +43,10 @@ const userSchema = new Schema({
 
   // --- Estadísticas para el Dashboard ---
   cantVisitas: { type: Number, default: 0 },
+  visitHistory: [{
+    ip: String,
+    lastVisit: Date
+  }],
   cantAccesosLinkedin: { type: Number, default: 0 },
   cantAccesosPortfolio: { type: Number, default: 0 },
 
@@ -245,12 +249,36 @@ const actualizarSkills = async (userId, newSkills) => {
 
 // --- FUNCIONES DE ESTADÍSTICAS ---
 
-const incrementarVisitas = async (userId) => {
-  return await User.findByIdAndUpdate(
-    userId,
-    { $inc: { cantVisitas: 1 } },
-    { new: true }
-  ).select('-password');
+const incrementarVisitas = async (userId, ip) => {
+  const user = await User.findById(userId);
+  if (!user) return null;
+
+  if (!user.visitHistory) {
+    user.visitHistory = [];
+  }
+
+  const now = new Date();
+  const ONE_DAY = 24 * 60 * 60 * 1000; // 24 horas
+
+  // Buscar si esta IP ya visitó
+  const visitIndex = user.visitHistory.findIndex(v => v.ip === ip);
+
+  if (visitIndex !== -1) {
+    const lastVisit = new Date(user.visitHistory[visitIndex].lastVisit);
+    // Si la última visita fue hace menos de 24 horas, no contamos
+    if (now - lastVisit < ONE_DAY) {
+      return user;
+    }
+    // Si pasó más de un día, actualizamos la fecha y sumamos visita
+    user.visitHistory[visitIndex].lastVisit = now;
+    user.cantVisitas += 1;
+  } else {
+    // Nueva IP, agregamos al historial y sumamos visita
+    user.visitHistory.push({ ip, lastVisit: now });
+    user.cantVisitas += 1;
+  }
+
+  return await user.save();
 };
 
 const incrementarLinkedin = async (userId) => {

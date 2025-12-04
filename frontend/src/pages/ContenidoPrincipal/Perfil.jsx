@@ -4,6 +4,7 @@ import axios from "axios";
 import { useAuth } from "../../context/useAuth";
 
 import CardPerfil from "../../components/Cards/CardPerfil";
+import FreelancersInicio from "../../components/SeccionesInicio/FreelancersInicio";
 
 /* ============================
    Utils
@@ -78,14 +79,20 @@ const Perfil = () => {
           setReviews([]);
         }
 
-        // 4. Cargar Sugeridos
+        // 4. Cargar Sugeridos (Basado en Skills)
         try {
           const suggestedRes = await axios.get(`${BASE_URL}/api/users/freelancers`);
-          // Filtramos para no mostrar el mismo perfil
-          const otherFreelancers = suggestedRes.data.filter(f => f._id !== id);
-          // Mezclar aleatoriamente
-          const shuffled = otherFreelancers.sort(() => 0.5 - Math.random());
-          setSuggested(shuffled.slice(0, 4));
+          const allFreelancers = suggestedRes.data;
+
+          // Filtrar:
+          // 1. No es el mismo usuario
+          // 2. "Cualquier perfil" -> Incluimos todos (premium o no) y sin filtro estricto de skills
+          const relatedFreelancers = allFreelancers.filter(f => f._id !== id);
+
+          // Mezclar y tomar hasta 6
+          const shuffled = relatedFreelancers.sort(() => 0.5 - Math.random());
+          setSuggested(shuffled.slice(0, 8));
+
         } catch (sugErr) {
           console.warn("Error cargando sugeridos:", sugErr);
           setSuggested([]);
@@ -104,20 +111,63 @@ const Perfil = () => {
     }
   }, [id, BASE_URL]);
 
+  // --- EFECTO: Registrar Visita (Controlado por IP en Backend) ---
+  useEffect(() => {
+    const trackVisit = async () => {
+      if (!id || !BASE_URL) return;
+
+      // No contar visitas propias si el usuario está logueado
+      if (currentUser?._id === id) return;
+
+      try {
+        await axios.put(`${BASE_URL}/api/users/${id}/visitas`);
+      } catch (error) {
+        console.error("Error registrando visita:", error);
+      }
+    };
+
+    trackVisit();
+  }, [id, BASE_URL, currentUser]);
+
   // --- HANDLERS: Tracking ---
   const handleLinkedinClick = async () => {
     if (!freelancer?.linkedin) return;
-    try {
-      await axios.put(`${BASE_URL}/api/users/${id}/linkedin`);
-    } catch (e) { console.error("Error tracking linkedin", e); }
+
+    // Tracking con debounce (1 hora)
+    const storageKey = `linkedin_click_${id}`;
+    const lastClick = localStorage.getItem(storageKey);
+    const now = Date.now();
+    const ONE_HOUR = 60 * 60 * 1000;
+
+    if (!lastClick || (now - parseInt(lastClick) > ONE_HOUR)) {
+      try {
+        // Ejecutamos la petición sin await para no bloquear la apertura de la ventana
+        axios.put(`${BASE_URL}/api/users/${id}/linkedin`)
+          .then(() => localStorage.setItem(storageKey, now.toString()))
+          .catch(e => console.error("Error tracking linkedin", e));
+      } catch (e) { console.error("Error initiating tracking", e); }
+    }
+
     window.open(freelancer.linkedin, "_blank");
   };
 
   const handlePortfolioClick = async () => {
     if (!freelancer?.portfolio) return;
-    try {
-      await axios.put(`${BASE_URL}/api/users/${id}/portfolio`);
-    } catch (e) { console.error("Error tracking portfolio", e); }
+
+    // Tracking con debounce (1 hora)
+    const storageKey = `portfolio_click_${id}`;
+    const lastClick = localStorage.getItem(storageKey);
+    const now = Date.now();
+    const ONE_HOUR = 60 * 60 * 1000;
+
+    if (!lastClick || (now - parseInt(lastClick) > ONE_HOUR)) {
+      try {
+        axios.put(`${BASE_URL}/api/users/${id}/portfolio`)
+          .then(() => localStorage.setItem(storageKey, now.toString()))
+          .catch(e => console.error("Error tracking portfolio", e));
+      } catch (e) { console.error("Error initiating tracking", e); }
+    }
+
     window.open(freelancer.portfolio, "_blank");
   };
 
@@ -390,29 +440,16 @@ const Perfil = () => {
 
         </section>
 
-        {/* ===== PERFILES SUGERIDOS (Opcional) ===== */}
+        {/* ===== PERFILES SUGERIDOS (Reutilizando componente) ===== */}
         {suggested.length > 0 && (
-          <section className="mt-20 pt-10 border-t border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Perfiles sugeridos</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {suggested.map((sug) => (
-                <div key={sug._id} onClick={() => navigate(`/perfil/${sug._id}`)} className="group cursor-pointer bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
-                  <div className="h-24 bg-linear-to-r from-blue-500 to-purple-600"></div>
-                  <div className="px-5 pb-5">
-                    <div className="relative -mt-10 mb-3">
-                      <img src={getAvatarUrl(`${sug.nombre} ${sug.apellido}`)} alt={sug.nombre} className="w-20 h-20 rounded-xl object-cover border-4 border-white shadow-md group-hover:scale-105 transition-transform" />
-                    </div>
-                    <h3 className="font-bold text-gray-900 text-lg mb-1 group-hover:text-blue-600 transition-colors">{sug.nombre} {sug.apellido}</h3>
-                    <p className="text-sm text-gray-500 line-clamp-2 mb-3">{sug.descripcion || "Freelancer digital"}</p>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-semibold text-gray-900">{formatARS(sug.tarifa)}/h</span>
-                      <span className="text-blue-600 font-medium">Ver perfil →</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+          <div className="mt-10">
+            <FreelancersInicio
+              data={suggested}
+              title="Perfiles Sugeridos"
+              subtitle="Profesionales con habilidades similares que podrían interesarte"
+              showPremiumBadge={false}
+            />
+          </div>
         )}
 
         {/* ===== MODAL: AGREGAR OPINIÓN ===== */}

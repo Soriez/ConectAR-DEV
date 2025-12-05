@@ -11,39 +11,42 @@ const userSchema = new Schema({
   password: { type: String, required: true, select: false },
 
   // --- Rol y Estado ---
-  isFreelancer: { type: Boolean, default: false },
+  role: {
+    type: String,
+    enum: ['cliente', 'freelancer'],
+    default: 'cliente'
+  },
 
   // Para la pasarela de pago y ordenamiento
-  isPremium: {
-    type: Boolean,
-    default: false
+  plan: {
+    type: String,
+    enum: ['free', 'premium'],
+    default: 'free'
   },
 
   // --- Perfil Freelancer ---
   linkedin: { type: String, trim: true },
   portfolio: { type: String, trim: true },
   descripcion: { type: String, trim: true },
-  tarifa: {
-    type: Number,
-    default: 0
-    // Nota: Quitamos el 'required' condicional si te da problemas al registrar usuarios normales, 
-    // o manéjalo con cuidado en el controller.
-  },
   isDisponible: { type: Boolean, default: true },
 
-  skills: { 
-        type: [String], 
-        default: [], // Por defecto, es un array vacío
-        validate: {
-            validator: function(v) {
-                return v.length <= 5; // Límite de 5 skills
-            },
-            message: props => `El perfil solo puede tener un máximo de 5 skills, pero se intentó guardar ${props.value.length}.`
-        }
-    },
+  skills: {
+    type: [String],
+    default: [], // Por defecto, es un array vacío
+    validate: {
+      validator: function (v) {
+        return v.length <= 5; // Límite de 5 skills
+      },
+      message: props => `El perfil solo puede tener un máximo de 5 skills, pero se intentó guardar ${props.value.length}.`
+    }
+  },
 
   // --- Estadísticas para el Dashboard ---
   cantVisitas: { type: Number, default: 0 },
+  visitHistory: [{
+    ip: String,
+    lastVisit: Date
+  }],
   cantAccesosLinkedin: { type: Number, default: 0 },
   cantAccesosPortfolio: { type: Number, default: 0 },
 
@@ -100,14 +103,14 @@ const buscarUsuarioConPassword = async (email) => {
 }
 
 //Función para guardar en la base de datos un NUEVO usuario
-const guardarUsuario = async (nombre, apellido, email, password, isFreelancer, saltRounds) => {
+const guardarUsuario = async (nombre, apellido, email, password, role, saltRounds) => {
 
   const hashedPassword = await hashearPassword(password, saltRounds)
 
   const newUser = new User({
     nombre, apellido, email,
     password: hashedPassword,
-    isFreelancer
+    role: role || 'cliente'
   })
 
   const usuarioGuardado = await newUser.save()
@@ -141,49 +144,90 @@ const generateToken = (id) => {
   });
 };
 
-const obtenerFreelancers = async (filter) => {
-  const freelancers = await User.find(filter);
-  return freelancers
-}
+// Función para obtener freelancers con filtros opcionales
+const obtenerFreelancers = async (filter = {}) => {
+  // Si no se pasa ningún filtro, por defecto buscamos todos los freelancers
+  const baseFilter = { role: 'freelancer', ...filter };
+  const freelancers = await User.find(baseFilter)
+    .populate({
+      path: 'servicios',
+      populate: {
+        path: 'tipoServicio',
+        model: 'TipoServicio'
+      }
+    });
+  return freelancers;
+};
 
 const buscarUsuarioSinPassword = async (decoded) => {
-  return await User.findById(decoded.id).select('-password');
-}
+  const user = await User.findById(decoded.id).select('-password');
+  return user;
+};
 
 // --- NUEVAS FUNCIONES DE ESTADO ---
 
-// 1. Convertir a Freelancer
-const convertirAFreelancer = async (userId, linkedin, portfolio, descripcion, tarifa) => {
-  return await User.findByIdAndUpdate(
-    userId,
-    {
-      isFreelancer: true,
-      linkedin,
-      portfolio,
-      descripcion,
-      tarifa,
-      isDisponible: true // Por defecto disponible al hacerse freelancer
-    },
-    { new: true, runValidators: true }
-  ).select('-password');
+// 1. Convertir a Freelancer (con campos nuevos)
+const convertirAFreelancer = async (userId, linkedin, portfolio, descripcion, role) => {
+
+  // Usamos findById y save() en lugar de findByIdAndUpdate para asegurar que se guarden los cambios
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error('Usuario no encontrado al intentar convertir a freelancer');
+  }
+
+  // Actualizamos los campos manualmente
+  user.role = role || 'freelancer';
+  user.linkedin = linkedin;
+  user.portfolio = portfolio;
+  user.descripcion = descripcion;
+
+  // Guardamos el usuario actualizado
+  const userSaved = await user.save();
+
+  const userJson = userSaved.toJSON();
+  delete userJson.password;
+
+  return userJson;
 };
 
 // 2. Cambiar Disponibilidad (Disponible / Ocupado)
 const cambiarDisponibilidad = async (userId, estado) => {
-  return await User.findByIdAndUpdate(
+  const userUpdate = await User.findByIdAndUpdate(
     userId,
-    { isDisponible: estado },
+    { $set: { isDisponible: estado } },
     { new: true }
   ).select('-password');
+
+  if (!userUpdate) {
+    throw new Error('Usuario no encontrado al intentar cambiar disponibilidad');
+  }
+
+  return userUpdate.toJSON();
 };
 
 // 3. Convertir a Premium
-const convertirAPremium = async (userId) => {
-  return await User.findByIdAndUpdate(
-    userId,
-    { isPremium: true },
-    { new: true }
-  ).select('-password');
+const convertirAPremium = async (userId, plan) => {
+  // Usamos findById y save()
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error('Usuario no encontrado al intentar convertir a Premium');
+  }
+
+  user.plan = plan;
+
+  // Aseguramos que sea freelancer al hacerse premium
+  if (user.role !== 'freelancer') {
+    user.role = 'freelancer';
+  }
+
+  const userSaved = await user.save();
+
+  const userJson = userSaved.toJSON();
+  delete userJson.password;
+
+  return userJson;
 };
 
 const actualizarSkills = async (userId, newSkills) => {
@@ -200,7 +244,123 @@ const actualizarSkills = async (userId, newSkills) => {
 
   // 🟢 CORRECCIÓN CLAVE: Usamos .toJSON() para serializar el objeto de Mongoose.
   // Esto previene errores si hay propiedades virtuales o tipos complejos.
-  return updatedUser.toJSON(); 
+  return updatedUser.toJSON();
+};
+
+// --- FUNCIONES DE ESTADÍSTICAS ---
+
+const incrementarVisitas = async (userId, ip) => {
+  const user = await User.findById(userId);
+  if (!user) return null;
+
+  if (!user.visitHistory) {
+    user.visitHistory = [];
+  }
+
+  const now = new Date();
+  const ONE_DAY = 24 * 60 * 60 * 1000; // 24 horas
+
+  // Buscar si esta IP ya visitó
+  const visitIndex = user.visitHistory.findIndex(v => v.ip === ip);
+
+  if (visitIndex !== -1) {
+    const lastVisit = new Date(user.visitHistory[visitIndex].lastVisit);
+    // Si la última visita fue hace menos de 24 horas, no contamos
+    if (now - lastVisit < ONE_DAY) {
+      return user;
+    }
+    // Si pasó más de un día, actualizamos la fecha y sumamos visita
+    user.visitHistory[visitIndex].lastVisit = now;
+    user.cantVisitas += 1;
+  } else {
+    // Nueva IP, agregamos al historial y sumamos visita
+    user.visitHistory.push({ ip, lastVisit: now });
+    user.cantVisitas += 1;
+  }
+
+  return await user.save();
+};
+
+const incrementarLinkedin = async (userId) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { $inc: { cantAccesosLinkedin: 1 } },
+    { new: true }
+  ).select('-password');
+};
+
+const incrementarPortfolio = async (userId) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { $inc: { cantAccesosPortfolio: 1 } },
+    { new: true }
+  ).select('-password');
+};
+
+
+
+// Obtener freelancers por Categoría Principal (ej: "Desarrollo Web")
+const obtenerFreelancersPorCategoria = async (categoriaPrincipal) => {
+  // 1. Buscar los Tipos de Servicio que coinciden con la categoría principal
+  const tipos = await mongoose.model('TipoServicio').find({
+    categoria_principal: { $regex: new RegExp(`^${categoriaPrincipal}$`, 'i') } // Case insensitive
+  });
+
+  const tiposIds = tipos.map(t => t._id);
+
+  // 2. Buscar los Servicios que usan esos tipos
+  const servicios = await mongoose.model('Servicio').find({
+    tipoServicio: { $in: tiposIds }
+  });
+
+  const freelancerIds = [...new Set(servicios.map(s => s.freelancer))];
+
+  // 3. Buscar los Freelancers dueños de esos servicios
+  const freelancers = await User.find({
+    _id: { $in: freelancerIds },
+    role: 'freelancer'
+  })
+    .populate({
+      path: 'servicios',
+      populate: {
+        path: 'tipoServicio',
+        model: 'TipoServicio'
+      }
+    });
+
+  return freelancers;
+};
+
+// Obtener freelancers por Categoría Específica (ej: "Full Stack")
+const obtenerFreelancersPorSubCategoria = async (categoriaEspecifica) => {
+  // 1. Buscar los Tipos de Servicio que coinciden con la categoría específica
+  const tipos = await mongoose.model('TipoServicio').find({
+    categoria: { $regex: new RegExp(`^${categoriaEspecifica}$`, 'i') }
+  });
+
+  const tiposIds = tipos.map(t => t._id);
+
+  // 2. Buscar los Servicios que usan esos tipos
+  const servicios = await mongoose.model('Servicio').find({
+    tipoServicio: { $in: tiposIds }
+  });
+
+  const freelancerIds = [...new Set(servicios.map(s => s.freelancer))];
+
+  // 3. Buscar los Freelancers
+  const freelancers = await User.find({
+    _id: { $in: freelancerIds },
+    role: 'freelancer'
+  })
+    .populate({
+      path: 'servicios',
+      populate: {
+        path: 'tipoServicio',
+        model: 'TipoServicio'
+      }
+    });
+
+  return freelancers;
 };
 
 module.exports = {
@@ -217,5 +377,11 @@ module.exports = {
   convertirAFreelancer,
   cambiarDisponibilidad,
   convertirAPremium,
-  actualizarSkills
+  convertirAPremium,
+  actualizarSkills,
+  incrementarVisitas,
+  incrementarLinkedin,
+  incrementarPortfolio,
+  obtenerFreelancersPorCategoria,
+  obtenerFreelancersPorSubCategoria
 }

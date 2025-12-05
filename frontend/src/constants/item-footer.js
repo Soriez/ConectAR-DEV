@@ -36,7 +36,6 @@ export const FOOTER_DATA = {
         titulo: "Empresa",
         enlaces: [
             { id: 'nosotros', texto: "Sobre Nosotros", url: "/sobre-nosotros" },
-            { id: 'empresas', texto: "Para Empresas", url: "/empresas" },
             { id: 'freelancers', texto: "Para Freelancers", url: "/freelancers" },
             { id: 'ayuda', texto: "Ayuda", url: "/contacto" },
         ]

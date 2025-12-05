@@ -1,5 +1,6 @@
 import userModel from '../models/user.model.js';
-const { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuario, obtenerFreelancers, obtenerTodosLosUsuarios, usuarioExiste, verificarPasword, convertirAFreelancer, cambiarDisponibilidad, buscarUsuarioSinPassword, convertirAPremium, actualizarSkills} = userModel;
+import bcrypt from 'bcrypt';
+const { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuario, obtenerFreelancers, obtenerTodosLosUsuarios, usuarioExiste, verificarPasword, convertirAFreelancer, cambiarDisponibilidad, buscarUsuarioSinPassword, convertirAPremium, actualizarSkills, incrementarVisitas, incrementarLinkedin, incrementarPortfolio } = userModel;
 
 
 // ! POST /api/users/register
@@ -8,7 +9,7 @@ const { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuar
 // Función para registrar un nuevo usuario
 export const registerUser = async (req, res) => {
   try {
-    const { nombre, apellido, email, password, isFreelancer } = req.body;
+    const { nombre, apellido, email, password, role } = req.body;
 
     // 1. Verificar si el usuario ya existe (opcional, pero buena práctica)
     const userExists = await usuarioExiste(email)
@@ -20,7 +21,7 @@ export const registerUser = async (req, res) => {
     const saltRounds = 10;
 
     // le pido al modelo que guarde el usuario
-    const savedUser = await guardarUsuario(nombre, apellido, email, password, isFreelancer, saltRounds)
+    const savedUser = await guardarUsuario(nombre, apellido, email, password, role, saltRounds)
 
     // 3. Generar y enviar el token después del registro exitoso
     const token = await generateToken(savedUser._id);
@@ -31,7 +32,8 @@ export const registerUser = async (req, res) => {
       _id: savedUser._id,
       nombre: savedUser.nombre,
       email: savedUser.email,
-      isFreelancer: savedUser.isFreelancer,
+      role: savedUser.role,
+      plan: savedUser.plan,
       token: token // ¡CLAVE: Enviamos el JWT!
     });
 
@@ -56,7 +58,7 @@ export const loginUser = async (req, res) => {
     // incluya el hash de la contraseña, que por defecto está excluido.
     const user = await buscarUsuarioConPassword(email)
     if (!user) {
-      res.status(404).json({ mensaje: 'No existe un usuario registrado con el email ingresado' })
+      return res.status(404).json({ mensaje: 'No existe un usuario registrado con el email ingresado' })
     }
     // 2. Verificar si el usuario existe y si la contraseña es correcta
     // Usamos bcrypt.compare para comparar el texto plano con el hash
@@ -72,7 +74,8 @@ export const loginUser = async (req, res) => {
         _id: user._id,
         nombre: user.nombre,
         email: user.email,
-        isFreelancer: user.isFreelancer,
+        role: user.role,
+        plan: user.plan,
         token: token // ¡CLAVE: Enviamos el JWT!
       });
     } else {
@@ -101,44 +104,74 @@ export const getAllUsers = async (req, res) => {
 // ! GET /api/users/freelancers
 // ? Obtener todos los freelancers (¡CON FILTROS!)
 export const getAllFreelancers = async (req, res) => {
-    try {
-        // 1. Obtener parámetros de consulta. Capturamos isPremium y isDisponible/isAvailable
-        const { isPremium, isDisponible, isAvailable } = req.query;
+  try {
+    const { isPremium, isDisponible, isAvailable } = req.query;
 
-        // 2. Construir el objeto de filtro para MongoDB
-        const filter = {
-          // El filtro base SIEMPRE debe ser isFreelancer: true
-          isFreelancer : true
+    // 1. Filtro base
+    const filter = {};
+    if (isPremium === 'true') filter.plan = 'premium';
+
+    const availabilityQuery = isDisponible || isAvailable;
+    if (availabilityQuery === 'true') filter.isDisponible = true;
+
+    const baseFilter = { role: 'freelancer', ...filter };
+
+    // 2. Traemos freelancers + servicios + tipoServicio
+    //    (NO tocamos skills, las dejamos como vengan del schema)
+    const freelancersRaw = await userModel.User.find(baseFilter)
+      .populate({
+        path: 'servicios',
+        populate: {
+          path: 'tipoServicio',
+          model: 'TipoServicio',
+        },
+      });
+
+    // 3. Normalizamos la data para que el front trabaje cómodo
+    const freelancers = freelancersRaw.map((f) => {
+      const obj = f.toObject();
+
+      // A) Normalizar skills a array de strings, sin hacer populate
+      obj.skills = (obj.skills || []).map((skill) => {
+        if (typeof skill === 'string') return skill;
+        if (skill && typeof skill === 'object') {
+          return skill.name || skill.nombre || '';
+        }
+        return '';
+      });
+
+      // B) Asegurarnos que cada servicio tenga tipoServicio con la estructura esperada
+      obj.servicios = (obj.servicios || []).map((s) => {
+        if (!s.tipoServicio || typeof s.tipoServicio !== 'object') {
+          return s;
         }
 
-        // 3. Aplicar filtro Premium
-        if (isPremium === 'true') { 
-            filter.isPremium = true;
-        }
+        return {
+          ...s,
+          tipoServicio: {
+            _id: s.tipoServicio._id,
+            nombre: s.tipoServicio.nombre,
+            categoria: s.tipoServicio.categoria,
+            categoria_principal: s.tipoServicio.categoria_principal,
+          },
+        };
+      });
 
-        // 4. Aplicar filtro de Disponibilidad
-        // Usamos la variable 'isDisponible' del query, o la variable 'isAvailable' como fallback.
-        const availabilityQuery = isDisponible || isAvailable; 
+      return obj;
+    });
 
-        if (availabilityQuery === 'true') { 
-            // El campo en el modelo es 'isDisponible'
-            filter.isDisponible = true; 
-        }
-        
-        // 5. Llamar al modelo con el filtro
-        const freelancers = await obtenerFreelancers(filter); 
+    // Debug opcional eliminado
 
-        // 6. RESPUESTA ROBUSTA: Aseguramos que la respuesta SIEMPRE sea un array o vacío.
-        res.status(200).json(freelancers || []);
-        
-    } catch (error) {
-        // 7. MANEJO DE ERRORES: Devolvemos el mensaje de error real para debugging
-        console.error("Error REAL en getAllFreelancers:", error.message);
-        res.status(500).json({ 
-            message: 'Error interno del servidor al obtener la lista de profesionales.',
-            details: error.message // Útil para ver el error exacto en el frontend
-        });
-    }
+
+    res.status(200).json(freelancers || []);
+  } catch (error) {
+    console.error('Error REAL en getAllFreelancers:', error);
+    res.status(500).json({
+      message:
+        'Error interno del servidor al obtener la lista de profesionales.',
+      details: error.message,
+    });
+  }
 };
 
 
@@ -153,7 +186,6 @@ export const updateUser = async (req, res) => {
     // Esto elimina la necesidad de comparar req.params.id con req.user._id.
     // Si el token es válido, solo permitimos modificar el ID asociado al token.
     const authenticatedUserId = req.user._id;
-    console.log(authenticatedUserId);
     // Obtenemos los campos a actualizar del cuerpo de la petición
     const updates = req.body;
 
@@ -183,7 +215,6 @@ export const updateUser = async (req, res) => {
     // 4. Verificamos si el usuario fue encontrado (aunque el token sea válido, es buena práctica)
     if (!updatedUser) {
       // Este caso es muy raro, solo si el usuario fue borrado entre el token y la petición
-      console.log(updateUser);
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
@@ -212,20 +243,19 @@ export const updateUser = async (req, res) => {
 export const becomeFreelancer = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { linkedin, portfolio, descripcion, tarifa } = req.body;
+    const { linkedin, portfolio, descripcion, role } = req.body;
 
-    if (!linkedin || !portfolio || !descripcion || !tarifa) {
+    if (!linkedin || !portfolio || !descripcion) {
       return res.status(400).json({ message: "Todos los campos son obligatorios para ser freelancer" });
     }
 
-    const updatedUser = await convertirAFreelancer(userId, linkedin, portfolio, descripcion, tarifa);
+    const updatedUser = await convertirAFreelancer(userId, linkedin, portfolio, descripcion, role);
 
-    res.status(200).json({
-      message: "¡Felicidades! Ahora eres un Freelancer.",
-      user: updatedUser
-    });
+    res.status(200).json(updatedUser);
+
 
   } catch (error) {
+    console.error("Controller Error:", error);
     res.status(500).json({ message: "Error al convertir a freelancer", error: error.message });
   }
 };
@@ -243,10 +273,7 @@ export const toggleAvailability = async (req, res) => {
 
     const updatedUser = await cambiarDisponibilidad(userId, isDisponible);
 
-    res.status(200).json({
-      message: `Estado actualizado a: ${isDisponible ? 'Disponible' : 'Ocupado'}`,
-      user: updatedUser
-    });
+    res.status(200).json(updatedUser);
 
   } catch (error) {
     res.status(500).json({ message: "Error al cambiar disponibilidad", error: error.message });
@@ -258,16 +285,14 @@ export const toggleAvailability = async (req, res) => {
 export const upgradeToPremium = async (req, res) => {
   try {
     const userId = req.user._id;
+    const { plan } = req.body;
 
     // Aquí iría la lógica de verificación de pago si fuera real
     // Por ahora asumimos que si llaman a este endpoint es porque pagaron
 
-    const updatedUser = await convertirAPremium(userId);
+    const updatedUser = await convertirAPremium(userId, plan);
 
-    res.status(200).json({
-      message: "¡Pago exitoso! Ahora eres usuario Premium.",
-      user: updatedUser
-    });
+    res.status(200).json(updatedUser);
 
   } catch (error) {
     res.status(500).json({ message: "Error al procesar la suscripción Premium", error: error.message });
@@ -292,49 +317,150 @@ export const getUserById = async (req, res) => {
 
 // ! PUT /api/users/:id/skills
 // ? actualiza las skills del usuario 
-
 export const actualizarSkillsUser = async (req, res) => {
-    // 🚨 USAMOS req.user._id: El ID seguro y autenticado que viene del token.
-    const userId = req.user._id; 
-    const { skills } = req.body; // Esperamos que el frontend envíe { skills: [...] }
+  // 🚨 USAMOS req.user._id: El ID seguro y autenticado que viene del token.
+  const userId = req.user._id;
+  const { skills } = req.body; // Esperamos que el frontend envíe { skills: [...] }
 
-    // Validación básica: El campo 'skills' debe existir y ser un array
-    if (!skills || !Array.isArray(skills)) {
-        return res.status(400).json({ message: 'El campo skills es obligatorio y debe ser un array.' });
+  // Validación básica: El campo 'skills' debe existir y ser un array
+  if (!skills || !Array.isArray(skills)) {
+    return res.status(400).json({ message: 'El campo skills es obligatorio y debe ser un array.' });
+  }
+
+  // Si tienes el chequeo de req.params.id en la ruta, puedes omitir esto.
+  // Si quieres un chequeo de seguridad adicional:
+  if (req.params.id !== userId.toString()) {
+    return res.status(403).json({ message: 'Acceso denegado: No puedes actualizar otro usuario.' });
+  }
+
+  try {
+    const updatedUser = await actualizarSkills(userId, skills);
+
+    // Si por alguna razón el modelo no encontró el usuario, lanzará un error (si lo implementamos)
+    // o devolverá null. Es bueno chequear esto.
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
     }
-    
-    // Si tienes el chequeo de req.params.id en la ruta, puedes omitir esto.
-    // Si quieres un chequeo de seguridad adicional:
-    if (req.params.id !== userId.toString()) {
-        return res.status(403).json({ message: 'Acceso denegado: No puedes actualizar otro usuario.' });
+
+    // 🟢 RESPUESTA FINAL DE ÉXITO
+    // El problema es que esta línea falla silenciosamente.
+    // Si el .toJSON() en el modelo no resolvió el problema, 
+    // aquí aseguramos que la respuesta se envía correctamente.
+    return res.status(200).json(updatedUser);
+
+  } catch (error) {
+    // 🔴 Manejo de Errores: Esto captura cualquier fallo interno,
+    // incluyendo el error de validación del límite de 5 skills.
+    console.error('Error REAL al actualizar skills en el controlador:', error.message);
+
+    // Manejo de error de validación de Mongoose (límite de 5 skills, etc.)
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: error.message });
     }
 
-    try {
-        const updatedUser = await actualizarSkills(userId, skills); 
+    // Este es el error "desconocido" que ve el frontend
+    return res.status(500).json({ message: 'Error interno del servidor al guardar skills.' });
+  }
+};
 
-        // Si por alguna razón el modelo no encontró el usuario, lanzará un error (si lo implementamos)
-        // o devolverá null. Es bueno chequear esto.
-        if (!updatedUser) {
-            return res.status(404).json({ message: 'Usuario no encontrado.' });
-        }
+// ! PUT /api/users/:id/visitas
+export const incrementVisit = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Obtener IP del cliente (considerando proxies)
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
 
-        // 🟢 RESPUESTA FINAL DE ÉXITO
-        // El problema es que esta línea falla silenciosamente.
-        // Si el .toJSON() en el modelo no resolvió el problema, 
-        // aquí aseguramos que la respuesta se envía correctamente.
-        return res.status(200).json(updatedUser); 
-        
-    } catch (error) {
-        // 🔴 Manejo de Errores: Esto captura cualquier fallo interno,
-        // incluyendo el error de validación del límite de 5 skills.
-        console.error('Error REAL al actualizar skills en el controlador:', error.message);
-        
-        // Manejo de error de validación de Mongoose (límite de 5 skills, etc.)
-        if (error.name === 'ValidationError') {
-             return res.status(400).json({ message: error.message });
-        }
-        
-        // Este es el error "desconocido" que ve el frontend
-        return res.status(500).json({ message: 'Error interno del servidor al guardar skills.' });
-    }
+    await incrementarVisitas(id, ip);
+    res.status(200).json({ message: "Visita registrada" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al registrar visita", error: error.message });
+  }
+};
+
+// ! PUT /api/users/:id/linkedin
+export const incrementLinkedinAccess = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await incrementarLinkedin(id);
+    res.status(200).json({ message: "Acceso a LinkedIn registrado" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al registrar acceso a LinkedIn", error: error.message });
+  }
+};
+
+// ! PUT /api/users/:id/portfolio
+export const incrementPortfolioAccess = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await incrementarPortfolio(id);
+    res.status(200).json({ message: "Acceso a Portfolio registrado" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al registrar acceso a Portfolio", error: error.message });
+  }
+};
+// ! GET /api/users/freelancers/premium
+// ? Obtener SOLO freelancers PREMIUM y DISPONIBLES, ordenados por CALIFICACIÓN
+export const getPremiumFreelancers = async (req, res) => {
+  try {
+    // 1. Buscar freelancers premium y disponibles
+    // Usamos el modelo User directamente para poder hacer populate
+    const freelancers = await userModel.User.find({
+      plan: 'premium',
+      isDisponible: true,
+      role: 'freelancer'
+    }).populate('opiniones'); // Traemos las opiniones completas
+
+    // 2. Calcular el rating promedio para cada freelancer
+    const freelancersWithRating = freelancers.map(f => {
+      // Convertimos a objeto plano para poder agregar propiedades
+      const freelancerObj = f.toObject();
+
+      let avgRating = 0;
+      if (f.opiniones && f.opiniones.length > 0) {
+        const sum = f.opiniones.reduce((acc, op) => acc + (op.calificacion || op.puntuacion || 0), 0);
+        avgRating = sum / f.opiniones.length;
+      }
+
+      // Agregamos el rating calculado al objeto
+      freelancerObj.calculatedRating = avgRating;
+      // También aseguramos que el campo 'rating' (si se usa en el front) tenga este valor
+      freelancerObj.rating = avgRating.toFixed(1);
+
+      return freelancerObj;
+    });
+
+    // 3. Ordenar por rating descendente (Mayor a menor)
+    freelancersWithRating.sort((a, b) => b.calculatedRating - a.calculatedRating);
+
+    res.status(200).json(freelancersWithRating);
+  } catch (error) {
+    console.error("Error en getPremiumFreelancers:", error);
+    res.status(500).json({ message: "Error al obtener freelancers premium", error: error.message });
+  }
+};
+
+// ! GET /api/users/freelancers/category-main/:category
+// ? Obtener freelancers por Categoría Principal
+export const getFreelancersByMainCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    const freelancers = await userModel.obtenerFreelancersPorCategoria(category);
+    res.status(200).json(freelancers);
+  } catch (error) {
+    console.error("Error en getFreelancersByMainCategory:", error);
+    res.status(500).json({ message: "Error al filtrar por categoría principal", error: error.message });
+  }
+};
+
+// ! GET /api/users/freelancers/category-specific/:category
+// ? Obtener freelancers por Categoría Específica (Subcategoría)
+export const getFreelancersBySpecificCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    const freelancers = await userModel.obtenerFreelancersPorSubCategoria(category);
+    res.status(200).json(freelancers);
+  } catch (error) {
+    console.error("Error en getFreelancersBySpecificCategory:", error);
+    res.status(500).json({ message: "Error al filtrar por subcategoría", error: error.message });
+  }
 };

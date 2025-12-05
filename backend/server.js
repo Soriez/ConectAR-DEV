@@ -5,7 +5,8 @@ import opinionRoutes from './routes/opinionRoutes.js';
 import servicioRoutes from './routes/servicioRoutes.js';
 import tipoServicioRoutes from './routes/tipoServicioRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
-import technologyRoutes  from './routes/technologyRoutes.js'; 
+import technologyRoutes from './routes/technologyRoutes.js';
+import linkedinRouter from './routes/linkedin-router.js';
 // Importación necesaria para poder traer variables del .env
 import 'dotenv/config';
 import cors from 'cors'
@@ -40,11 +41,12 @@ app.get('/', (req, res) => {
 //Ruta de usuarios
 app.use('/api/users/', userRoutes)
 
+
 //Ruta de opiniones
 app.use('/api/opinions/', opinionRoutes)
 
 //Ruta de servicios
-app.use('/api/services/', servicioRoutes)
+app.use('/api/servicios/', servicioRoutes)
 
 //Ruta de tipos de servicios
 app.use('/api/types/', tipoServicioRoutes)
@@ -54,6 +56,9 @@ app.use('/api/dashboard/', dashboardRoutes)
 
 //Ruta de tecnologias
 app.use('/api/technologies', technologyRoutes)
+
+//Ruta de autenticación LinkedIn
+app.use('/api/auth/linkedin', linkedinRouter)
 
 // Conectar a MongoDB
 const startServer = async () => {

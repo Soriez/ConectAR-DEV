@@ -1,19 +1,57 @@
-import React, { useState, useContext } from 'react';
-import { ChevronRight, Mail, Lock, Linkedin, Globe, X } from 'lucide-react';
+import { useState, useContext } from 'react';
+import { useNavigate } from 'react-router';
+import { ChevronRight, Mail, Lock, Linkedin, Globe, X, Briefcase, Link as LinkIcon, Crown } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext'; // Importar contexto
+import axios from 'axios';
+
+//import de modales
+import PortfolioModal from '../Modals/ModalsConfiguracion/PortfolioModal';
+import LinkedinModal from '../Modals/ModalsConfiguracion/LinkedinModal';
 
 const ConfiguracionDashboard = () => {
-  const { user } = useContext(AuthContext); // Datos reales
+  const { user, setUser, BASE_URL, token } = useContext(AuthContext); // Datos reales
+  const navigate = useNavigate();
 
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [showPasswordModal,setShowPasswordModal] = useState(false);
-  const [showGoogleModal,setShowGoogleModal] = useState(false);
-  const [showLinkedinModal,setShowLinkedinModal] = useState(false);
+  // --- ESTADOS PARA MODALES ---
+  const [showLinkedinModal, setShowLinkedinModal] = useState(false);
+  const [showPortfolioModal, setShowPortfolioModal] = useState(false);
+
+  // Helpers
+  const isFreelancer = user?.role === 'freelancer';
+  const isPremium = user?.plan === 'premium';
+
+  // --- LÓGICA DE NEGOCIO (HANDLERS) ---
+
+  // 1. Guardar Portfolio
+  const handleSavePortfolio = async (newUrl) => {
+    try {
+      const response = await axios.put(`${BASE_URL}/api/users/${user._id}`, { portfolio: newUrl });
+
+      // 🛡️ FIX DE ROBUSTEZ:
+      // Verificamos si el usuario viene directo en response.data o dentro de una propiedad .user
+      // (Dependiendo de cómo esté programado tu user.controller.js)
+      const updatedUser = response.data.user ? response.data.user : response.data;
+
+      // Actualizamos el contexto solo con el objeto de usuario limpio
+      setUser(updatedUser);
+
+      alert("Portfolio actualizado correctamente.");
+
+    } catch (error) {
+      console.error("Error al guardar portfolio", error);
+      alert("Error al guardar el portfolio.");
+    }
+  };
+
+  // 2. Hacerse Premium
+  const handleUpgradePremium = () => {
+    navigate('/hacerse-premium');
+  };
 
   // Componente de Item de Configuración
   const ConfigItem = ({ title, subtitle, actionLabel, icon, onClick, toggle }) => (
-    <div 
-      onClick={onClick} 
+    <div
+      onClick={onClick}
       className="flex items-center justify-between p-4 hover:bg-slate-50 cursor-pointer transition-colors border-b border-slate-100 last:border-0"
     >
       <div className="flex items-center gap-4">
@@ -23,7 +61,7 @@ const ConfiguracionDashboard = () => {
           {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
         </div>
       </div>
-      
+
       <div className="flex items-center gap-3">
         {actionLabel && <span className="text-xs font-medium text-slate-500">{actionLabel}</span>}
         <ChevronRight size={16} className="text-slate-400" />
@@ -37,174 +75,115 @@ const ConfiguracionDashboard = () => {
     <div className="relative animate-fade-in-up">
       <h1 className="text-2xl font-bold text-slate-800 mb-6">Ajustes</h1>
 
-      {/* SECCIÓN GENERAL */}
+      {/*1- SECCIÓN GENERAL */}
       <div className="mb-8">
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">General</h3>
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <ConfigItem 
-            title="Dirección de correo electrónico" 
+          <ConfigItem
+            title="Dirección de correo electrónico"
             actionLabel={user.email} // Muestra el email real
-            onClick={() => setShowEmailModal(true)} 
+            icon={<Mail size={18} />}
+            onClick={() => navigate('/cambiar-email')}
           />
-          <ConfigItem 
+          <ConfigItem
             title="Cambiar contraseña"
-            actionLabel="*********" 
-            onClick={() => setShowPasswordModal(true)} 
+            actionLabel="*********"
+            icon={<Lock size={18} />}
+            onClick={() => navigate('/cambiar-password')}
           />
         </div>
       </div>
-
-      {/* SECCIÓN CONEXIONES */}
-      <div className="mb-8">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Cuentas Conectadas</h3>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <ConfigItem 
-            title="Google" 
-            subtitle="Inicio de sesión social" 
-            icon={<Globe size={18}/>}
-            actionLabel="Configurar"
-            onClick={() => setShowGoogleModal(true)}
-          />
-          <ConfigItem 
-            title="LinkedIn" 
-            // Lógica: Si hay url de linkedin en la BD, está conectado
-            subtitle={user.linkedin ? "Cuenta vinculada" : "No conectado"} 
-            icon={<Linkedin size={18}/>}
-            actionLabel={user.linkedin ? "Desconectar" : "Conectar"}
-            onClick={() => setShowLinkedinModal(true)} 
-          />
-        </div>
-      </div>
-
-      {/* SECCIÓN PREMIUM (Solo si NO es premium aún) */}
-      {!user.isPremium && (
+      {/* 2. SECCIÓN FREELANCER (Solo si YA es freelancer) */}
+      {isFreelancer && (
         <div className="mb-8">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Suscripción</h3>
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="p-4 bg-linear-to-r from-orange-100 to-orange-50 flex justify-between items-center">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Perfil Profesional</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+            <ConfigItem
+              title="LinkedIn"
+              subtitle={user.linkedin ? "Cuenta conectada" : "Conecta tu perfil profesional"}
+              icon={<Linkedin size={18} />}
+              actionLabel={user.linkedin ? "Editar" : "Conectar"}
+              onClick={() => setShowLinkedinModal(true)}
+            />
+
+            <ConfigItem
+              title="Portfolio"
+              subtitle={user.portfolio ? "Portfolio enlazado" : "Muestra tu trabajo"}
+              icon={<LinkIcon size={18} />}
+              actionLabel={user.portfolio ? "Editar" : "Agregar"}
+              onClick={() => setShowPortfolioModal(true)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 3. SECCIÓN SUSCRIPCIÓN (Solo Freelancers NO Premium) */}
+      {isFreelancer && !isPremium && (
+        <div className="mb-8">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Membresía</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div onClick={handleUpgradePremium} className="p-4 bg-linear-to-r from-orange-50 to-white flex justify-between items-center cursor-pointer hover:bg-orange-100 transition">
+              <div className="flex gap-4 items-center">
+                <div className="text-orange-500"><Crown size={20} /></div>
                 <div>
-                    <h4 className="font-bold text-orange-800">Hazte Premium</h4>
-                    <p className="text-xs text-orange-600 mt-1">Desbloquea funciones exclusivas.</p>
+                  <h4 className="font-bold text-slate-800">Hacerse Premium</h4>
+                  <p className="text-xs text-slate-500">Destaca tu perfil y accede a métricas.</p>
                 </div>
-                <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition">
-                    Ver Planes
-                </button>
-            </div>
-            </div>
-        </div>
-      )}
-
-      {/* --- MODALES (Se mantienen igual, solo lógica visual por ahora) --- */}
-      {/* --- MODAL CAMBIAR CONTRASEÑA --- */}
-      {showEmailModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowEmailModal(false)}></div>
-          <div className="bg-[#1e293b] text-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative z-10 border border-slate-700">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Cambiar correo electrónico</h2>
-              <button onClick={() => setShowEmailModal(false)}><X size={20}/></button>
-            </div>
-            <p className="text-slate-300 text-sm mb-6">¿Estas seguro que deseas cambiar tu email? Tu email actual es: <span className="text-white font-bold">{user.email}</span></p>
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setShowEmailModal(false)} className="px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-full text-sm">Cancelar</button>
-              <button className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-full text-sm">Continuar</button>
+              </div>
+              <ChevronRight size={16} className="text-slate-400" />
             </div>
           </div>
         </div>
       )}
-      {/* --- MODAL CAMBIAR CONTRASEÑA --- */}
-      {showPasswordModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop Oscuro */}
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowPasswordModal(false)}></div>
-          
-          {/* Contenido Modal */}
-          <div className="bg-[#1e293b] text-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative z-10 border border-slate-700 animate-fade-in-up">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Cambia tu contraseña</h2>
-              <button onClick={() => setShowPasswordModal(false)} className="p-1 hover:bg-slate-700 rounded-full transition"><X size={20}/></button>
-            </div>
-            
-            <p className="text-slate-300 text-sm mb-6 leading-relaxed">
-              Para cambiar tu contraseña, antes necesitarás confirmar tu contraseña actual. Te acompañaremos a lo largo del proceso.
-            </p>
-
-            <div className="flex justify-end gap-3">
-              <button 
-                onClick={() => setShowPasswordModal(false)} 
-                className="px-4 py-2 rounded-full text-slate-300 font-bold hover:bg-slate-700 transition text-sm"
-              >
-                Cancelar
-              </button>
-              <button className="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/50 transition text-sm">
-                Continuar
-              </button>
-            </div>
+      {/* 4. SECCIÓN CUENTAS CONECTADAS (Opcional/Para todos) */}
+      <div className="mb-8">
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Integraciones</h3>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          {/* Si no es freelancer, mostramos LinkedIn aquí como integración social */}
+          {!isFreelancer && (
+            <ConfigItem
+              title="LinkedIn"
+              subtitle={user.linkedin ? "Cuenta vinculada" : "No conectado"}
+              icon={<Linkedin size={18} />}
+              actionLabel={user.linkedin ? "Desconectar" : "Conectar"}
+              onClick={() => setShowLinkedinModal(true)}
+            />
+          )}
+        </div>
+      </div>
+      {/* 5. SECCIÓN OPORTUNIDADES (Si NO es freelancer) */}
+      {!isFreelancer && (
+        <div className="mb-8">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Oportunidades</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <ConfigItem
+              title="Convertirse en Freelancer"
+              subtitle="Empieza a vender tus servicios hoy"
+              icon={<Briefcase size={18} />}
+              actionLabel="Empezar"
+              onClick={() => setShowLinkedinModal(true)}
+            />
           </div>
         </div>
       )}
-      {/* --- MODAL CONECTAR GOOGLE  --- */}
-      {showGoogleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop Oscuro */}
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowGoogleModal(false)}></div>
-          
-          {/* Contenido Modal */}
-          <div className="bg-[#1e293b] text-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative z-10 border border-slate-700 animate-fade-in-up">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Conecta tu cuenta de google</h2>
-              <button onClick={() => setShowGoogleModal(false)} className="p-1 hover:bg-slate-700 rounded-full transition"><X size={20}/></button>
-            </div>
-            
-            <p className="text-slate-300 text-sm mb-6 leading-relaxed">
-              Estas a punto de vincular tu cuenta de Google. Te acompañaremos a lo largo del proceso.
-            </p>
+      {/* --- MODALES  --- */}
 
-            <div className="flex justify-end gap-3">
-              <button 
-                onClick={() => setShowGoogleModal(false)} 
-                className="px-4 py-2 rounded-full text-slate-300 font-bold hover:bg-slate-700 transition text-sm"
-              >
-                Cancelar
-              </button>
-              <button className="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/50 transition text-sm">
-                Vincular
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* --- MODAL CONECTAR LINKEDIN --- */}
-      {showLinkedinModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop Oscuro */}
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowLinkedinModal(false)}></div>
-          
-          {/* Contenido Modal */}
-          <div className="bg-[#1e293b] text-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative z-10 border border-slate-700 animate-fade-in-up">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Conectar tu cuenta de LinkedIn</h2>
-              <button onClick={() => setShowLinkedinModal(false)} className="p-1 hover:bg-slate-700 rounded-full transition"><X size={20}/></button>
-            </div>
-            
-            <p className="text-slate-300 text-sm mb-6 leading-relaxed">
-              Estas a punto de vincular tu cuenta de LinkedIn. Te acompañaremos a lo largo del proceso.
-            </p>
+      <PortfolioModal
+        show={showPortfolioModal}
+        onClose={() => setShowPortfolioModal(false)}
+        currentPortfolio={user.portfolio}
+        onSave={handleSavePortfolio}
+      />
 
-            <div className="flex justify-end gap-3">
-              <button 
-                onClick={() => setShowLinkedinModal(false)} 
-                className="px-4 py-2 rounded-full text-slate-300 font-bold hover:bg-slate-700 transition text-sm"
-              >
-                Cancelar
-              </button>
-              <button className="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/50 transition text-sm">
-                Vincular
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <LinkedinModal
+        show={showLinkedinModal}
+        onClose={() => setShowLinkedinModal(false)}
+        isConnected={!!user.linkedin}
+        baseUrl={BASE_URL}
+        token={token}
+      />
+
     </div>
   );
 };

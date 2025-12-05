@@ -1,117 +1,124 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Send, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 
-/**
- * Función mock que simula el envío de un email
- * Retorna una Promise que se resuelve después de 1200ms
- * @param {Object} data - Datos del formulario
- * @returns {Promise} - Promise que simula el envío
- */
-const mockSendMail = (data) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // Simulamos un 90% de éxito y 10% de error para testing
-      const success = Math.random() > 0.1;
-      if (success) {
-        resolve({ success: true, message: 'Email enviado correctamente' });
-      } else {
-        reject({ success: false, message: 'Error al enviar el email' });
-      }
-    }, 1200);
-  });
-};
+// ⚠️ REEMPLAZA ESTOS VALORES CON TUS CREDENCIALES DE EMAILJS
+const YOUR_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID
+const YOUR_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
+const YOUR_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
 
 /**
  * Componente de formulario de contacto
  * Usa React Hook Form para manejo de formulario y validaciones
+ * Integra EmailJS mediante carga dinámica para evitar errores de compilación
  */
 const ContactForm = () => {
   // Estados del componente
-  const [isSubmitting, setIsSubmitting] = useState(false); // Estado de envío
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error' | null
-  const [showForm, setShowForm] = useState(true); // Controla si se muestra el formulario o el mensaje de éxito
+  const [showForm, setShowForm] = useState(true);
+  const [emailJsLoaded, setEmailJsLoaded] = useState(false);
 
-  /**
-   * Configuración de React Hook Form
-   * register: función para registrar inputs
-   * handleSubmit: función que maneja el submit
-   * formState: contiene errores y estado del formulario
-   * reset: función para resetear el formulario
-   */
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm({
-    mode: 'onBlur', // Valida cuando el usuario sale del campo
+    mode: 'onBlur',
   });
+
+  // Efecto para cargar EmailJS dinámicamente desde CDN
+  // Esto soluciona el error "Could not resolve @emailjs/browser" en entornos sin npm
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+    script.async = true;
+    script.onload = () => {
+      // Inicializar EmailJS una vez cargado (opcional si usas solo send, pero recomendado)
+      if (window.emailjs) {
+        setEmailJsLoaded(true);
+      }
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      // Limpieza del script al desmontar
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
 
   /**
    * Función que se ejecuta al enviar el formulario
    * @param {Object} data - Datos del formulario validados
    */
   const onSubmit = async (data) => {
-    setIsSubmitting(true); // Iniciamos el estado de envío
-    setSubmitStatus(null); // Limpiamos cualquier estado anterior
+    setIsSubmitting(true);
+    setSubmitStatus(null);
 
     try {
-      // Intentamos enviar el email con la función mock
-      await mockSendMail(data);
-      
+      if (!emailJsLoaded || !window.emailjs) {
+        throw new Error('La librería de EmailJS no se ha cargado correctamente.');
+      }
+
+      // Preparamos los parámetros para que coincidan con tu Template de EmailJS
+      const templateParams = {
+        title: data.asunto,
+        message: data.mensaje,
+        email: data.email,
+        name: data.email.split('@')[0], // Fallback para el nombre
+      };
+
+      // Enviamos el email usando el objeto global window.emailjs
+      await window.emailjs.send(
+        YOUR_SERVICE_ID,
+        YOUR_TEMPLATE_ID,
+        templateParams,
+        YOUR_PUBLIC_KEY
+      );
+
       // Si tiene éxito:
-      setSubmitStatus('success'); // Marcamos como exitoso
-      setShowForm(false); // Ocultamos el formulario
-      reset(); // Limpiamos los datos del formulario
+      setSubmitStatus('success');
+      setShowForm(false);
+      reset();
     } catch (error) {
       // Si hay error:
-      setSubmitStatus('error'); // Marcamos como error
-      console.error('Error al enviar:', error);
+      setSubmitStatus('error');
+      console.error('Error al enviar con EmailJS:', error);
     } finally {
-      // Siempre ejecutamos esto al final
-      setIsSubmitting(false); // Terminamos el estado de envío
+      setIsSubmitting(false);
     }
   };
 
-  /**
-   * Función para volver a mostrar el formulario después del éxito
-   */
   const handleNewQuery = () => {
-    setShowForm(true); // Mostramos el formulario nuevamente
-    setSubmitStatus(null); // Limpiamos el estado
+    setShowForm(true);
+    setSubmitStatus(null);
   };
 
-  /**
-   * Función para reintentar el envío después de un error
-   */
   const handleRetry = () => {
-    setSubmitStatus(null); // Limpiamos el estado de error
+    setSubmitStatus(null);
   };
 
-  // Si el formulario se envió con éxito, mostramos mensaje de confirmación
+  // --- Renderizado de Éxito ---
   if (!showForm && submitStatus === 'success') {
     return (
-      <div 
+      <div
         className="bg-gray-700 rounded-lg p-8 text-center shadow-xl"
         role="alert"
         aria-live="polite"
       >
-        {/* Icono de éxito */}
         <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500 rounded-full mb-4">
           <CheckCircle className="w-10 h-10 text-white" />
         </div>
-
-        {/* Mensaje de éxito */}
         <h3 className="text-2xl font-bold text-white mb-3">
           ¡Mensaje Enviado!
         </h3>
         <p className="text-sky-200 mb-6">
-          Gracias por contactarnos. Hemos recibido tu mensaje y te responderemos 
+          Gracias por contactarnos. Hemos recibido tu mensaje y te responderemos
           a la brevedad en la dirección de email que proporcionaste.
         </p>
-
-        {/* Botón para enviar otra consulta */}
         <button
           onClick={handleNewQuery}
           className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105"
@@ -122,31 +129,28 @@ const ContactForm = () => {
     );
   }
 
-  // Renderizado del formulario
+  // --- Renderizado del Formulario ---
   return (
     <div className="bg-gray-700 rounded-lg p-8 shadow-xl">
-      {/* Título del formulario */}
       <h3 className="text-2xl font-bold text-white mb-6 text-center">
         Formulario de Contacto
       </h3>
 
-      {/* 
-        Región aria-live para anunciar estados a lectores de pantalla
-        Se actualiza dinámicamente según el estado del formulario
-      */}
-      <div
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
+      <div aria-live="polite" className="sr-only">
         {isSubmitting && 'Enviando correo, por favor espere...'}
         {submitStatus === 'success' && 'Correo enviado exitosamente'}
         {submitStatus === 'error' && 'Error al enviar el correo'}
       </div>
 
-      {/* Notificación de error si el envío falló */}
+      {/* Advertencia si EmailJS no cargó (útil para debugging) */}
+      {!emailJsLoaded && (
+        <div className="mb-4 text-yellow-400 text-sm text-center">
+          Cargando servicio de correo...
+        </div>
+      )}
+
       {submitStatus === 'error' && (
-        <div 
+        <div
           className="bg-red-900/20 border border-red-500 rounded-lg p-4 mb-6 flex items-start gap-3"
           role="alert"
         >
@@ -156,7 +160,7 @@ const ContactForm = () => {
               Error al enviar el mensaje
             </p>
             <p className="text-red-300 text-sm mb-3">
-              Hubo un problema al procesar tu solicitud. Por favor, intenta nuevamente.
+              Hubo un problema al procesar tu solicitud con el servidor de correo.
             </p>
             <button
               onClick={handleRetry}
@@ -168,17 +172,10 @@ const ContactForm = () => {
         </div>
       )}
 
-      {/* Formulario */}
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        {/* 
-          CAMPO EMAIL 
-          Validaciones: requerido, formato de email válido
-        */}
+        {/* EMAIL */}
         <div className="mb-6">
-          <label 
-            htmlFor="email" 
-            className="block text-white font-semibold mb-2"
-          >
+          <label htmlFor="email" className="block text-white font-semibold mb-2">
             Email <span className="text-yellow-500">*</span>
           </label>
           <input
@@ -191,38 +188,23 @@ const ContactForm = () => {
                 message: 'Formato de email inválido',
               },
             })}
-            className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-white border-2 transition-colors duration-200 focus:outline-none ${
-              errors.email 
-                ? 'border-red-500 focus:border-red-500' 
-                : 'border-gray-600 focus:border-blue-500'
-            }`}
+            className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-white border-2 transition-colors duration-200 focus:outline-none ${errors.email
+              ? 'border-red-500 focus:border-red-500'
+              : 'border-gray-600 focus:border-blue-500'
+              }`}
             placeholder="tu@email.com"
-            disabled={isSubmitting}
-            aria-invalid={errors.email ? 'true' : 'false'}
-            aria-describedby={errors.email ? 'email-error' : undefined}
+            disabled={isSubmitting || !emailJsLoaded}
           />
-          {/* Mensaje de error del email */}
           {errors.email && (
-            <p 
-              id="email-error" 
-              className="text-red-400 text-sm mt-2 flex items-center gap-1"
-              role="alert"
-            >
-              <AlertCircle className="w-4 h-4" />
-              {errors.email.message}
+            <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+              <AlertCircle className="w-4 h-4" /> {errors.email.message}
             </p>
           )}
         </div>
 
-        {/* 
-          CAMPO ASUNTO 
-          Validaciones: requerido, mínimo 3 caracteres
-        */}
+        {/* ASUNTO */}
         <div className="mb-6">
-          <label 
-            htmlFor="asunto" 
-            className="block text-white font-semibold mb-2"
-          >
+          <label htmlFor="asunto" className="block text-white font-semibold mb-2">
             Asunto <span className="text-yellow-500">*</span>
           </label>
           <input
@@ -235,38 +217,23 @@ const ContactForm = () => {
                 message: 'El asunto debe tener al menos 3 caracteres',
               },
             })}
-            className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-white border-2 transition-colors duration-200 focus:outline-none ${
-              errors.asunto 
-                ? 'border-red-500 focus:border-red-500' 
-                : 'border-gray-600 focus:border-blue-500'
-            }`}
+            className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-white border-2 transition-colors duration-200 focus:outline-none ${errors.asunto
+              ? 'border-red-500 focus:border-red-500'
+              : 'border-gray-600 focus:border-blue-500'
+              }`}
             placeholder="¿Sobre qué querés consultar?"
-            disabled={isSubmitting}
-            aria-invalid={errors.asunto ? 'true' : 'false'}
-            aria-describedby={errors.asunto ? 'asunto-error' : undefined}
+            disabled={isSubmitting || !emailJsLoaded}
           />
-          {/* Mensaje de error del asunto */}
           {errors.asunto && (
-            <p 
-              id="asunto-error" 
-              className="text-red-400 text-sm mt-2 flex items-center gap-1"
-              role="alert"
-            >
-              <AlertCircle className="w-4 h-4" />
-              {errors.asunto.message}
+            <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+              <AlertCircle className="w-4 h-4" /> {errors.asunto.message}
             </p>
           )}
         </div>
 
-        {/* 
-          CAMPO MENSAJE 
-          Validaciones: requerido, máximo 1000 caracteres
-        */}
+        {/* MENSAJE */}
         <div className="mb-6">
-          <label 
-            htmlFor="mensaje" 
-            className="block text-white font-semibold mb-2"
-          >
+          <label htmlFor="mensaje" className="block text-white font-semibold mb-2">
             Mensaje <span className="text-yellow-500">*</span>
           </label>
           <textarea
@@ -279,49 +246,33 @@ const ContactForm = () => {
                 message: 'El mensaje no puede exceder los 1000 caracteres',
               },
             })}
-            className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-white border-2 transition-colors duration-200 focus:outline-none resize-none ${
-              errors.mensaje 
-                ? 'border-red-500 focus:border-red-500' 
-                : 'border-gray-600 focus:border-blue-500'
-            }`}
+            className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-white border-2 transition-colors duration-200 focus:outline-none resize-none ${errors.mensaje
+              ? 'border-red-500 focus:border-red-500'
+              : 'border-gray-600 focus:border-blue-500'
+              }`}
             placeholder="Contanos tu consulta..."
-            disabled={isSubmitting}
-            aria-invalid={errors.mensaje ? 'true' : 'false'}
-            aria-describedby={errors.mensaje ? 'mensaje-error' : undefined}
+            disabled={isSubmitting || !emailJsLoaded}
           />
-          {/* Mensaje de error del mensaje */}
           {errors.mensaje && (
-            <p 
-              id="mensaje-error" 
-              className="text-red-400 text-sm mt-2 flex items-center gap-1"
-              role="alert"
-            >
-              <AlertCircle className="w-4 h-4" />
-              {errors.mensaje.message}
+            <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+              <AlertCircle className="w-4 h-4" /> {errors.mensaje.message}
             </p>
           )}
         </div>
 
-        {/* 
-          BOTÓN DE ENVÍO 
-          Se deshabilita durante el envío y muestra estados diferentes
-        */}
+        {/* BOTÓN */}
         <button
           type="submit"
-          disabled={isSubmitting}
-          className={`w-full font-semibold px-6 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-white shadow-lg ${
-            isSubmitting
-              ? 'bg-gray-600 cursor-not-allowed'
-              : 'bg-blue-500 hover:bg-blue-600 transform hover:scale-105'
-          }`}
-          aria-busy={isSubmitting}
+          disabled={isSubmitting || !emailJsLoaded}
+          className={`w-full font-semibold px-6 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-white shadow-lg ${isSubmitting || !emailJsLoaded
+            ? 'bg-gray-600 cursor-not-allowed'
+            : 'bg-blue-500 hover:bg-blue-600 transform hover:scale-105'
+            }`}
         >
-          {/* Condicional: muestra spinner durante el envío, ícono normal en reposo */}
           {isSubmitting ? (
             <>
-              {/* Spinner animado (rotación CSS) */}
               <Loader className="w-5 h-5 animate-spin" />
-              Enviando correo...
+              Enviando...
             </>
           ) : (
             <>
@@ -331,11 +282,6 @@ const ContactForm = () => {
           )}
         </button>
       </form>
-
-      {/* Nota informativa */}
-      <p className="text-sky-200 text-sm text-center mt-4">
-        * Campos obligatorios
-      </p>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState, useContext, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router";
 import {
   Star,
   X,
@@ -7,18 +8,48 @@ import {
   User as UserIcon,
   Crown,
   Search,
+  Lock,
 } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
+import LinkedinModal from "../../components/Modals/ModalsConfiguracion/LinkedinModal"; // Importar Modal
 
 // Lista preestablecida de tecnologías (si fallara la carga del backend)
 const FALLBACK_TECHS = ["React", "NodeJS", "MongoDB", "JavaScript"];
+
+// --- COMPONENTE AUXILIAR PARA LOS CONTADORES ---
+const PremiumCounterItem = ({ label, value, isPremium }) => {
+  // Si no es premium, usamos un valor falso visual o el real oculto
+  const displayValue = value || 0;
+
+  return (
+    <li className="flex justify-between items-center text-sm py-2 border-b border-slate-50 last:border-0">
+      <span className="text-slate-600 font-medium">{label}</span>
+
+      <div className="relative flex items-center">
+        {isPremium ? (
+          // CASO PREMIUM: Muestra el número real claro y fuerte
+          <span className="font-bold text-slate-800 text-base">{displayValue}</span>
+        ) : (
+          // CASO NO PREMIUM: Efecto degradado/blur y candado
+          <div className="flex items-center gap-2" title="Disponible solo para Premium">
+            <span className="font-bold text-transparent bg-clip-text bg-linear-to-r from-slate-400 to-slate-200 blur-sm select-none">
+              999
+            </span>
+            <Lock size={14} className="text-slate-400" />
+          </div>
+        )}
+      </div>
+    </li>
+  );
+};
 
 const PerfilDashboard = () => {
   // 1. TODOS LOS HOOKS DEBEN IR AQUÍ, ANTES DE CUALQUIER RETURN CONDICIONAL
 
   // Hook 1: Obtener el contexto de autenticación
-  const { user, isLoading, BASE_URL, setUser } = useContext(AuthContext);
+  const { user, isLoading, BASE_URL, setUser, token } = useContext(AuthContext); // Agregamos token
+  const navigate = useNavigate();
 
   // Hook 2: Lista de tecnologías disponibles (del backend)
   const [availableTechs, setAvailableTechs] = useState([]);
@@ -30,10 +61,16 @@ const PerfilDashboard = () => {
   // Lo inicializamos con un array vacío. La sincronización se hace en el useEffect.
   const [technologies, setTechnologies] = useState([]);
 
+  //Hook 5: Estado para el boton freelancer premium
+  const [isUpgrading, setIsUpgrading] = useState(false); // Estado para loading del botón
+
+  // Hook 6: Estado para el modal de LinkedIn
+  const [showLinkedinModal, setShowLinkedinModal] = useState(false);
+
   // 2. EFECTO: Sincronizar 'technologies' con 'user.skills' cuando el usuario carga
   useEffect(() => {
     // Solo actualizamos si el usuario existe y es freelancer con skills
-    if (user && user.isFreelancer && user.skills) {
+    if (user && user.role === 'freelancer' && user.skills) {
       setTechnologies(user.skills);
     } else {
       // Si no es freelancer o no tiene skills, aseguramos que el estado esté vacío.
@@ -86,8 +123,8 @@ const PerfilDashboard = () => {
   }
 
   // Variables de conveniencia (AHORA es seguro acceder a user.*)
-  const isFreelancer = user.isFreelancer;
-  const isPremium = user.isPremium;
+  const isFreelancer = user.role === 'freelancer';
+  const isPremium = user.plan === 'premium';
   const handleSelectTech = (tech) => {
     if (technologies.length < 5) {
       setTechnologies([...technologies, tech]);
@@ -150,6 +187,10 @@ const PerfilDashboard = () => {
       alert(`Fallo al guardar: ${errorMessage}`);
     }
   };
+  // --- Handler para hacerse Premium ---
+  const handleUpgradeClick = () => {
+    navigate('/hacerse-premium');
+  };
 
   const renderStars = () => {
     const rating = user.rating || 5;
@@ -157,9 +198,8 @@ const PerfilDashboard = () => {
       <Star
         key={index}
         size={18}
-        className={`${
-          index < rating ? "text-yellow-400 fill-yellow-400" : "text-slate-300"
-        }`}
+        className={`${index < rating ? "text-yellow-400 fill-yellow-400" : "text-slate-300"
+          }`}
       />
     ));
   };
@@ -192,10 +232,9 @@ const PerfilDashboard = () => {
             <div
               className={`
                 w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg ring-4 
-                ${
-                  isPremium
-                    ? "bg-slate-900 ring-yellow-400/50"
-                    : "bg-blue-600 ring-blue-50"
+                ${isPremium
+                  ? "bg-slate-900 ring-yellow-400/50"
+                  : "bg-blue-600 ring-blue-50"
                 }
             `}
             >
@@ -352,11 +391,10 @@ const PerfilDashboard = () => {
                 disabled={
                   !isFreelancer || technologies.length === user.skills.length
                 }
-                className={`mt-4 w-full px-4 py-3 font-bold rounded-lg transition ${
-                  technologies.length === user.skills.length
-                    ? "bg-slate-300 text-slate-600 cursor-not-allowed"
-                    : "bg-green-600 text-white hover:bg-green-700"
-                }`}
+                className={`mt-4 w-full px-4 py-3 font-bold rounded-lg transition ${technologies.length === user.skills.length
+                  ? "bg-slate-300 text-slate-600 cursor-not-allowed"
+                  : "bg-green-600 text-white hover:bg-green-700"
+                  }`}
               >
                 Guardar Skills ({technologies.length}/5)
               </button>
@@ -373,41 +411,92 @@ const PerfilDashboard = () => {
                 Convierte tu cuenta a perfil Freelancer y comienza a ofrecer tus
                 servicios hoy mismo.
               </p>
-              <button className="w-full bg-white text-blue-700 font-bold py-2 rounded-lg hover:bg-blue-50 transition shadow-sm">
+              <button
+                onClick={() => setShowLinkedinModal(true)}
+                className="w-full bg-white text-blue-700 font-bold py-2 rounded-lg hover:bg-blue-50 transition shadow-sm"
+              >
                 Convertirme en Freelancer
               </button>
             </div>
           )}
           {/* Stats simples */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h3 className="font-bold text-slate-800 mb-4">Estadísticas</h3>
-            <ul className="space-y-3">
-              <li className="flex justify-between text-sm">
-                <span className="text-slate-500">Visitas al perfil</span>
-                <span className="font-bold text-slate-800">
-                  {user.cantVisitas || 0}
-                </span>
-              </li>
-              {isFreelancer && (
-                <>
-                  <li className="flex justify-between text-sm">
-                    <span className="text-slate-500">Clics en Portfolio</span>
-                    <span className="font-bold text-slate-800">
-                      {user.cantAccesosPortfolio || 0}
-                    </span>
-                  </li>
-                  <li className="flex justify-between text-sm">
-                    <span className="text-slate-500">Clics en LinkedIn</span>
-                    <span className="font-bold text-slate-800">
-                      {user.cantAccesosLinkedin || 0}
-                    </span>
-                  </li>
-                </>
+          {/* 🎯 SECCIÓN ESTADÍSTICAS MODIFICADA */}
+          {isFreelancer && (
+            <div className={`bg-white rounded-xl shadow-sm border ${isPremium ? 'border-yellow-200 ring-1 ring-yellow-100' : 'border-slate-200'} p-6 transition-all duration-300`}>
+
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-slate-800">Estadísticas</h3>
+                {isPremium && <Crown size={18} className="text-yellow-500 fill-yellow-500" />}
+              </div>
+
+              <ul className="space-y-1 mb-6">
+                {/* Usamos el componente auxiliar para cada estadística */}
+                <PremiumCounterItem
+                  label="Visitas al perfil"
+                  value={user.cantVisitas}
+                  isPremium={isPremium}
+                />
+
+                {isFreelancer && (
+                  <>
+                    <PremiumCounterItem
+                      label="Clics en LinkedIn"
+                      value={user.cantAccesosLinkedin}
+                      isPremium={isPremium}
+                    />
+                    <PremiumCounterItem
+                      label="Clics en Portfolio"
+                      value={user.cantAccesosPortfolio}
+                      isPremium={isPremium}
+                    />
+                  </>
+                )}
+              </ul>
+
+              {/* BOTÓN PARA HACERSE PREMIUM (Solo si es freelancer y NO es premium) */}
+              {isFreelancer && !isPremium && (
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <p className="text-xs text-slate-500 mb-3 text-center">
+                    Desbloquea las métricas y obtén mayor visibilidad.
+                  </p>
+                  <button
+                    onClick={handleUpgradeClick}
+                    disabled={isUpgrading}
+                    className="w-full bg-linear-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white font-bold py-3 rounded-lg shadow-md shadow-yellow-200/50 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+                  >
+                    {isUpgrading ? (
+                      <span className="text-sm">Procesando...</span>
+                    ) : (
+                      <>
+                        <Crown size={18} />
+                        <span>Hacerme Premium</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               )}
-            </ul>
-          </div>
+
+              {/* Mensaje para usuarios Premium */}
+              {isPremium && (
+                <div className="mt-4 pt-4 border-t border-yellow-100 text-center">
+                  <p className="text-xs font-semibold text-yellow-700 bg-yellow-50 py-2 rounded-lg">
+                    ✨ Tienes acceso total a tus métricas
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
+
+      {/* MODAL DE LINKEDIN */}
+      <LinkedinModal
+        show={showLinkedinModal}
+        onClose={() => setShowLinkedinModal(false)}
+        isConnected={!!user.linkedin}
+        baseUrl={BASE_URL}
+        token={token}
+      />
     </div>
   );
 };

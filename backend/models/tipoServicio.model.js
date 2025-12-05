@@ -18,9 +18,6 @@ const tipoServicioSchema = new Schema({
         required: true,
         trim: true,
         index: true
-    },
-    descripcionBase: {
-        type: String
     }
 });
 

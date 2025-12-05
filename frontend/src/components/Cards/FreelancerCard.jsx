@@ -19,7 +19,7 @@ const FreelancerCard = ({ data }) => {
 
     // Datos directos del usuario (Mapeo para coincidir con el diseño solicitado)
     const titulo = data.titulo || "Freelancer";
-    const rating = data.rating || 5.0;
+    const rating = data.rating !== undefined ? data.rating : 0;
     const isPremium = data.plan === 'premium';
     const isDisponible = data.isDisponible !== undefined ? data.isDisponible : true;
     const descripcion = data.descripcion || "Sin descripción disponible.";

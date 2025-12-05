@@ -125,7 +125,8 @@ export const getAllFreelancers = async (req, res) => {
           path: 'tipoServicio',
           model: 'TipoServicio',
         },
-      });
+      })
+      .populate('opiniones');
 
     // 3. Normalizamos la data para que el front trabaje cómodo
     const freelancers = freelancersRaw.map((f) => {
@@ -156,6 +157,14 @@ export const getAllFreelancers = async (req, res) => {
           },
         };
       });
+
+      // C) Calcular Rating Promedio
+      let avgRating = 0;
+      if (obj.opiniones && obj.opiniones.length > 0) {
+        const sum = obj.opiniones.reduce((acc, op) => acc + (op.calificacion || op.puntuacion || 0), 0);
+        avgRating = sum / obj.opiniones.length;
+      }
+      obj.rating = avgRating;
 
       return obj;
     });
@@ -445,7 +454,20 @@ export const getFreelancersByMainCategory = async (req, res) => {
   try {
     const { category } = req.params;
     const freelancers = await userModel.obtenerFreelancersPorCategoria(category);
-    res.status(200).json(freelancers);
+
+    // Calcular rating para cada freelancer
+    const freelancersWithRating = freelancers.map(f => {
+      const obj = f.toObject();
+      let avgRating = 0;
+      if (obj.opiniones && obj.opiniones.length > 0) {
+        const sum = obj.opiniones.reduce((acc, op) => acc + (op.calificacion || op.puntuacion || 0), 0);
+        avgRating = sum / obj.opiniones.length;
+      }
+      obj.rating = avgRating;
+      return obj;
+    });
+
+    res.status(200).json(freelancersWithRating);
   } catch (error) {
     console.error("Error en getFreelancersByMainCategory:", error);
     res.status(500).json({ message: "Error al filtrar por categoría principal", error: error.message });
@@ -458,7 +480,20 @@ export const getFreelancersBySpecificCategory = async (req, res) => {
   try {
     const { category } = req.params;
     const freelancers = await userModel.obtenerFreelancersPorSubCategoria(category);
-    res.status(200).json(freelancers);
+
+    // Calcular rating para cada freelancer
+    const freelancersWithRating = freelancers.map(f => {
+      const obj = f.toObject();
+      let avgRating = 0;
+      if (obj.opiniones && obj.opiniones.length > 0) {
+        const sum = obj.opiniones.reduce((acc, op) => acc + (op.calificacion || op.puntuacion || 0), 0);
+        avgRating = sum / obj.opiniones.length;
+      }
+      obj.rating = avgRating;
+      return obj;
+    });
+
+    res.status(200).json(freelancersWithRating);
   } catch (error) {
     console.error("Error en getFreelancersBySpecificCategory:", error);
     res.status(500).json({ message: "Error al filtrar por subcategoría", error: error.message });

@@ -77,7 +77,7 @@ const FreelancerCard = ({ user, showPremiumBadge }) => {
                         </p>
                         <div className="flex items-center gap-1">
                             <Star size={12} className="text-amber-400 fill-current" />
-                            <span className="text-xs font-bold text-slate-700">{user.rating || "5.0"}</span>
+                            <span className="text-xs font-bold text-slate-700">{user.rating ? Number(user.rating).toFixed(1) : "5.0"}</span>
                         </div>
                     </div>
                 </div>

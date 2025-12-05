@@ -326,7 +326,8 @@ const obtenerFreelancersPorCategoria = async (categoriaPrincipal) => {
         path: 'tipoServicio',
         model: 'TipoServicio'
       }
-    });
+    })
+    .populate('opiniones');
 
   return freelancers;
 };
@@ -358,7 +359,8 @@ const obtenerFreelancersPorSubCategoria = async (categoriaEspecifica) => {
         path: 'tipoServicio',
         model: 'TipoServicio'
       }
-    });
+    })
+    .populate('opiniones');
 
   return freelancers;
 };

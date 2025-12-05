@@ -25,7 +25,7 @@ const Freelancers = () => {
     const [filterTarifaMax, setFilterTarifaMax] = useState(200000);
     const [currentPage, setCurrentPage] = useState(1);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
-    const itemsPerPage = 8;
+    const itemsPerPage = 12;
 
     const [freelancersDB, setFreelancersDB] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -382,7 +382,7 @@ const Freelancers = () => {
                             {paginatedGeneralData.length > 0 ? (
                                 <>
                                     <h2 className="text-xl font-bold text-slate-800 mb-4">Catálogo General</h2>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
                                         {paginatedGeneralData.map((freelancer) => (
                                             <FreelancerCard key={freelancer._id} data={freelancer} />
                                         ))}

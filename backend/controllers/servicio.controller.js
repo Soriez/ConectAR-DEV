@@ -1,11 +1,11 @@
-import { guardarServicio, obtenerServiciosPorFreelancer, eliminarServicio, servicioActualizado } from '../models/servicio.model.js';
-import { obtenerTodosLosTipos } from '../models/tipoServicio.model.js';
+import ServicioService from '../services/servicio.service.js';
+import TipoServicioService from '../services/tipoServicio.service.js';
 
 // ! GET /api/services/types
 // ? Obtener el catálogo de servicios disponibles (Para llenar el <select> del modal)
 export const getServiceTypes = async (req, res) => {
     try {
-        const tipos = await obtenerTodosLosTipos();
+        const tipos = await TipoServicioService.obtenerTodosLosTipos();
         res.status(200).json(tipos);
     } catch (error) {
         res.status(500).json({ message: "Error al cargar los tipos de servicios", error: error.message });
@@ -26,7 +26,7 @@ export const createService = async (req, res) => {
         }
 
         // Llamamos al modelo para guardar
-        const nuevoServicio = await guardarServicio(
+        const nuevoServicio = await ServicioService.guardarServicio(
             freelancerId,
             tipoServicioId,
             precio,
@@ -52,7 +52,7 @@ export const createService = async (req, res) => {
 export const getServicesByFreelancer = async (req, res) => {
     try {
         const { id } = req.params; // ID del freelancer
-        const servicios = await obtenerServiciosPorFreelancer(id);
+        const servicios = await ServicioService.obtenerServiciosPorFreelancer(id);
 
         res.status(200).json(servicios);
     } catch (error) {
@@ -67,7 +67,7 @@ export const deleteService = async (req, res) => {
         const { id } = req.params; // ID del Servicio (no del usuario)
         const freelancerId = req.user._id;
 
-        const resultado = await eliminarServicio(id, freelancerId);
+        const resultado = await ServicioService.eliminarServicio(id, freelancerId);
 
         if (!resultado) {
             return res.status(404).json({ message: "Servicio no encontrado o no tienes permiso para eliminarlo" });
@@ -92,15 +92,15 @@ export const updateService = async (req, res) => {
         if (precio) datosActualizados.precio = precio;
         if (descripcionPersonalizada) datosActualizados.descripcionPersonalizada = descripcionPersonalizada;
 
-        const servicioActualizado = await actualizarServicio(id, freelancerId, datosActualizados);
+        const servicioActualizado = await ServicioService.servicioActualizado(id, freelancerId, datosActualizados);
 
         if (!servicioActualizado) {
             return res.status(404).json({ message: "Servicio no encontrado o no tienes permiso" });
         }
 
-        res.status(200).json({ 
-            message: "Servicio actualizado correctamente", 
-            servicio: servicioActualizado 
+        res.status(200).json({
+            message: "Servicio actualizado correctamente",
+            servicio: servicioActualizado
         });
 
     } catch (error) {

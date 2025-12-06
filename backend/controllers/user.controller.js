@@ -1,6 +1,5 @@
-import userModel from '../models/user.model.js';
-import bcrypt from 'bcrypt';
-const { actualizarUsuario, buscarUsuarioConPassword, generateToken, guardarUsuario, obtenerFreelancers, obtenerTodosLosUsuarios, usuarioExiste, verificarPasword, convertirAFreelancer, cambiarDisponibilidad, buscarUsuarioSinPassword, convertirAPremium, actualizarSkills, incrementarVisitas, incrementarLinkedin, incrementarPortfolio } = userModel;
+import userService from '../services/user.service.js';
+
 
 
 // ! POST /api/users/register
@@ -12,7 +11,7 @@ export const registerUser = async (req, res) => {
     const { nombre, apellido, email, password, role } = req.body;
 
     // 1. Verificar si el usuario ya existe (opcional, pero buena práctica)
-    const userExists = await usuarioExiste(email)
+    const userExists = await userService.usuarioExiste(email)
     if (userExists) {
       return res.status(400).json({ message: "El email ya está en uso" });
     }
@@ -21,10 +20,10 @@ export const registerUser = async (req, res) => {
     const saltRounds = 10;
 
     // le pido al modelo que guarde el usuario
-    const savedUser = await guardarUsuario(nombre, apellido, email, password, role, saltRounds)
+    const savedUser = await userService.guardarUsuario(nombre, apellido, email, password, role, saltRounds)
 
     // 3. Generar y enviar el token después del registro exitoso
-    const token = await generateToken(savedUser._id);
+    const token = await userService.generateToken(savedUser._id);
 
     // 4. Respondemos al frontend con el token y datos
     res.status(201).json({
@@ -56,17 +55,17 @@ export const loginUser = async (req, res) => {
 
     // 1. Buscar el usuario. Usamos .select('+password') para que Mongoose 
     // incluya el hash de la contraseña, que por defecto está excluido.
-    const user = await buscarUsuarioConPassword(email)
+    const user = await userService.buscarUsuarioConPassword(email)
     if (!user) {
       return res.status(404).json({ mensaje: 'No existe un usuario registrado con el email ingresado' })
     }
     // 2. Verificar si el usuario existe y si la contraseña es correcta
     // Usamos bcrypt.compare para comparar el texto plano con el hash
-    const verificacion = await verificarPasword(password, user)
+    const verificacion = await userService.verificarPasword(password, user)
     if (user && verificacion) {
 
       // 3. Generar el token
-      const token = await generateToken(user._id);
+      const token = await userService.generateToken(user._id);
 
       // 4. Respuesta exitosa
       res.status(200).json({
@@ -94,7 +93,7 @@ export const loginUser = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await obtenerTodosLosUsuarios()
+    const users = await userService.obtenerTodosLosUsuarios()
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener los usuarios", error: error.message });
@@ -118,7 +117,7 @@ export const getAllFreelancers = async (req, res) => {
 
     // 2. Traemos freelancers + servicios + tipoServicio
     //    (NO tocamos skills, las dejamos como vengan del schema)
-    const freelancersRaw = await userModel.User.find(baseFilter)
+    const freelancersRaw = await userService.obtenerFreelancers(baseFilter)
       .populate({
         path: 'servicios',
         populate: {
@@ -212,14 +211,10 @@ export const updateUser = async (req, res) => {
     */
     // -----------------------------------------------------------------
 
-    // 2. HASH DE CONTRASEÑA (si se está actualizando)
-    if (updates.password) {
-      // Importa 'bcrypt' si aún no lo has hecho
-      updates.password = await bcrypt.hash(updates.password, 10);
-    }
+
 
     // 3. Buscamos y actualizamos usando el ID del usuario logueado
-    const updatedUser = await actualizarUsuario(authenticatedUserId, updates)
+    const updatedUser = await userService.actualizarUsuario(authenticatedUserId, updates)
 
     // 4. Verificamos si el usuario fue encontrado (aunque el token sea válido, es buena práctica)
     if (!updatedUser) {
@@ -258,7 +253,7 @@ export const becomeFreelancer = async (req, res) => {
       return res.status(400).json({ message: "Todos los campos son obligatorios para ser freelancer" });
     }
 
-    const updatedUser = await convertirAFreelancer(userId, linkedin, portfolio, descripcion, role);
+    const updatedUser = await userService.convertirAFreelancer(userId, linkedin, portfolio, descripcion, role);
 
     res.status(200).json(updatedUser);
 
@@ -280,7 +275,7 @@ export const toggleAvailability = async (req, res) => {
       return res.status(400).json({ message: "El estado debe ser booleano (true/false)" });
     }
 
-    const updatedUser = await cambiarDisponibilidad(userId, isDisponible);
+    const updatedUser = await userService.cambiarDisponibilidad(userId, isDisponible);
 
     res.status(200).json(updatedUser);
 
@@ -299,7 +294,7 @@ export const upgradeToPremium = async (req, res) => {
     // Aquí iría la lógica de verificación de pago si fuera real
     // Por ahora asumimos que si llaman a este endpoint es porque pagaron
 
-    const updatedUser = await convertirAPremium(userId, plan);
+    const updatedUser = await userService.convertirAPremium(userId, plan);
 
     res.status(200).json(updatedUser);
 
@@ -312,7 +307,7 @@ export const upgradeToPremium = async (req, res) => {
 export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await buscarUsuarioSinPassword({ id });
+    const user = await userService.buscarUsuarioSinPassword({ id });
 
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado" });
@@ -343,7 +338,7 @@ export const actualizarSkillsUser = async (req, res) => {
   }
 
   try {
-    const updatedUser = await actualizarSkills(userId, skills);
+    const updatedUser = await userService.actualizarSkillsUser(userId, skills);
 
     // Si por alguna razón el modelo no encontró el usuario, lanzará un error (si lo implementamos)
     // o devolverá null. Es bueno chequear esto.
@@ -379,7 +374,7 @@ export const incrementVisit = async (req, res) => {
     // Obtener IP del cliente (considerando proxies)
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
 
-    await incrementarVisitas(id, ip);
+    await userService.incrementarVisitas(id, ip);
     res.status(200).json({ message: "Visita registrada" });
   } catch (error) {
     res.status(500).json({ message: "Error al registrar visita", error: error.message });
@@ -390,7 +385,7 @@ export const incrementVisit = async (req, res) => {
 export const incrementLinkedinAccess = async (req, res) => {
   try {
     const { id } = req.params;
-    await incrementarLinkedin(id);
+    await userService.incrementarLinkedin(id);
     res.status(200).json({ message: "Acceso a LinkedIn registrado" });
   } catch (error) {
     res.status(500).json({ message: "Error al registrar acceso a LinkedIn", error: error.message });
@@ -401,7 +396,7 @@ export const incrementLinkedinAccess = async (req, res) => {
 export const incrementPortfolioAccess = async (req, res) => {
   try {
     const { id } = req.params;
-    await incrementarPortfolio(id);
+    await userService.incrementarPortfolio(id);
     res.status(200).json({ message: "Acceso a Portfolio registrado" });
   } catch (error) {
     res.status(500).json({ message: "Error al registrar acceso a Portfolio", error: error.message });
@@ -412,12 +407,8 @@ export const incrementPortfolioAccess = async (req, res) => {
 export const getPremiumFreelancers = async (req, res) => {
   try {
     // 1. Buscar freelancers premium y disponibles
-    // Usamos el modelo User directamente para poder hacer populate
-    const freelancers = await userModel.User.find({
-      plan: 'premium',
-      isDisponible: true,
-      role: 'freelancer'
-    }).populate('opiniones'); // Traemos las opiniones completas
+    // Usamos el servicio para obtener los datos
+    const freelancers = await userService.obtenerFreelancersPremium();
 
     // 2. Calcular el rating promedio para cada freelancer
     const freelancersWithRating = freelancers.map(f => {
@@ -453,7 +444,7 @@ export const getPremiumFreelancers = async (req, res) => {
 export const getFreelancersByMainCategory = async (req, res) => {
   try {
     const { category } = req.params;
-    const freelancers = await userModel.obtenerFreelancersPorCategoria(category);
+    const freelancers = await userService.obtenerFreelancersPorCategoria(category);
 
     // Calcular rating para cada freelancer
     const freelancersWithRating = freelancers.map(f => {
@@ -479,7 +470,7 @@ export const getFreelancersByMainCategory = async (req, res) => {
 export const getFreelancersBySpecificCategory = async (req, res) => {
   try {
     const { category } = req.params;
-    const freelancers = await userModel.obtenerFreelancersPorSubCategoria(category);
+    const freelancers = await userService.obtenerFreelancersPorSubCategoria(category);
 
     // Calcular rating para cada freelancer
     const freelancersWithRating = freelancers.map(f => {

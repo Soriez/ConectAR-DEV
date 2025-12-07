@@ -88,7 +88,8 @@ const obtenerFreelancers = async (filter = {}) => {
                 path: 'tipoServicio',
                 model: 'TipoServicio'
             }
-        });
+        })
+        .populate('opiniones');
     return freelancers;
 };
 

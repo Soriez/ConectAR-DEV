@@ -146,7 +146,7 @@ const FreeToPremium = () => {
               />
             </div>
 
-            <div className="mt-8 bg-gradient-to-r from-[#2563EB]/10 to-[#1f2937] p-5 rounded-xl border-l-4 border-[#2563EB]">
+            <div className="mt-8 bg-linear-to-r from-[#2563EB]/10 to-[#1f2937] p-5 rounded-xl border-l-4 border-[#2563EB]">
               <div className="flex items-center gap-3">
                 <CreditCard className="text-[#2563EB]" size={24} />
                 <div>
@@ -161,7 +161,7 @@ const FreeToPremium = () => {
             <div className="relative bg-[#1f2937] border border-gray-700 rounded-2xl shadow-2xl p-8 lg:p-10 text-center">
 
               <p className="text-5xl font-extrabold text-white mb-2">
-                $5000
+                $5.000 ARS
               </p>
               <p className="text-gray-400 mb-8">
                 Unico pago. Sin letra chica.

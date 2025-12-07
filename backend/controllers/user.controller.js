@@ -118,14 +118,6 @@ export const getAllFreelancers = async (req, res) => {
     // 2. Traemos freelancers + servicios + tipoServicio
     //    (NO tocamos skills, las dejamos como vengan del schema)
     const freelancersRaw = await userService.obtenerFreelancers(baseFilter)
-      .populate({
-        path: 'servicios',
-        populate: {
-          path: 'tipoServicio',
-          model: 'TipoServicio',
-        },
-      })
-      .populate('opiniones');
 
     // 3. Normalizamos la data para que el front trabaje cómodo
     const freelancers = freelancersRaw.map((f) => {

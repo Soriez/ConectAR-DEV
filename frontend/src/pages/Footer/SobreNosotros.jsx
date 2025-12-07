@@ -132,7 +132,7 @@ const SobreNosotros = () => {
                 <img 
                   src={miembro.imagen} 
                   alt={miembro.nombre}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
+                  className="w-full h-full object-cover transition-transform duration-700"
                 />
                 
                 {/* Overlay Gradiente */}

@@ -3,6 +3,7 @@
 import User from "../models/user.model.js";
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
+import mongoose from "mongoose";
 
 //Función para obtener todos los usuarios que hay en la base de datos
 const obtenerTodosLosUsuarios = async () => {

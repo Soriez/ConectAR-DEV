@@ -26,11 +26,18 @@ const NavBar = () => {
                 
                 {/* Logo */}
                 <div className="flex items-center space-x-4">
-                    <NavLink to={'/'} className="shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-900 border border-blue-500 rounded-full flex items-center justify-center overflow-hidden">
-                            <img src="/public/imgs/logo.jpeg" alt="Logo" className="w-full h-full object-cover" />
-                        </div>
-                    </NavLink>
+                <NavLink
+                    to={'/'}
+                    className="shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center overflow-hidden bg-transparent">
+                    <img
+                        src="/public/imgs/logo_new.png"
+                        alt="Logo"
+                        className="w-full h-full object-contain"
+                    />
+                    </div>
+                </NavLink>
                 </div>
 
                 {/* Desktop Menu */}

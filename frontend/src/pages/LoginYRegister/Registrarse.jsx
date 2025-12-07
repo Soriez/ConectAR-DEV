@@ -129,8 +129,8 @@ const Registrar = () => {
 
                         {/* Header y Títulos */}
                         <div className="text-center mb-4">
-                            <img src="imgs/logo.jpeg" alt=""
-                                className="inline-flex items-center justify-center w-[60px] h-[60px] bg-url rounded-xl shadow-lg shadow-blue-600/50 mb-3"
+                            <img src="imgs/logo_new.png" alt=""
+                                className="inline-flex items-center justify-center w-[60px] h-[60px]  shadow-lg shadow-blue-600/50 mb-3 bg-white rounded-full"
                             />
                             <h1 className="text-[28px] font-bold text-white mb-1">ConectAR-Dev</h1>
                             <p className="text-[14px] text-yellow-400 font-medium m-0">Professional Network</p>
@@ -285,7 +285,7 @@ const Registrar = () => {
                 {/* 🎯 Panel Derecho - Contenido Estático (50%) */}
                 <div className="lg:flex lg:w-1/2 relative p-4 lg:p-8 flex items-center justify-center min-h-screen">
                     <img
-                        src="imgs/imagen-registro.jpg"
+                        src="imgs/imagen-registro.webp"
                         alt="Notebook con código en la pantalla. Planta en una maceta, vista hacia una ventana hacia la naturaleza"
                         className="absolute top-0 left-0 w-full h-full z-0 object-cover"
                     />

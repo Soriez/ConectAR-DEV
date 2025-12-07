@@ -122,8 +122,8 @@ const IniciarSesion = () => {
                     {/* Logo y Header */}
                     <div className="text-center mb-4">
                         {/* LOGO - usando una imagen de ejemplo o div simple */}
-                        <img src="imgs/logo.jpeg" alt="" // Asegúrate de que esta ruta sea correcta
-                            className="inline-flex items-center justify-center w-[60px] h-[60px] bg-url rounded-xl shadow-lg shadow-blue-600/50 mb-3"
+                        <img src="imgs/logo_new.png" alt="" // Asegúrate de que esta ruta sea correcta
+                            className="inline-flex items-center justify-center w-[60px] h-[60px] shadow-lg shadow-blue-600/50 mb-3 bg-white rounded-full"
                         />
                         <h1 className="text-[28px] font-bold text-white mb-1">ConectAR-Dev</h1>
                         {/* Acento ajustado a text-yellow-400 */}
@@ -216,7 +216,7 @@ const IniciarSesion = () => {
             <div className="hidden lg:flex lg:w-1/2 relative p-4 lg:p-8 items-center justify-center min-h-screen">
                 {/* Imagen de fondo, cubriendo todo el div */}
                 <img
-                    src="imgs/imagen-login.jpg" // Asegúrate de que esta ruta sea correcta
+                    src="imgs/imagen-login.webp" // Asegúrate de que esta ruta sea correcta
                     alt="Imagen de fondo login"
                     className="absolute top-0 left-0 w-full h-full z-0 object-cover"
                 />

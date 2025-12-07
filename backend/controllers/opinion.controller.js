@@ -1,9 +1,4 @@
-import opinionModel from '../models/opinion.model.js';
-const {
-    guardarOpinion,
-    obtenerOpinionesRecibidas,
-    obtenerOpinionesRealizadas
-} = opinionModel;
+import opinionService from '../services/opinion.service.js';
 
 // ! POST /api/opinions
 // ? Crear una nueva opinión
@@ -25,7 +20,7 @@ export const createOpinion = async (req, res) => {
         }
 
         // Llamamos a la lógica del modelo
-        const nuevaOpinion = await guardarOpinion(destinatarioId, autorId, puntuacion, opinion);
+        const nuevaOpinion = await opinionService.guardarOpinion(destinatarioId, autorId, puntuacion, opinion);
 
         res.status(201).json({
             message: "Opinión creada exitosamente",
@@ -45,7 +40,7 @@ export const createOpinion = async (req, res) => {
 export const getReceivedOpinions = async (req, res) => {
     try {
         const { usuarioId } = req.params;
-        const opiniones = await obtenerOpinionesRecibidas(usuarioId);
+        const opiniones = await opinionService.obtenerOpinionesRecibidas(usuarioId);
         res.status(200).json(opiniones);
     } catch (error) {
         res.status(500).json({
@@ -60,11 +55,34 @@ export const getReceivedOpinions = async (req, res) => {
 export const getGivenOpinions = async (req, res) => {
     try {
         const { usuarioId } = req.params;
-        const opiniones = await obtenerOpinionesRealizadas(usuarioId);
+        const opiniones = await opinionService.obtenerOpinionesRealizadas(usuarioId);
         res.status(200).json(opiniones);
     } catch (error) {
         res.status(500).json({
             message: "Error al obtener las opiniones realizadas",
+            error: error.message
+        });
+    }
+};
+
+// ! DELETE /api/opinions/:id
+// ? Eliminar una opinión por su ID
+export const deleteOpinion = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const opinionEliminada = await opinionService.eliminarOpinion(id);
+
+        if (!opinionEliminada) {
+            return res.status(404).json({ message: "Opinión no encontrada" });
+        }
+
+        res.status(200).json({
+            message: "Opinión eliminada correctamente",
+            opinion: opinionEliminada
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Error al eliminar la opinión",
             error: error.message
         });
     }

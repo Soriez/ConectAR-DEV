@@ -1,7 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Filter, Star, ChevronLeft, ChevronRight, Check, X } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, Filter, X, Check, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import FreelancerCard from '../../components/Cards/FreelancerCard';
+import FreelancersInicio from '../../components/SeccionesInicio/FreelancersInicio';
+import { useSearchParams } from 'react-router';
 import axios from 'axios';
 
+<<<<<<< HEAD
 // Componente reutilizado del carrusel (MANTENIDO IGUAL)
 import FreelancersInicio from '../../components/SeccionesInicio/FreelancersInicio';
 // Componente de Tarjeta Unificado (Ahora versión Dark)
@@ -22,45 +26,149 @@ const Freelancers = () => {
 
     const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 24;
+=======
 
+const Freelancers = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialEspecialidad = searchParams.get('especialidad') || 'Todas';
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterCategoriaPrincipal, setFilterCategoriaPrincipal] = useState('Todas');
+    const [filterCategoriaEspecifica, setFilterCategoriaEspecifica] = useState('Todas');
+
+    // Sincronizar filtro con URL si cambia externamente
+    useEffect(() => {
+        const currentCat = searchParams.get('categoria') || 'Todas';
+        setFilterCategoriaPrincipal(currentCat);
+        setFilterCategoriaEspecifica('Todas'); // Resetear subcategoría al cambiar la principal desde URL
+    }, [searchParams]);
+
+    const [filterRating, setFilterRating] = useState(0);
+    const [filterTarifaMax, setFilterTarifaMax] = useState(200000);
+>>>>>>> main
+    const [currentPage, setCurrentPage] = useState(1);
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
+    const itemsPerPage = 12;
+
+<<<<<<< HEAD
+=======
+    const [freelancersDB, setFreelancersDB] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [tiposServiciosDB, setTiposServiciosDB] = useState([]);
+
+    // --- Fetch de datos (Freelancers y Tipos de Servicios) ---
+    // --- Fetch de Tipos de Servicios (Solo una vez al montar) ---
+    useEffect(() => {
+        const fetchTypes = async () => {
+            try {
+                const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
+                const res = await axios.get(`${BASE_URL}/api/types`);
+                setTiposServiciosDB(res.data);
+            } catch (err) {
+                console.error("Error fetching types:", err);
+            } finally {
+                setInitialLoading(false);
+            }
+        };
+        fetchTypes();
+    }, []);
+
+    // --- Fetch de Freelancers (Dinámico según filtros de categoría) ---
+>>>>>>> main
     useEffect(() => {
         const fetchFreelancers = async () => {
+            setLoading(true);
             try {
+<<<<<<< HEAD
                 const response = await axios.get(`${BASE_URL}/api/users/freelancers`);
                 setFreelancersDB(response.data);
+=======
+                const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
+                let url = `${BASE_URL}/api/users/freelancers`;
+
+                // Lógica de Endpoints
+                if (filterCategoriaEspecifica !== 'Todas') {
+                    url = `${BASE_URL}/api/users/freelancers/category-specific/${encodeURIComponent(filterCategoriaEspecifica)}`;
+                } else if (filterCategoriaPrincipal !== 'Todas') {
+                    url = `${BASE_URL}/api/users/freelancers/category-main/${encodeURIComponent(filterCategoriaPrincipal)}`;
+                }
+
+                const res = await axios.get(url);
+                setFreelancersDB(res.data);
+>>>>>>> main
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching freelancers:", err);
-                setError("Error al cargar los freelancers.");
+                setError("Hubo un problema al cargar los freelancers. Intenta nuevamente.");
                 setLoading(false);
             }
         };
 
-        if (BASE_URL) {
-            fetchFreelancers();
-        }
-    }, []);
+        fetchFreelancers();
+    }, [filterCategoriaPrincipal, filterCategoriaEspecifica]);
 
+<<<<<<< HEAD
     const { generalData, totalResults } = useMemo(() => {
         let filtered = freelancersDB.filter(item => {
             const term = searchTerm.toLowerCase();
 
+=======
+    // --- Extracción de Categorías Dinámicas ---
+    const { categoriasPrincipales, categoriasEspecificas } = useMemo(() => {
+        const principales = new Set();
+        const especificas = new Set();
+
+        // Usamos el catálogo completo de tipos de servicios
+        tiposServiciosDB.forEach(tipo => {
+            if (tipo.categoria_principal) {
+                principales.add(tipo.categoria_principal);
+
+                // Si hay una categoría principal seleccionada, filtramos las específicas
+                if (filterCategoriaPrincipal !== 'Todas' && tipo.categoria_principal === filterCategoriaPrincipal) {
+                    if (tipo.categoria) especificas.add(tipo.categoria);
+                }
+            }
+        });
+
+        return {
+            categoriasPrincipales: ["Todas", ...Array.from(principales).sort()],
+            categoriasEspecificas: ["Todas", ...Array.from(especificas).sort()]
+        };
+    }, [tiposServiciosDB, filterCategoriaPrincipal]);
+
+
+
+    // --- Lógica de Filtrado ---
+    const { premiumData, generalData, totalResults } = useMemo(() => {
+        // 1. Filtrado
+        let filtered = freelancersDB.filter(item => {
+            const term = searchTerm.toLowerCase();
+
+            // Búsqueda por texto (Nombre, Título, Descripción)
+>>>>>>> main
             const matchesSearch =
                 (item.nombre || "").toLowerCase().includes(term) ||
                 (item.apellido || "").toLowerCase().includes(term) ||
                 (item.descripcion || "").toLowerCase().includes(term) ||
                 (item.titulo || "").toLowerCase().includes(term);
 
+<<<<<<< HEAD
             const matchesEsp =
                 filterEspecialidad === "Todas" ||
                 (item.skills && item.skills.includes(filterEspecialidad));
+=======
+            // Filtro por Categoría Principal y Específica (YA HECHO EN BACKEND)
+            // Solo necesitamos verificar que la respuesta del backend sea consistente.
+            // Eliminamos el filtrado local de categorías.
+            let matchesCategoria = true;
+>>>>>>> main
 
             const matchesRating = (item.rating || 5) >= filterRating;
             const matchesTarifa = (item.tarifa || 0) <= filterTarifaMax;
 
-            return matchesSearch && matchesEsp && matchesRating && matchesTarifa;
+            return matchesSearch && matchesCategoria && matchesRating && matchesTarifa;
         });
 
         let premium = filtered.filter(item => item.plan === 'premium');
@@ -75,7 +183,7 @@ const Freelancers = () => {
             totalResults: filtered.length
         };
 
-    }, [freelancersDB, searchTerm, filterEspecialidad, filterRating, filterTarifaMax]);
+    }, [freelancersDB, searchTerm, filterCategoriaPrincipal, filterCategoriaEspecifica, filterRating, filterTarifaMax, tiposServiciosDB]);
 
     const totalPages = Math.ceil(generalData.length / itemsPerPage);
 
@@ -91,6 +199,7 @@ const Freelancers = () => {
         }
     };
 
+<<<<<<< HEAD
     const especialidadesList = useMemo(() => {
         const allSkills = freelancersDB.flatMap(f => f.skills || []);
         const uniqueSkills = [...new Set(allSkills)];
@@ -100,6 +209,12 @@ const Freelancers = () => {
     if (loading) return <div className="min-h-screen grid place-items-center bg-slate-950 text-white">Cargando freelancers...</div>;
     if (error) return <div className="min-h-screen grid place-items-center bg-slate-950 text-red-500">{error}</div>;
 
+=======
+    if (initialLoading) return <div className="min-h-screen grid place-items-center">Cargando freelancers...</div>;
+    if (error) return <div className="min-h-screen grid place-items-center text-red-500">{error}</div>;
+
+    // --- Función para aplicar filtros en móvil ---
+>>>>>>> main
     const handleApplyMobileFilters = () => {
         setCurrentPage(1);
         setShowMobileFilters(false);
@@ -139,9 +254,17 @@ const Freelancers = () => {
                 </div>
             </div>
 
+<<<<<<< HEAD
             {<FreelancersInicio />}
 
             <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-slate-950">
+=======
+            {/* 2. CARRUSEL PREMIUM (Ahora recibe datos filtrados) */}
+            {premiumData.length > 0 && <FreelancersInicio data={premiumData} />}
+
+            {/* ===== LAYOUT PRINCIPAL ===== */}
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+>>>>>>> main
                 <div className="flex flex-col lg:flex-row gap-8">
 
                     <aside className={`
@@ -162,29 +285,85 @@ const Freelancers = () => {
                                 <h3 className="font-bold text-slate-200">Filtros</h3>
                             </div>
 
+<<<<<<< HEAD
+=======
+                            {/* Categoría Principal */}
+>>>>>>> main
                             <div>
-                                <h3 className="text-xs font-bold text-slate-500 uppercase mb-3">Especialidad (Skills)</h3>
+                                <h3 className="text-xs font-bold text-slate-500 uppercase mb-3">Categoría Principal</h3>
                                 <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
+<<<<<<< HEAD
                                     {especialidadesList.map(esp => (
                                         <label key={esp} className="flex items-center gap-3 cursor-pointer group p-1 rounded hover:bg-slate-800/50">
                                             <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${filterEspecialidad === esp ? 'bg-blue-600 border-blue-600' : 'border-slate-600 bg-slate-800'}`}>
                                                 {filterEspecialidad === esp && <Check size={10} className="text-white" />}
+=======
+                                    {categoriasPrincipales.map(cat => (
+                                        <label key={cat} className="flex items-center gap-3 cursor-pointer group p-1 rounded hover:bg-slate-50">
+                                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${filterCategoriaPrincipal === cat ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'}`}>
+                                                {filterCategoriaPrincipal === cat && <Check size={10} className="text-white" />}
+>>>>>>> main
                                             </div>
                                             <input
                                                 type="radio"
-                                                name="especialidad"
+                                                name="categoriaPrincipal"
                                                 className="hidden"
-                                                checked={filterEspecialidad === esp}
-                                                onChange={() => { setFilterEspecialidad(esp); setCurrentPage(1); setShowMobileFilters(false); }}
+                                                checked={filterCategoriaPrincipal === cat}
+                                                onChange={() => {
+                                                    setFilterCategoriaPrincipal(cat);
+                                                    setFilterCategoriaEspecifica('Todas'); // Reset subcategoría
+                                                    setSearchParams(cat === 'Todas' ? {} : { categoria: cat });
+                                                    setCurrentPage(1);
+                                                }}
                                             />
+<<<<<<< HEAD
                                             <span className={`text-sm ${filterEspecialidad === esp ? 'text-blue-400 font-medium' : 'text-slate-400'}`}>
                                                 {esp}
+=======
+                                            <span className={`text-sm ${filterCategoriaPrincipal === cat ? 'text-blue-700 font-medium' : 'text-slate-600'}`}>
+                                                {cat}
+>>>>>>> main
                                             </span>
                                         </label>
                                     ))}
                                 </div>
                             </div>
 
+<<<<<<< HEAD
+=======
+                            {/* Categoría Específica (Solo si hay principal seleccionada) */}
+                            {filterCategoriaPrincipal !== 'Todas' && categoriasEspecificas.length > 1 && (
+                                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <h3 className="text-xs font-bold text-slate-500 uppercase mb-3">Subcategoría</h3>
+                                    <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pl-2 border-l-2 border-slate-100">
+                                        {categoriasEspecificas.map(subCat => (
+                                            <label key={subCat} className="flex items-center gap-3 cursor-pointer group p-1 rounded hover:bg-slate-50">
+                                                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${filterCategoriaEspecifica === subCat ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'}`}>
+                                                    {filterCategoriaEspecifica === subCat && <Check size={10} className="text-white" />}
+                                                </div>
+                                                <input
+                                                    type="radio"
+                                                    name="categoriaEspecifica"
+                                                    className="hidden"
+                                                    checked={filterCategoriaEspecifica === subCat}
+                                                    onChange={() => {
+                                                        setFilterCategoriaEspecifica(subCat);
+                                                        setCurrentPage(1);
+                                                    }}
+                                                />
+                                                <span className={`text-sm ${filterCategoriaEspecifica === subCat ? 'text-blue-700 font-medium' : 'text-slate-600'}`}>
+                                                    {subCat}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+
+
+                            {/* Tarifa Slider */}
+>>>>>>> main
                             <div>
                                 <div className="flex justify-between items-center mb-2">
                                     <label className="text-xs font-bol text-slate-500 uppercase">Max. $/h</label>
@@ -194,9 +373,9 @@ const Freelancers = () => {
                                 </div>
                                 <input
                                     type="range"
-                                    min="0"
+                                    min="1"
                                     max="200000"
-                                    step="5000"
+                                    step="1000"
                                     value={filterTarifaMax}
                                     onChange={(e) => { setFilterTarifaMax(Number(e.target.value)); setCurrentPage(1); }}
                                     className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
@@ -235,6 +414,7 @@ const Freelancers = () => {
                         )}
                     </aside>
 
+<<<<<<< HEAD
                     <div className="flex-1">
                         <div className="mb-6 flex justify-between items-center">
                             <p className="text-slate-400 text-sm">
@@ -260,11 +440,109 @@ const Freelancers = () => {
                                         className="p-1.5 rounded-md border border-slate-700 hover:bg-slate-800 disabled:opacity-30 text-slate-400 transition-colors"
                                     >
                                         <ChevronRight size={16} />
+=======
+                    {/* --- GRID RESULTADOS --- */}
+                    <div className="flex-1 relative">
+                        {loading && (
+                            <div className="absolute inset-0 bg-white/60 z-10 flex items-start justify-center pt-20 backdrop-blur-sm transition-all duration-300">
+                                <div className="flex flex-col items-center gap-3">
+                                    <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                    <span className="text-sm font-medium text-blue-700">Actualizando resultados...</span>
+                                </div>
+                            </div>
+                        )}
+                        <div className={`transition-opacity duration-300 ${loading ? 'opacity-40' : 'opacity-100'}`}>
+                            <div className="mb-6 flex justify-between items-center">
+                                <p className="text-slate-500 text-sm">
+                                    Se encontraron <span className="font-bold text-slate-900">{generalData.length}</span> resultados en el Catálogo General
+                                </p>
+
+                                {generalData.length > 0 && (
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-medium text-slate-400 mr-2 hidden sm:inline">
+                                            Pág {currentPage} de {totalPages}
+                                        </span>
+                                        <button
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                            className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
+                                        >
+                                            <ChevronLeft size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                            className="p-1.5 rounded-md border border-slate-200 hover:bg-white disabled:opacity-30 text-slate-600 transition-colors"
+                                        >
+                                            <ChevronRight size={16} />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {paginatedGeneralData.length > 0 ? (
+                                <>
+                                    <h2 className="text-xl font-bold text-slate-800 mb-4">Catálogo General</h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
+                                        {paginatedGeneralData.map((freelancer) => (
+                                            <FreelancerCard key={freelancer._id} data={freelancer} />
+                                        ))}
+                                    </div>
+                                </>
+                            ) : totalResults === 0 ? (
+                                <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-slate-200">
+                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-full mb-4">
+                                        <Search className="w-8 h-8 text-slate-300" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-900 mb-1">No encontramos resultados</h3>
+                                    <p className="text-slate-500 mb-6">Intenta ajustar tus filtros o busca con otros términos.</p>
+
+                                    <button
+                                        onClick={() => { setSearchTerm(""); setFilterCategoriaPrincipal("Todas"); setFilterCategoriaEspecifica("Todas"); setFilterRating(0); setFilterTarifaMax(200000); }}
+                                        className="text-blue-600 font-semibold hover:underline text-sm"
+                                    >
+                                        Limpiar todos los filtros
+>>>>>>> main
                                     </button>
+                                </div>
+                            ) : (
+                                <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-slate-200">
+                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-full mb-4">
+                                        <Search className="w-8 h-8 text-slate-300" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-900 mb-1">No encontramos resultados en el Catálogo General</h3>
+                                    <p className="text-slate-500">Los resultados Premium que cumplen tus filtros se muestran arriba.</p>
+                                </div>
+                            )}
+
+                            {totalPages > 1 && paginatedGeneralData.length > 0 && (
+                                <div className="mt-12 flex justify-center">
+                                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-100">
+                                        <button
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                            className="flex items-center gap-1 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        >
+                                            <ChevronLeft size={16} /> Anterior
+                                        </button>
+
+                                        <div className="hidden sm:flex items-center px-4 text-sm font-medium text-slate-600">
+                                            Página {currentPage} de {totalPages}
+                                        </div>
+
+                                        <button
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                            className="flex items-center gap-1 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        >
+                                            Siguiente <ChevronRight size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
 
+<<<<<<< HEAD
                         {paginatedGeneralData.length > 0 ? (
                             <>
                                 <h2 className="text-xl font-bold text-white mb-4">Catálogo General</h2>
@@ -323,8 +601,9 @@ const Freelancers = () => {
                                 </div>
                             </div>
                         )}
+=======
+>>>>>>> main
                     </div>
-
                 </div>
             </div>
         </div>

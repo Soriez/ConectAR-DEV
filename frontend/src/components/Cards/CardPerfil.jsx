@@ -39,7 +39,7 @@ const CardPerfil = ({
 
                     <div className="w-full space-y-3 mb-8">
                         <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                            <span className="text-gray-500">Tarifa por hora</span>
+                            <span className="text-gray-500">Tarifa Promedio</span>
                             <span className="font-bold text-gray-900 text-lg">
                                 {tariffDisplay || formatARS(freelancer.tarifa)}
                             </span>

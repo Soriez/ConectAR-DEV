@@ -4,6 +4,7 @@ import axios from "axios";
 import { useAuth } from "../../context/useAuth";
 
 import CardPerfil from "../../components/Cards/CardPerfil";
+import FreelancersInicio from "../../components/SeccionesInicio/FreelancersInicio";
 
 /* ============================
    Utils
@@ -41,6 +42,7 @@ const Perfil = () => {
   // Estados de Modales
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showAllReviewsModal, setShowAllReviewsModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Estado formulario opinión
   const [newReview, setNewReview] = useState({ score: 5, description: "" });
@@ -77,14 +79,20 @@ const Perfil = () => {
           setReviews([]);
         }
 
-        // 4. Cargar Sugeridos
+        // 4. Cargar Sugeridos (Basado en Skills)
         try {
           const suggestedRes = await axios.get(`${BASE_URL}/api/users/freelancers`);
-          // Filtramos para no mostrar el mismo perfil
-          const otherFreelancers = suggestedRes.data.filter(f => f._id !== id);
-          // Mezclar aleatoriamente
-          const shuffled = otherFreelancers.sort(() => 0.5 - Math.random());
-          setSuggested(shuffled.slice(0, 4));
+          const allFreelancers = suggestedRes.data;
+
+          // Filtrar:
+          // 1. No es el mismo usuario
+          // 2. "Cualquier perfil" -> Incluimos todos (premium o no) y sin filtro estricto de skills
+          const relatedFreelancers = allFreelancers.filter(f => f._id !== id);
+
+          // Mezclar y tomar hasta 6
+          const shuffled = relatedFreelancers.sort(() => 0.5 - Math.random());
+          setSuggested(shuffled.slice(0, 8));
+
         } catch (sugErr) {
           console.warn("Error cargando sugeridos:", sugErr);
           setSuggested([]);
@@ -103,20 +111,63 @@ const Perfil = () => {
     }
   }, [id, BASE_URL]);
 
+  // --- EFECTO: Registrar Visita (Controlado por IP en Backend) ---
+  useEffect(() => {
+    const trackVisit = async () => {
+      if (!id || !BASE_URL) return;
+
+      // No contar visitas propias si el usuario está logueado
+      if (currentUser?._id === id) return;
+
+      try {
+        await axios.put(`${BASE_URL}/api/users/${id}/visitas`);
+      } catch (error) {
+        console.error("Error registrando visita:", error);
+      }
+    };
+
+    trackVisit();
+  }, [id, BASE_URL, currentUser]);
+
   // --- HANDLERS: Tracking ---
   const handleLinkedinClick = async () => {
     if (!freelancer?.linkedin) return;
-    try {
-      await axios.put(`${BASE_URL}/api/users/${id}/linkedin`);
-    } catch (e) { console.error("Error tracking linkedin", e); }
+
+    // Tracking con debounce (1 hora)
+    const storageKey = `linkedin_click_${id}`;
+    const lastClick = localStorage.getItem(storageKey);
+    const now = Date.now();
+    const ONE_HOUR = 60 * 60 * 1000;
+
+    if (!lastClick || (now - parseInt(lastClick) > ONE_HOUR)) {
+      try {
+        // Ejecutamos la petición sin await para no bloquear la apertura de la ventana
+        axios.put(`${BASE_URL}/api/users/${id}/linkedin`)
+          .then(() => localStorage.setItem(storageKey, now.toString()))
+          .catch(e => console.error("Error tracking linkedin", e));
+      } catch (e) { console.error("Error initiating tracking", e); }
+    }
+
     window.open(freelancer.linkedin, "_blank");
   };
 
   const handlePortfolioClick = async () => {
     if (!freelancer?.portfolio) return;
-    try {
-      await axios.put(`${BASE_URL}/api/users/${id}/portfolio`);
-    } catch (e) { console.error("Error tracking portfolio", e); }
+
+    // Tracking con debounce (1 hora)
+    const storageKey = `portfolio_click_${id}`;
+    const lastClick = localStorage.getItem(storageKey);
+    const now = Date.now();
+    const ONE_HOUR = 60 * 60 * 1000;
+
+    if (!lastClick || (now - parseInt(lastClick) > ONE_HOUR)) {
+      try {
+        axios.put(`${BASE_URL}/api/users/${id}/portfolio`)
+          .then(() => localStorage.setItem(storageKey, now.toString()))
+          .catch(e => console.error("Error tracking portfolio", e));
+      } catch (e) { console.error("Error initiating tracking", e); }
+    }
+
     window.open(freelancer.portfolio, "_blank");
   };
 
@@ -140,15 +191,17 @@ const Perfil = () => {
         opinion: newReview.description
       };
 
-      const res = await axios.post(`${BASE_URL}/api/opinions`, reviewData, {
+      await axios.post(`${BASE_URL}/api/opinions`, reviewData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
-      // Agregar la nueva opinión a la lista localmente
-      setReviews([res.data, ...reviews]);
+      // Recargar opiniones para evitar errores de renderizado y mostrar la data actualizada
+      const reviewsRes = await axios.get(`${BASE_URL}/api/opinions/recibidas/${id}`);
+      setReviews(reviewsRes.data);
+
       setShowReviewModal(false);
       setNewReview({ score: 5, description: "" });
-      alert("¡Opinión publicada con éxito!");
+      setShowSuccessModal(true);
 
     } catch (error) {
       console.error("Error publicando opinión:", error);
@@ -189,14 +242,14 @@ const Perfil = () => {
   const fullName = `${freelancer.nombre} ${freelancer.apellido}`;
   const avatar = getAvatarUrl(fullName);
 
-  // Calcular rango de tarifas
+  // Calcular promedio de tarifas
   let tariffDisplay = formatARS(freelancer.tarifa);
   if (services.length > 0) {
     const prices = services.map(s => s.precio).filter(p => p !== undefined && p !== null);
     if (prices.length > 0) {
-      const min = Math.min(...prices);
-      const max = Math.max(...prices);
-      tariffDisplay = min === max ? `${formatARS(min)}/h` : `${formatARS(min)} - ${formatARS(max)}/h`;
+      const total = prices.reduce((acc, curr) => acc + curr, 0);
+      const average = total / prices.length;
+      tariffDisplay = `${formatARS(average)}/h`;
     }
   }
 
@@ -222,6 +275,11 @@ const Perfil = () => {
             {/* Header Perfil */}
             <header className="space-y-6">
               <div className="flex flex-wrap gap-2">
+                {freelancer.plan === 'premium' && (
+                  <span className="px-3 py-1 rounded-full bg-linear-to-r from-amber-400 to-orange-500 text-white text-xs font-bold uppercase tracking-wide flex items-center gap-1 shadow-sm">
+                    ⭐ Premium
+                  </span>
+                )}
                 {freelancer.skills?.map((skill, idx) => (
                   <span key={idx} className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wide">
                     {skill}
@@ -252,7 +310,7 @@ const Perfil = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                   <div>
-                    <p className="text-gray-500">Tarifa</p>
+                    <p className="text-gray-500">Tarifa Promedio</p>
                     <p className="font-semibold">{tariffDisplay}</p>
                   </div>
                   <div>
@@ -319,14 +377,18 @@ const Perfil = () => {
             {/* Opiniones */}
             <section className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Opiniones</h2>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Opiniones <span className="text-lg text-gray-500 font-medium ml-1">({reviews.length})</span>
+                </h2>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowReviewModal(true)}
-                    className="text-sm font-medium text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
-                  >
-                    + Agregar opinión
-                  </button>
+                  {currentUser && (
+                    <button
+                      onClick={() => setShowReviewModal(true)}
+                      className="text-sm font-medium text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      + Agregar opinión
+                    </button>
+                  )}
                   {reviews.length > 0 && (
                     <button
                       onClick={() => setShowAllReviewsModal(true)}
@@ -383,29 +445,16 @@ const Perfil = () => {
 
         </section>
 
-        {/* ===== PERFILES SUGERIDOS (Opcional) ===== */}
+        {/* ===== PERFILES SUGERIDOS (Reutilizando componente) ===== */}
         {suggested.length > 0 && (
-          <section className="mt-20 pt-10 border-t border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Perfiles sugeridos</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {suggested.map((sug) => (
-                <div key={sug._id} onClick={() => navigate(`/perfil/${sug._id}`)} className="group cursor-pointer bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
-                  <div className="h-24 bg-linear-to-r from-blue-500 to-purple-600"></div>
-                  <div className="px-5 pb-5">
-                    <div className="relative -mt-10 mb-3">
-                      <img src={getAvatarUrl(`${sug.nombre} ${sug.apellido}`)} alt={sug.nombre} className="w-20 h-20 rounded-xl object-cover border-4 border-white shadow-md group-hover:scale-105 transition-transform" />
-                    </div>
-                    <h3 className="font-bold text-gray-900 text-lg mb-1 group-hover:text-blue-600 transition-colors">{sug.nombre} {sug.apellido}</h3>
-                    <p className="text-sm text-gray-500 line-clamp-2 mb-3">{sug.descripcion || "Freelancer digital"}</p>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-semibold text-gray-900">{formatARS(sug.tarifa)}/h</span>
-                      <span className="text-blue-600 font-medium">Ver perfil →</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+          <div className="mt-10">
+            <FreelancersInicio
+              data={suggested}
+              title="Perfiles Sugeridos"
+              subtitle="Profesionales con habilidades similares que podrían interesarte"
+              showPremiumBadge={false}
+            />
+          </div>
         )}
 
         {/* ===== MODAL: AGREGAR OPINIÓN ===== */}
@@ -525,6 +574,25 @@ const Perfil = () => {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===== MODAL: ÉXITO ===== */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center animate-in fade-in zoom-in duration-200">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">🎉</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">¡Opinión enviada!</h3>
+              <p className="text-gray-600 mb-6">Gracias por compartir tu experiencia. Tu opinión ha sido publicada correctamente.</p>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full bg-blue-600 text-white py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors"
+              >
+                Entendido
+              </button>
             </div>
           </div>
         )}

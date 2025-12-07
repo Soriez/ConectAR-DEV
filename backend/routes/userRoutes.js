@@ -10,14 +10,16 @@ import {
     getUserById,
     updateUser,
     getAllFreelancers,
-    getPremiumFreelancers, // <--- Importamos el nuevo controlador
+    getPremiumFreelancers,
     becomeFreelancer,
     toggleAvailability,
     upgradeToPremium,
     actualizarSkillsUser,
     incrementVisit,
     incrementLinkedinAccess,
-    incrementPortfolioAccess
+    incrementPortfolioAccess,
+    getFreelancersByMainCategory,
+    getFreelancersBySpecificCategory
 } from '../controllers/user.controller.js';
 
 const router = express.Router();
@@ -37,6 +39,14 @@ router.get('/freelancers', getAllFreelancers)
 // (R) READ - Obtener freelancers PREMIUM (Endpoint dedicado)
 // Petición GET a /api/users/freelancers/premium
 router.get('/freelancers/premium', getPremiumFreelancers);
+
+// (R) READ - Obtener freelancers por Categoría Principal
+// Petición GET a /api/users/freelancers/category-main/:category
+router.get('/freelancers/category-main/:category', getFreelancersByMainCategory);
+
+// (R) READ - Obtener freelancers por Categoría Específica
+// Petición GET a /api/users/freelancers/category-specific/:category
+router.get('/freelancers/category-specific/:category', getFreelancersBySpecificCategory);
 
 // (R) READ - Obtener todos los usuarios
 // Petición GET a /api/users/

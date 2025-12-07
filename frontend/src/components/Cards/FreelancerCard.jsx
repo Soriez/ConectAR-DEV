@@ -19,7 +19,7 @@ const FreelancerCard = ({ data }) => {
 
     // Datos directos del usuario (Mapeo para coincidir con el diseño solicitado)
     const titulo = data.titulo || "Freelancer";
-    const rating = data.rating || 5.0;
+    const rating = data.rating !== undefined ? data.rating : 0;
     const isPremium = data.plan === 'premium';
     const isDisponible = data.isDisponible !== undefined ? data.isDisponible : true;
     const descripcion = data.descripcion || "Sin descripción disponible.";
@@ -35,9 +35,10 @@ const FreelancerCard = ({ data }) => {
                 const servicios = response.data;
 
                 if (servicios && servicios.length > 0) {
-                    // 1. Calcular Rango de Precios
+                    // 1. Calcular Promedio de Precios
                     const precios = servicios.map(s => s.precio).filter(p => p !== undefined && p !== null);
                     if (precios.length > 0) {
+<<<<<<< HEAD
                         const minPrecio = Math.min(...precios);
                         const maxPrecio = Math.max(...precios);
                         const format = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
@@ -46,6 +47,14 @@ const FreelancerCard = ({ data }) => {
                         } else {
                             setRangoPrecios(`${format(minPrecio)} - ${format(maxPrecio)}/h`);
                         }
+=======
+                        const sumaTotal = precios.reduce((acc, curr) => acc + curr, 0);
+                        const promedio = sumaTotal / precios.length;
+
+                        const format = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
+
+                        setRangoPrecios(`${format(promedio)}/h`);
+>>>>>>> main
                     }
 
                     // 2. Extraer Etiquetas (Tipos de Servicio)
@@ -132,10 +141,18 @@ const FreelancerCard = ({ data }) => {
                         <span className="text-xs text-slate-500 animate-pulse">Cargando...</span>
                     ) : etiquetasServicios.length > 0 ? (
                         etiquetasServicios.slice(0, 3).map((srv, idx) => (
+<<<<<<< HEAD
                             //  Tags oscuros (slate-700) con texto claro
                             <span key={idx} className="px-2 py-1 bg-slate-700 text-slate-300 text-[10px] uppercase font-bold rounded-md tracking-wide border border-slate-600">
+=======
+                            <NavLink
+                                key={idx}
+                                to={`/perfil/${data._id}`}
+                                className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] uppercase font-bold rounded-md tracking-wide border border-slate-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors cursor-pointer"
+                            >
+>>>>>>> main
                                 {srv}
-                            </span>
+                            </NavLink>
                         ))
                     ) : (
                         <span className="text-xs text-slate-500 italic">Sin etiquetas</span>
@@ -160,9 +177,14 @@ const FreelancerCard = ({ data }) => {
             {/*  Fondo Footer slate-900 */}
             <div className="px-5 py-4 bg-slate-900/50 border-t border-slate-700 flex items-center justify-between">
                 <div>
+<<<<<<< HEAD
                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Tarifa Hora</p>
                     {/*  Precio en blanco */}
                     <p className="text-lg font-bold text-white">
+=======
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tarifa Promedio</p>
+                    <p className="text-lg font-bold text-slate-800">
+>>>>>>> main
                         {loadingServicios ? (
                             <span className="text-sm font-normal text-slate-600">...</span>
                         ) : (
@@ -172,7 +194,11 @@ const FreelancerCard = ({ data }) => {
                 </div>
                 <NavLink
                     to={`/perfil/${data._id}`}
+<<<<<<< HEAD
                     className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shadow-lg shadow-blue-900/20 flex items-center gap-2"
+=======
+                    className="whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shadow-sm hover:shadow-md flex items-center gap-2"
+>>>>>>> main
                 >
                     Ver Perfil
                 </NavLink>

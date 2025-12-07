@@ -35,18 +35,18 @@ const FreelancerCard = ({ data }) => {
                 const servicios = response.data;
 
                 if (servicios && servicios.length > 0) {
-                    // 1. Calcular Rango de Precios
+                    // 1. Calcular PROMEDIO de Precios (CAMBIO SOLICITADO)
                     const precios = servicios.map(s => s.precio).filter(p => p !== undefined && p !== null);
+                    
                     if (precios.length > 0) {
-                        const minPrecio = Math.min(...precios);
-                        const maxPrecio = Math.max(...precios);
+                        // Sumar todos los precios
+                        const sumaTotal = precios.reduce((acc, curr) => acc + curr, 0);
+                        // Calcular promedio
+                        const promedio = sumaTotal / precios.length;
+
                         const format = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
                         
-                        if (minPrecio === maxPrecio) {
-                            setRangoPrecios(`${format(minPrecio)}/h`);
-                        } else {
-                            setRangoPrecios(`${format(minPrecio)} - ${format(maxPrecio)}/h`);
-                        }
+                        setRangoPrecios(`${format(promedio)}/h`);
                     }
 
                     // 2. Extraer Etiquetas (Tipos de Servicio)
@@ -153,7 +153,8 @@ const FreelancerCard = ({ data }) => {
             {/* Footer */}
             <div className="px-5 py-4 bg-slate-900/50 border-t border-slate-700 flex items-center justify-between">
                 <div>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Tarifa Hora</p>
+                    {/* Texto ajustado para reflejar que es promedio */}
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Tarifa Promedio</p>
                     <p className="text-lg font-bold text-white">
                         {loadingServicios ? (
                             <span className="text-sm font-normal text-slate-600">...</span>

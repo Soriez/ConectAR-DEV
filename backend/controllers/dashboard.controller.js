@@ -1,17 +1,14 @@
-import userModel from '../models/user.model.js';
-import opinionModel from '../models/opinion.model.js';
-import servicioModel from '../models/servicio.model.js';
+import userService from '../services/user.service.js';
+import opinionService from '../services/opinion.service.js';
+import servicioService from '../services/servicio.service.js';
 
-const { buscarUsuarioSinPassword } = userModel;
-const { obtenerOpinionesRecibidas, obtenerOpinionesRealizadas } = opinionModel;
-const { obtenerServiciosPorFreelancer } = servicioModel;
 
 // ! GET /api/dashboard
 // ? Obtener datos del dashboard según el tipo de usuario
 export const getDashboardData = async (req, res) => {
     try {
         const userId = req.user._id;
-        const user = await buscarUsuarioSinPassword({ id: userId });
+        const user = await userService.buscarUsuarioSinPassword({ id: userId });
 
         if (!user) {
             return res.status(404).json({ message: "Usuario no encontrado" });
@@ -32,7 +29,7 @@ export const getDashboardData = async (req, res) => {
         // --- USUARIO NO FREELANCER ---
         if (!user.isFreelancer) {
             // Obtener opiniones que ha realizado
-            const opinionesRealizadas = await obtenerOpinionesRealizadas(userId);
+            const opinionesRealizadas = await opinionService.obtenerOpinionesRealizadas(userId);
 
             dashboardData.estadisticas = {
                 totalOpinionesRealizadas: opinionesRealizadas.length,
@@ -45,7 +42,7 @@ export const getDashboardData = async (req, res) => {
         // --- USUARIO FREELANCER (NO PREMIUM) ---
         else if (user.isFreelancer && !user.isPremium) {
             // Obtener opiniones recibidas
-            const opinionesRecibidas = await obtenerOpinionesRecibidas(userId);
+            const opinionesRecibidas = await opinionService.obtenerOpinionesRecibidas(userId);
 
             // Calcular promedio de puntuación
             const promedioCalificacion = opinionesRecibidas.length > 0
@@ -53,7 +50,7 @@ export const getDashboardData = async (req, res) => {
                 : 0;
 
             // Obtener servicios ofrecidos
-            const servicios = await obtenerServiciosPorFreelancer(userId);
+            const servicios = await servicioService.obtenerServiciosPorFreelancer(userId);
 
             dashboardData.estadisticas = {
                 totalOpinionesRecibidas: opinionesRecibidas.length,
@@ -71,7 +68,7 @@ export const getDashboardData = async (req, res) => {
         // --- USUARIO FREELANCER PREMIUM ---
         else if (user.isFreelancer && user.isPremium) {
             // Obtener opiniones recibidas
-            const opinionesRecibidas = await obtenerOpinionesRecibidas(userId);
+            const opinionesRecibidas = await opinionService.obtenerOpinionesRecibidas(userId);
 
             // Calcular promedio de puntuación
             const promedioCalificacion = opinionesRecibidas.length > 0
@@ -79,7 +76,7 @@ export const getDashboardData = async (req, res) => {
                 : 0;
 
             // Obtener servicios ofrecidos
-            const servicios = await obtenerServiciosPorFreelancer(userId);
+            const servicios = await servicioService.obtenerServiciosPorFreelancer(userId);
 
             // Estadísticas avanzadas para Premium
             dashboardData.estadisticas = {
@@ -127,7 +124,7 @@ export const incrementarVisitas = async (req, res) => {
             return res.status(400).json({ message: "Se requiere el ID del freelancer" });
         }
 
-        const user = await buscarUsuarioSinPassword({ id: freelancerId });
+        const user = await userService.buscarUsuarioSinPassword({ id: freelancerId });
 
         if (!user || !user.isFreelancer) {
             return res.status(404).json({ message: "Freelancer no encontrado" });
@@ -159,7 +156,7 @@ export const incrementarAccesosLinkedin = async (req, res) => {
             return res.status(400).json({ message: "Se requiere el ID del freelancer" });
         }
 
-        const user = await buscarUsuarioSinPassword({ id: freelancerId });
+        const user = await userService.buscarUsuarioSinPassword({ id: freelancerId });
 
         if (!user || !user.isFreelancer) {
             return res.status(404).json({ message: "Freelancer no encontrado" });
@@ -191,7 +188,7 @@ export const incrementarAccesosPortfolio = async (req, res) => {
             return res.status(400).json({ message: "Se requiere el ID del freelancer" });
         }
 
-        const user = await buscarUsuarioSinPassword({ id: freelancerId });
+        const user = await userService.buscarUsuarioSinPassword({ id: freelancerId });
 
         if (!user || !user.isFreelancer) {
             return res.status(404).json({ message: "Freelancer no encontrado" });

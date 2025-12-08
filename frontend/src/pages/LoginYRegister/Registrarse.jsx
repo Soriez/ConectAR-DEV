@@ -128,7 +128,7 @@ const Registrar = () => {
 
                         {/* Header y Títulos */}
                         <div className="text-center mb-4">
-                            <img src="imgs/logo_new.png" alt=""
+                            <img src="imgs/logo.png" alt=""
                                 className="inline-flex items-center justify-center w-[60px] h-[60px]  shadow-lg shadow-blue-600/50 mb-3 bg-white rounded-full"
                             />
                             <h1 className="text-[28px] font-bold text-white mb-1">ConectAR-Dev</h1>

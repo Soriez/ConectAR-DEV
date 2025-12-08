@@ -23,21 +23,21 @@ const NavBar = () => {
         <nav className="bg-gray-800 text-white shadow-xl sticky top-0 z-50">
             {/* --- HEADER PRINCIPAL (Igual que antes) --- */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
-                
+
                 {/* Logo */}
                 <div className="flex items-center space-x-4">
-                <NavLink
-                    to={'/'}
-                    className="shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center overflow-hidden bg-transparent">
-                    <img
-                        src="/public/imgs/logo_new.png"
-                        alt="Logo"
-                        className="w-full h-full object-contain"
-                    />
-                    </div>
-                </NavLink>
+                    <NavLink
+                        to={'/'}
+                        className="shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center overflow-hidden bg-transparent">
+                            <img
+                                src="/public/imgs/logo.png"
+                                alt="Logo"
+                                className="w-full h-full object-contain"
+                            />
+                        </div>
+                    </NavLink>
                 </div>
 
                 {/* Desktop Menu */}
@@ -63,9 +63,9 @@ const NavBar = () => {
 
 
             {/* --- MENÚ MOBILE PROFESIONAL --- */}
-            
+
             {/* Overlay oscuro (Fondo detrás del menú) */}
-            <div 
+            <div
                 className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300 md:hidden ${activa ? "opacity-100" : "opacity-0 pointer-events-none"}`}
                 onClick={() => setActiva(false)}
             />
@@ -95,16 +95,16 @@ const NavBar = () => {
                             </div>
                         </div>
                     ) : (
-                         <div className="flex items-center gap-3">
-                             <div className="w-10 h-10 rounded-full border border-blue-500 overflow-hidden">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full border border-blue-500 overflow-hidden">
                                 <img src="/public/imgs/logo.jpeg" alt="Logo" className="w-full h-full object-cover" />
-                             </div>
-                             <span className="font-bold text-xl text-white tracking-wide">ConectAR<span className="text-blue-500">Dev</span></span>
-                         </div>
+                            </div>
+                            <span className="font-bold text-xl text-white tracking-wide">ConectAR<span className="text-blue-500">Dev</span></span>
+                        </div>
                     )}
-                    
+
                     {/* Botón Cerrar (Absoluto para no molestar) */}
-                    <button 
+                    <button
                         onClick={() => setActiva(false)}
                         className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white bg-slate-800/50 rounded-full transition-colors"
                     >
@@ -115,7 +115,7 @@ const NavBar = () => {
                 {/* 2. LISTA DE NAVEGACIÓN PRINCIPAL (Scrollable) */}
                 <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
                     <p className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Menú Principal</p>
-                    
+
                     {/* Renderizamos los links existentes */}
                     <ul className="space-y-1">
                         {links.map((link) => (
@@ -131,24 +131,24 @@ const NavBar = () => {
                     {/* SECCIÓN DE USUARIO (Si está logueado) */}
                     {isAuthenticated && (
                         <div className="mt-8 pt-6 border-t border-slate-800">
-                             <p className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mi Cuenta</p>
-                            
+                            <p className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mi Cuenta</p>
+
                             {/* Links de usuario manuales con iconos */}
                             <nav className="space-y-1">
                                 {(user?.role === 'freelancer') && (
                                     <NavLink to="/perfil" onClick={() => setActiva(false)} className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl transition-all group">
-                                        <User size={20} className="text-blue-500 group-hover:text-white transition-colors"/>
+                                        <User size={20} className="text-blue-500 group-hover:text-white transition-colors" />
                                         <span className="font-medium">Mi Perfil Público</span>
                                     </NavLink>
                                 )}
-                                
+
                                 <NavLink to="/dashboard" onClick={() => setActiva(false)} className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl transition-all group">
-                                    <LayoutDashboard size={20} className="text-blue-500 group-hover:text-white transition-colors"/>
+                                    <LayoutDashboard size={20} className="text-blue-500 group-hover:text-white transition-colors" />
                                     <span className="font-medium">Panel de Control</span>
                                 </NavLink>
 
                                 <NavLink to="/contacto" onClick={() => setActiva(false)} className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl transition-all group">
-                                    <HelpCircle size={20} className="text-blue-500 group-hover:text-white transition-colors"/>
+                                    <HelpCircle size={20} className="text-blue-500 group-hover:text-white transition-colors" />
                                     <span className="font-medium">Ayuda / FAQ</span>
                                 </NavLink>
                             </nav>

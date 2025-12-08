@@ -1,136 +1,110 @@
+import React from 'react';
 import { Target, Eye } from 'lucide-react';
 import { sobre_nosotros_data } from '../../constants/item-sobre-nosotros';
 
 /**
- * Componente de la página "Sobre Nosotros"
- * Presenta la misión, visión, valores y equipo de ConectAR-Dev
+ * Componente de la página "Sobre Nosotros" - Rediseño Dark Premium
  */
 const SobreNosotros = () => {
   
-  /**
-   * Datos de los valores de la empresa
-   * Cada valor tiene un icono, título y descripción
-   */
-  const {valoresData,equipoData}=sobre_nosotros_data
+  const {valoresData, equipoData} = sobre_nosotros_data
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-slate-950 min-h-screen overflow-x-hidden">
       
-      {/* 
-        ===== HERO SECTION ===== 
-        Sección principal con título y descripción
-      */}
-      <section className="relative bg-linear-to-b from-gray-100 to-blue-100 text-gray-900 py-20 md:py-32">
-        {/* Patrón de fondo decorativo (opcional) */}
+      {/* ===== HERO SECTION ===== */}
+      <section className="relative py-24 lg:py-32 bg-slate-950 overflow-hidden">
+        {/* Decoración de fondo */}
+        <div className="absolute top-0 center w-full h-full overflow-hidden z-0">
+            <div className="absolute top-[-10%] left-[20%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px]"></div>
+            <div className="absolute bottom-[-10%] right-[20%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[100px]"></div>
+        </div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            
-            {/* Título principal */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight text-gray-900">
-              Sobre <span className="text-blue-600">ConectAR-Dev</span>
-            </h1>
-            
-            {/* Descripción */}
-            <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
-              Somos la plataforma que une el talento tecnológico argentino con las empresas 
-              que buscan excelencia. Nacimos con la misión de potenciar la industria IT nacional 
-              y crear oportunidades reales para freelancers y organizaciones.
-            </p>
-          </div>
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <span className="inline-block py-1 px-3 rounded-full bg-slate-900 border border-slate-700 text-blue-400 text-xs font-bold tracking-widest uppercase mb-6">
+            Nuestra Historia
+          </span>
+          <h1 className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tight">
+            Potenciando el <br />
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-400 via-indigo-400 to-sky-400">
+              Talento Argentino
+            </span>
+          </h1>
+          <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed font-light">
+            Somos el puente digital que conecta a los desarrolladores más apasionados del país 
+            con empresas globales que buscan excelencia técnica y calidad humana.
+          </p>
         </div>
       </section>
 
-      {/* 
-        ===== MISIÓN Y VISIÓN ===== 
-        Dos columnas responsivas con misión y visión
-      */}
-      <section className="bg-linear-to-b from-blue-100 to-blue-200">
-        <div className='container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24'>
-            <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+      {/* ===== MISIÓN Y VISIÓN ===== */}
+      <section className="py-20 bg-slate-900 relative">
+        <div className='container mx-auto px-4'>
+            <div className="grid md:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
             
-            {/* Contenedor Misión */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-blue-600">
-                {/* Icono decorativo */}
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
-                <Target className="w-8 h-8 text-blue-600" />
+            {/* Tarjeta Misión */}
+            <div className="group bg-slate-950 p-10 rounded-3xl border border-slate-800 hover:border-blue-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity duration-500 transform group-hover:scale-110">
+                    <Target size={150} className="text-white" />
                 </div>
                 
-                {/* Título */}
-                <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
-                Nuestra Misión
-                </h2>
+                <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors duration-300">
+                    <Target size={28} />
+                </div>
                 
-                {/* Descripción */}
-                <p className="text-gray-700 leading-relaxed text-lg">
-                Conectar a los mejores profesionales IT de Argentina con proyectos desafiantes 
-                y empresas innovadoras. Facilitamos el encuentro entre talento y oportunidad, 
-                garantizando calidad, confianza y crecimiento mutuo en cada colaboración.
+                <h2 className="text-3xl font-bold text-white mb-4">Nuestra Misión</h2>
+                <p className="text-slate-400 leading-relaxed text-lg">
+                  Democratizar el acceso a oportunidades laborales de primer nivel para el talento IT argentino, 
+                  eliminando fronteras y garantizando procesos de contratación transparentes, ágiles y seguros.
                 </p>
             </div>
 
-            {/* Contenedor Visión */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-yellow-500">
-                {/* Icono decorativo */}
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-6">
-                <Eye className="w-8 h-8 text-yellow-600" />
+            {/* Tarjeta Visión */}
+            <div className="group bg-slate-950 p-10 rounded-3xl border border-slate-800 hover:border-amber-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-900/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity duration-500 transform group-hover:scale-110">
+                    <Eye size={150} className="text-white" />
+                </div>
+
+                <div className="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center mb-6 text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
+                    <Eye size={28} />
                 </div>
                 
-                {/* Título */}
-                <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
-                Nuestra Visión
-                </h2>
-                
-                {/* Descripción */}
-                <p className="text-gray-700 leading-relaxed text-lg">
-                Ser la plataforma líder de conexión entre freelancers tecnológicos y empresas 
-                en Argentina y Latinoamérica. Aspiramos a construir un ecosistema donde el talento 
-                local sea reconocido mundialmente y cada profesional alcance su máximo potencial.
+                <h2 className="text-3xl font-bold text-white mb-4">Nuestra Visión</h2>
+                <p className="text-slate-400 leading-relaxed text-lg">
+                  Convertirnos en el referente indiscutido del mercado tecnológico latinoamericano, 
+                  siendo reconocidos no solo por la calidad de nuestro software, sino por la calidad de nuestra gente.
                 </p>
             </div>
             </div>
         </div>
       </section>
 
-      {/* 
-        ===== NUESTROS VALORES ===== 
-        Grid de 4 tarjetas con los valores principales
-      */}
-      <section className="bg-linear-to-b from-blue-200 to-blue-300 py-16 md:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Título de la sección */}
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
-              Nuestros Valores
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Los principios que guían cada decisión y acción en ConectAR-Dev
-            </p>
+      {/* ===== NUESTROS VALORES ===== */}
+      <section className="py-24 bg-slate-950 border-y border-slate-900">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">El ADN de ConectAR</h2>
+            <p className="text-slate-400">Los principios innegociables que nos guían</p>
           </div>
 
-          {/* Grid de valores */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {valoresData.map((valor) => {
               const IconComponent = valor.icon;
-              
               return (
                 <div 
                   key={valor.id}
-                  className="bg-gray-50 rounded-xl p-6 text-center hover:shadow-xl transition-shadow duration-300 border border-gray-200"
+                  className="bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:-translate-y-2 hover:bg-slate-800 transition-all duration-300 group"
                 >
-                  {/* Icono del valor */}
-                  <div className={`inline-flex items-center justify-center w-16 h-16 ${valor.bgColor} rounded-full mb-4`}>
-                    <IconComponent className={`w-8 h-8 ${valor.color}`} />
+                  {/* Icono con fondo oscuro sutil en lugar del color claro original */}
+                  <div className="w-12 h-12 rounded-xl bg-slate-950 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-slate-800">
+                    <IconComponent className={valor.color} size={24} />
                   </div>
                   
-                  {/* Título del valor */}
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  <h3 className="text-lg font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">
                     {valor.titulo}
                   </h3>
                   
-                  {/* Descripción */}
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-sm text-slate-400 leading-relaxed">
                     {valor.descripcion}
                   </p>
                 </div>
@@ -140,45 +114,37 @@ const SobreNosotros = () => {
         </div>
       </section>
 
-      {/* 
-        ===== NUESTRO EQUIPO ===== 
-        Grid de 5 tarjetas con fotos y roles del equipo
-      */}
-      <section className="bg-linear-to-b from-blue-300 to-blue-400 py-16 md:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Título de la sección */}
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
-              Nuestro Equipo
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Las personas que hacen posible ConectAR-Dev cada día
+      {/* ===== NUESTRO EQUIPO ===== */}
+      <section className="py-24 bg-slate-900">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl font-bold text-white mb-6">Conocé a los creadores</h2>
+            <p className="text-slate-400 max-w-2xl mx-auto text-lg">
+              Un equipo multidisciplinario unido por la pasión de transformar la industria.
             </p>
           </div>
 
-          {/* Grid del equipo - 5 tarjetas centradas */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 max-w-7xl mx-auto">
+          {/* Grid de Equipo Estilo Tarjeta Vertical */}
+          <div className="flex flex-wrap justify-center gap-8 md:gap-10">
             {equipoData.map((miembro) => (
-              <div 
-                key={miembro.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
-              >
-                {/* Imagen del miembro */}
-                <div className="aspect-square overflow-hidden">
-                  <img 
-                    src={miembro.imagen} 
-                    alt={`Foto de ${miembro.nombre}`}
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                  />
-                </div>
+              <div key={miembro.id} className="group relative w-72 h-[400px] rounded-3xl overflow-hidden shadow-2xl bg-slate-800">
+                {/* Imagen */}
+                <img 
+                  src={miembro.imagen} 
+                  alt={miembro.nombre}
+                  className="w-full h-full object-cover transition-transform duration-700"
+                />
                 
-                {/* Información del miembro */}
-                <div className="p-6 text-center">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {/* Overlay Gradiente */}
+                <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/40 to-transparent opacity-90 group-hover:opacity-80 transition-opacity duration-300"></div>
+                
+                {/* Contenido Texto */}
+                <div className="absolute bottom-0 left-0 w-full p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                  <div className="w-10 h-1 bg-blue-500 mb-4 rounded-full"></div>
+                  <h3 className="text-2xl font-bold text-white mb-1 leading-tight">
                     {miembro.nombre}
                   </h3>
-                  <p className="text-blue-600 font-medium">
+                  <p className="text-blue-400 font-medium text-sm tracking-wide uppercase">
                     {miembro.rol}
                   </p>
                 </div>

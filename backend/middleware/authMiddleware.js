@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
-import pkg from '../models/user.model.js';
-const { User, buscarUsuarioSinPassword } = pkg;
+import userService from '../services/user.service.js';
 
 // Middleware PRINCIPAL: Protege las rutas y carga req.user si hay token
 export const protect = async (req, res, next) => {
@@ -20,7 +19,7 @@ export const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.VITE_JWT_SECRET);
 
       // 4. Buscar el usuario asociado al ID dentro del token (sin el password)
-      req.user = await buscarUsuarioSinPassword(decoded);
+      req.user = await userService.buscarUsuarioSinPassword(decoded);
 
       // 4.5 Verificar que el usuario siga existiendo
       if (!req.user) {

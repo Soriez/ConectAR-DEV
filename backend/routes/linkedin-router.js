@@ -25,7 +25,7 @@ const getEnv = () => ({
     CLIENT_ID: process.env.LINKEDIN_CLIENT_ID || process.env.VITE_LINKEDIN_CLIENT_ID,
     CLIENT_SECRET: process.env.LINKEDIN_CLIENT_SECRET || process.env.VITE_LINKEDIN_CLIENT_SECRET,
     REDIRECT_URI: process.env.LINKEDIN_REDIRECT_URI || process.env.VITE_LINKEDIN_REDIRECT_URI,
-    FRONTEND_FORM_URL: process.env.VITE_FRONTEND_FREELANCER_FORM_URL || 'http://localhost:5173/hacerse-freelancer',
+    FRONTEND_FORM_URL: process.env.FRONTEND_FREELANCER_FORM_URL || process.env.VITE_FRONTEND_PROFILE_URL,
     JWT_SECRET: process.env.VITE_JWT_SECRET
 });
 

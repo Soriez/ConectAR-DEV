@@ -95,7 +95,6 @@ const IniciarSesion = () => {
             // Manejo de errores con el modal de mensaje
             const errorMsg = error.response?.data?.message || 'Error de conexión con el servidor.';
             showCustomMessage(`Error: ${errorMsg}`);
-            console.error('Error de red/login:', error);
         }
     };
 

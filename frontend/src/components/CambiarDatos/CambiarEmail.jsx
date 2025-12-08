@@ -75,7 +75,6 @@ const CambiarEmail = () => {
             }
 
         } catch (error) {
-            console.error('Error:', error);
             const errorMessage = error.response?.data?.message || 'Error de conexión con el servidor.';
             showCustomMessage(`Error: ${errorMessage}`);
         }
@@ -107,7 +106,7 @@ const CambiarEmail = () => {
                 <div className='py-8 px-6 sm:px-8'>
                     <form onSubmit={handleCambio}>
                         <div className="mb-8 space-y-6">
-                            
+
                             {/* Input Email Actual */}
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">

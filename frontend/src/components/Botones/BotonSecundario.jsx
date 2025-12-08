@@ -9,23 +9,22 @@ import { useNavigate } from "react-router";
  * @param {string} props.text - Texto que se mostrará dentro del botón.
  * @returns {JSX.Element} El elemento botón secundario.
  */
-const BotonSecundario = ( { link, text } ) => {
+const BotonSecundario = ({ link, text }) => {
 
-    // 1. Obtener la función de navegación de React Router
-    const navigate = useNavigate(); 
-    
-    // Función que maneja el clic
-    const handleClick = () => {
-      if (link) {
-        console.log("Navegando a:", link);
-        // 2. Usar navigate() para cambiar la ruta sin recargar la página
-        navigate(link); 
-      }
-    };
+  // 1. Obtener la función de navegación de React Router
+  const navigate = useNavigate();
+
+  // Función que maneja el clic
+  const handleClick = () => {
+    if (link) {
+      // 2. Usar navigate() para cambiar la ruta sin recargar la página
+      navigate(link);
+    }
+  };
 
   return (
     // Contenedor principal del botón
-    <button 
+    <button
       onClick={handleClick}
       className={`
         /* Estilos base */

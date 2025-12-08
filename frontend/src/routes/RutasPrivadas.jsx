@@ -31,9 +31,6 @@ export const OnlyStandardFreelancers = () => {
 
   if (!user) return <Navigate to="/iniciar-sesion" replace />;
 
-  console.log("OnlyStandardFreelancers Check - User:", user);
-
-
   // Si YA es premium, no le cobramos de nuevo -> Dashboard
   if (user.plan === 'premium') {
     return <Navigate to="/dashboard" />;

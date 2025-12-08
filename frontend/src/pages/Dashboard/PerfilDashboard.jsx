@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo, useEffect } from "react";
+import { useState, useContext, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router";
 import {
   Star,
@@ -7,7 +7,6 @@ import {
   Code2,
   User as UserIcon,
   Crown,
-  Search,
   Lock,
 } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
@@ -87,7 +86,6 @@ const PerfilDashboard = () => {
         );
         setAvailableTechs(response.data);
       } catch (error) {
-        console.error("Error al cargar tecnologías disponibles:", error);
         setAvailableTechs(FALLBACK_TECHS);
       }
     };
@@ -176,8 +174,6 @@ const PerfilDashboard = () => {
       alert("Habilidades actualizadas con éxito."); // Usa una librería de notificaciones real
     } catch (error) {
       // 5. Manejo de Errores
-      console.error("Error completo al guardar skills:", error);
-
       // El error de validación del límite de 5 viene con status 400.
       const errorMessage =
         error.response?.data?.message ||
@@ -205,7 +201,7 @@ const PerfilDashboard = () => {
       setUser(updatedUser);
 
     } catch (error) {
-      console.error("Error al desvincular LinkedIn", error);
+      throw error;
     }
   };
 

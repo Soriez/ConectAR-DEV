@@ -89,18 +89,17 @@ const Registrar = () => {
                 apellido,
                 email,
                 password,
-                role: 'cliente' 
+                role: 'cliente'
             });
 
             // 3. Éxito
             showCustomMessage('¡Cuenta creada con éxito! Redirigiendo...', false);
-            
+
             setTimeout(() => {
                 navigate('/iniciar-sesion');
             }, 2000);
 
         } catch (error) {
-            console.error('Error de registro:', error);
             // Capturamos el mensaje exacto que envía tu backend (ej: "El email ya está en uso")
             const errorMsg = error.response?.data?.message || 'Error al conectar con el servidor.';
             showCustomMessage(errorMsg);

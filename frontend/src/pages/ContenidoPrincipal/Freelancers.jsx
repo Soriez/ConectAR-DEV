@@ -69,7 +69,6 @@ const Freelancers = () => {
                 setFreelancersDB(res.data);
                 setLoading(false);
             } catch (err) {
-                console.error("Error fetching freelancers:", err);
                 setError("Hubo un problema al cargar los freelancers. Intenta nuevamente.");
                 setLoading(false);
             }

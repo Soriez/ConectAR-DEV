@@ -41,7 +41,6 @@ const FreelancersInicio = ({ data, title, subtitle, showPremiumBadge = true }) =
                 setFreelancers(res.data);
                 setLoading(false);
             } catch (error) {
-                console.error("Error cargando destacados:", error);
                 setLoading(false);
             }
         };
@@ -78,7 +77,7 @@ const FreelancersInicio = ({ data, title, subtitle, showPremiumBadge = true }) =
         <section className="bg-slate-900 py-12 border-b border-slate-800 overflow-hidden relative">
             {/* Fondo: Gradiente dorado sutil y profesional */}
             <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-amber-500/50 via-yellow-400 to-amber-500/50 opacity-60 shadow-[0_0_15px_rgba(251,191,36,0.3)]"></div>
-            
+
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 {/* Header */}
@@ -101,13 +100,13 @@ const FreelancersInicio = ({ data, title, subtitle, showPremiumBadge = true }) =
                     {/* Controles (Dark Mode) */}
                     {totalPages > 1 && (
                         <div className="hidden md:flex gap-3">
-                            <button 
+                            <button
                                 onClick={handlePrev}
                                 className="p-2.5 rounded-full border border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white hover:border-slate-600 transition-all active:scale-95 shadow-lg"
                             >
                                 <ChevronLeft size={24} />
                             </button>
-                            <button 
+                            <button
                                 onClick={handleNext}
                                 className="p-2.5 rounded-full border border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white hover:border-slate-600 transition-all active:scale-95 shadow-lg"
                             >
@@ -119,24 +118,24 @@ const FreelancersInicio = ({ data, title, subtitle, showPremiumBadge = true }) =
 
                 {/* --- CARRUSEL --- */}
                 <div className="relative w-full overflow-hidden pb-6 px-1">
-                    
+
                     {/* Track Deslizante */}
-                    <div 
+                    <div
                         className="flex transition-transform duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
                         style={{ transform: `translate3d(${-activeIndex * 100}%, 0, 0)` }}
                     >
                         {freelancers.map((user) => (
-                            <div 
-                                key={user._id} 
+                            <div
+                                key={user._id}
                                 className="w-full md:w-1/2 lg:w-1/3 shrink-0 px-3"
                             >
                                 {/* Card: Fondo oscuro (slate-800) */}
-                                <div 
+                                <div
                                     className="group relative bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-lg hover:shadow-2xl hover:shadow-amber-500/5 hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
                                 >
                                     {/* Borde superior decorativo */}
                                     <div className="absolute top-0 left-6 right-6 h-px bg-linear-to-r from-transparent via-amber-500/50 to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                                    
+
                                     {/* Badge Premium (Dark version) */}
                                     <div className="absolute top-4 right-4 bg-amber-900/30 text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-500/20 flex items-center gap-1 shadow-inner">
                                         <Crown size={10} fill="currentColor" />
@@ -187,7 +186,7 @@ const FreelancersInicio = ({ data, title, subtitle, showPremiumBadge = true }) =
                                     </div>
 
                                     {/* Botón (Azul para resaltar) */}
-                                    <button 
+                                    <button
                                         onClick={() => navigate(`/perfil/${user._id}`)}
                                         className="mt-auto w-full py-2.5 rounded-xl bg-blue-600 text-white font-medium text-sm hover:bg-blue-500 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20"
                                     >
@@ -215,7 +214,7 @@ const FreelancersInicio = ({ data, title, subtitle, showPremiumBadge = true }) =
             </div>
         </section>
     )
-       
+
 };
 
 export default FreelancersInicio;

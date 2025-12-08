@@ -48,16 +48,13 @@ const FreeToPremium = () => {
 
       // Actualizar el estado global con la respuesta del backend
       if (data) {
-        console.log("Frontend: Actualizando contexto con:", data);
         setUser(data);
       }
 
-      console.log("Cuenta actualizada a Premium exitosamente.");
       setShowModal(true);
 
     } catch (err) {
       setIsProcessing(false);
-      console.error('Error al procesar suscripción:', err);
       const errorMsg = err.response && err.response.data.message
         ? err.response.data.message
         : 'Error de conexión con el servidor.';
@@ -69,10 +66,7 @@ const FreeToPremium = () => {
     setIsProcessing(true);
     setError('');
 
-    console.log("Iniciando simulación de pasarela de pago...");
-
     setTimeout(() => {
-      console.log("Pago 'exitoso'. Ejecutando actualización en base de datos...");
       handleUpgradeAPI();
     }, 2500);
   };
@@ -102,7 +96,6 @@ const FreeToPremium = () => {
       setShowModal(false);
       navigate('/dashboard');
     } catch (error) {
-      console.error('Error al recargar usuario:', error);
       // Incluso si falla, navegamos al dashboard
       setShowModal(false);
       navigate('/dashboard');

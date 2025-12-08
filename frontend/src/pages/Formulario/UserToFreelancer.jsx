@@ -73,7 +73,6 @@ const UserToFreelancer = () => {
       setSubmitted(true);
 
     } catch (err) {
-      console.error('Error al actualizar perfil:', err);
       const errorMsg = err.response && err.response.data.message
         ? err.response.data.message
         : 'Error de conexión con el servidor.';
@@ -108,7 +107,6 @@ const UserToFreelancer = () => {
         // Ahora navegamos al dashboard con la información actualizada
         navigate('/dashboard');
       } catch (error) {
-        console.error('Error al recargar usuario:', error);
         // Incluso si falla, navegamos al dashboard
         navigate('/dashboard');
       }

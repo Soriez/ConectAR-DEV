@@ -83,7 +83,6 @@ const CambiarPassword = () => {
             }
 
         } catch (error) {
-            console.error('Error:', error);
             const errorMessage = error.response?.data?.message || 'Error de conexión con el servidor.';
             showCustomMessage(`Error: ${errorMessage}`);
         }

@@ -45,7 +45,6 @@ const OpinionesDashboard = () => {
       setShowDeleteModal(false);
       setOpinionToDelete(null);
     } catch (error) {
-      console.error("Error al eliminar opinión:", error);
       alert("Error al eliminar la opinión");
     }
   };
@@ -72,7 +71,7 @@ const OpinionesDashboard = () => {
           setActiveTab('recibidas');
         }
       } catch (err) {
-        console.error('Error al cargar opiniones:', err);
+        throw new Error(err);
       } finally {
         setLoading(false);
       }

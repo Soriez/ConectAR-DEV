@@ -52,7 +52,6 @@ export const AuthProvider = ({ children }) => {
             const response = await axios.get(`${BASE_URL}/api/users/${payload.id}`);
             setUser(response.data);
         } catch (error) {
-            console.error('Error al cargar usuario:', error);
             setUser(userData || payload);
         }
 
@@ -72,12 +71,11 @@ export const AuthProvider = ({ children }) => {
         try {
             // Asumiendo que esta es tu ruta backend definida anteriormente
             const response = await axios.put(`${BASE_URL}/api/users/upgrade-premium`);
-            
+
             // Actualizamos el estado local del usuario con la respuesta (que trae isPremium: true)
             setUser(response.data);
             return { success: true };
         } catch (error) {
-            console.error("Error upgrading to premium:", error);
             return { success: false, message: error.response?.data?.message || "Error al actualizar" };
         }
     };
@@ -95,7 +93,6 @@ export const AuthProvider = ({ children }) => {
                         const response = await axios.get(`${BASE_URL}/api/users/${payload.id}`);
                         setUser(response.data);
                     } catch (error) {
-                        console.error('Error al cargar usuario:', error);
                         logout();
                     }
                 } else {

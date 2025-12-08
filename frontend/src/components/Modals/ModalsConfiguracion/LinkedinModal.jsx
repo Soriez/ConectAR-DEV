@@ -15,11 +15,8 @@ const LinkedinModal = ({ show, onClose, isConnected, baseUrl, token, onDisconnec
             // Lógica para conectar (OAuth)
             if (baseUrl && token) {
                 const redirectUrl = `${baseUrl}/api/auth/linkedin/connect?token=${token}`;
-                console.log("Redirigiendo a:", redirectUrl);
                 window.location.href = redirectUrl;
             } else {
-                console.error("Base URL o Token no definidos");
-                alert("Error de configuración: No se puede conectar con el servidor.");
                 onClose();
             }
         }

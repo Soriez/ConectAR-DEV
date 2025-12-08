@@ -1,6 +1,6 @@
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router';
-import { ChevronRight, Mail, Lock, Linkedin, Globe, X, Briefcase, Link as LinkIcon, Crown } from 'lucide-react';
+import { ChevronRight, Mail, Lock, Linkedin, Briefcase, Link as LinkIcon, Crown } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext'; // Importar contexto
 import axios from 'axios';
 
@@ -38,7 +38,6 @@ const ConfiguracionDashboard = () => {
       alert("Portfolio actualizado correctamente.");
 
     } catch (error) {
-      console.error("Error al guardar portfolio", error);
       alert("Error al guardar el portfolio.");
     }
   };
@@ -63,7 +62,6 @@ const ConfiguracionDashboard = () => {
       alert("Cambiado a perfil Cliente. Tu configuración de freelancer se ha guardado.");
 
     } catch (error) {
-      console.error("Error al desvincular LinkedIn", error);
       alert("Error al cambiar el tipo de cuenta.");
     }
   };

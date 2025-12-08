@@ -37,7 +37,7 @@ const FreelancerCard = ({ data }) => {
                 if (servicios && servicios.length > 0) {
                     // 1. Calcular PROMEDIO de Precios (CAMBIO SOLICITADO)
                     const precios = servicios.map(s => s.precio).filter(p => p !== undefined && p !== null);
-                    
+
                     if (precios.length > 0) {
                         // Sumar todos los precios
                         const sumaTotal = precios.reduce((acc, curr) => acc + curr, 0);
@@ -45,7 +45,7 @@ const FreelancerCard = ({ data }) => {
                         const promedio = sumaTotal / precios.length;
 
                         const format = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
-                        
+
                         setRangoPrecios(`${format(promedio)}/h`);
                     }
 
@@ -66,7 +66,6 @@ const FreelancerCard = ({ data }) => {
                     if (data.skills) setEtiquetasServicios(data.skills);
                 }
             } catch (error) {
-                console.error("Error cargando servicios:", error);
                 if (data.tarifa) {
                     const format = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
                     setRangoPrecios(`${format(data.tarifa)}/h`);

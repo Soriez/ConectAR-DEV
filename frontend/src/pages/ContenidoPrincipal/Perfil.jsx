@@ -66,7 +66,6 @@ const Perfil = () => {
           const servicesRes = await axios.get(`${BASE_URL}/api/servicios/freelancer/${id}`);
           setServices(servicesRes.data);
         } catch (srvErr) {
-          console.warn("No se pudieron cargar servicios o no tiene:", srvErr);
           setServices([]);
         }
 
@@ -75,7 +74,6 @@ const Perfil = () => {
           const reviewsRes = await axios.get(`${BASE_URL}/api/opinions/recibidas/${id}`);
           setReviews(reviewsRes.data);
         } catch (revErr) {
-          console.warn("No se pudieron cargar opiniones:", revErr);
           setReviews([]);
         }
 
@@ -88,12 +86,10 @@ const Perfil = () => {
           setSuggested(shuffled.slice(0, 8));
 
         } catch (sugErr) {
-          console.warn("Error cargando sugeridos:", sugErr);
           setSuggested([]);
         }
 
       } catch (err) {
-        console.error("Error cargando perfil:", err);
         setError("No se pudo cargar la información del freelancer.");
       } finally {
         setLoading(false);
@@ -113,7 +109,7 @@ const Perfil = () => {
       try {
         await axios.put(`${BASE_URL}/api/users/${id}/visitas`);
       } catch (error) {
-        console.error("Error registrando visita:", error);
+        throw error;
       }
     };
     trackVisit();
@@ -131,8 +127,8 @@ const Perfil = () => {
       try {
         axios.put(`${BASE_URL}/api/users/${id}/linkedin`)
           .then(() => localStorage.setItem(storageKey, now.toString()))
-          .catch(e => console.error("Error tracking linkedin", e));
-      } catch (e) { console.error("Error initiating tracking", e); }
+          .catch(e => { throw new Error(e) });
+      } catch (e) { throw e; }
     }
     window.open(freelancer.linkedin, "_blank");
   };
@@ -148,8 +144,8 @@ const Perfil = () => {
       try {
         axios.put(`${BASE_URL}/api/users/${id}/portfolio`)
           .then(() => localStorage.setItem(storageKey, now.toString()))
-          .catch(e => console.error("Error tracking portfolio", e));
-      } catch (e) { console.error("Error initiating tracking", e); }
+          .catch(e => { throw new Error(e) });
+      } catch (e) { throw e; }
     }
     window.open(freelancer.portfolio, "_blank");
   };
@@ -178,8 +174,7 @@ const Perfil = () => {
       setNewReview({ score: 5, description: "" });
       setShowSuccessModal(true);
     } catch (error) {
-      console.error("Error publicando opinión:", error);
-      alert(error.response?.data?.message || "Error al publicar la opinión.");
+      throw new Error(error);
     } finally {
       setReviewSubmitting(false);
     }
@@ -230,7 +225,7 @@ const Perfil = () => {
   return (
     // CAMBIO: Fondo oscuro general
     <main className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-20">
-      
+
       {/* Contenedor principal */}
       <div className="mx-auto w-full max-w-6xl px-4 md:px-6 lg:px-8 py-10">
 

@@ -13,7 +13,6 @@ import SobreNosotros from '../pages/Footer/SobreNosotros'
 import TerminosServicios from '../pages/Footer/TerminosServicios'
 import TerminosPrivacidad from '../pages/Footer/TerminosPrivacidad'
 import PoliticaCookies from '../pages/Footer/PoliticaCookies'
-import RecuperarCuenta from '../pages/LoginYRegister/RecuperarCuenta'
 import CambiarEmail from '../components/CambiarDatos/CambiarEmail'
 import CambiarPassword from '../components/CambiarDatos/CambiarPassword'
 
@@ -49,8 +48,7 @@ const Rutas = () => {
         { path: '/politicas-de-privacidad', element: <TerminosPrivacidad /> },
         { path: '/politicas-de-cookies', element: <PoliticaCookies /> },
 
-        // --- RECUPERACIÓN DE CUENTA ---
-        { path: '/recuperar-cuenta', element: <RecuperarCuenta /> },
+        // --- ACTUALIZACIÓN DE CUENTA ---
         { path: '/cambiar-email', element: <CambiarEmail /> },
         { path: '/cambiar-password', element: <CambiarPassword /> },
 

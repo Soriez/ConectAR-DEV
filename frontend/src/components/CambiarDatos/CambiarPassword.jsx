@@ -116,7 +116,7 @@ const CambiarPassword = () => {
                 <div className='py-8 px-6 sm:px-8'>
                     <form onSubmit={handleCambio}>
                         <div className="mb-8 space-y-6">
-                            
+
                             {/* Input Contraseña Actual */}
                             <div>
                                 <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
@@ -177,15 +177,6 @@ const CambiarPassword = () => {
                         </div>
 
                     </form>
-                </div>
-                
-                {/* Enlace Olvidaste Contraseña */}
-                <div className="pb-8 pt-2 text-center">
-                    <NavLink to={'/recuperar-cuenta'}
-                        className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors hover:underline"
-                    >
-                        ¿Olvidaste tu contraseña?
-                    </NavLink>
                 </div>
             </div>
         </div>

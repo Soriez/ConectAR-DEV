@@ -1,7 +1,5 @@
 import userService from '../services/user.service.js';
 
-
-
 // ! POST /api/users/register
 // ? Registrar a un usuario (Con token de JWT implementado)
 
@@ -251,7 +249,6 @@ export const becomeFreelancer = async (req, res) => {
 
 
   } catch (error) {
-    console.error("Controller Error:", error);
     res.status(500).json({ message: "Error al convertir a freelancer", error: error.message });
   }
 };
@@ -345,10 +342,6 @@ export const actualizarSkillsUser = async (req, res) => {
     return res.status(200).json(updatedUser);
 
   } catch (error) {
-    // 🔴 Manejo de Errores: Esto captura cualquier fallo interno,
-    // incluyendo el error de validación del límite de 5 skills.
-    console.error('Error REAL al actualizar skills en el controlador:', error.message);
-
     // Manejo de error de validación de Mongoose (límite de 5 skills, etc.)
     if (error.name === 'ValidationError') {
       return res.status(400).json({ message: error.message });
@@ -426,7 +419,6 @@ export const getPremiumFreelancers = async (req, res) => {
 
     res.status(200).json(freelancersWithRating);
   } catch (error) {
-    console.error("Error en getPremiumFreelancers:", error);
     res.status(500).json({ message: "Error al obtener freelancers premium", error: error.message });
   }
 };
@@ -452,7 +444,6 @@ export const getFreelancersByMainCategory = async (req, res) => {
 
     res.status(200).json(freelancersWithRating);
   } catch (error) {
-    console.error("Error en getFreelancersByMainCategory:", error);
     res.status(500).json({ message: "Error al filtrar por categoría principal", error: error.message });
   }
 };
@@ -478,7 +469,6 @@ export const getFreelancersBySpecificCategory = async (req, res) => {
 
     res.status(200).json(freelancersWithRating);
   } catch (error) {
-    console.error("Error en getFreelancersBySpecificCategory:", error);
     res.status(500).json({ message: "Error al filtrar por subcategoría", error: error.message });
   }
 };

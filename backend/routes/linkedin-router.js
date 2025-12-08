@@ -2,7 +2,6 @@ import express from 'express';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
-import User from '../models/user.model.js';
 const router = express.Router();
 
 // Helper para parsear cookies manualmente
@@ -60,7 +59,6 @@ router.get('/connect', (req, res) => {
         res.redirect(authUrl);
 
     } catch (error) {
-        console.error('Error verificando token:', error);
         return res.status(401).send('No autorizado: Token inválido.');
     }
 });
@@ -76,12 +74,10 @@ router.get('/callback', async (req, res) => {
     const userId = cookies['linkedin_auth_user'];
 
     if (!state || !storedState || state !== storedState) {
-        console.error('Error de seguridad: El estado (state) no coincide.');
         return res.status(400).send('Error de seguridad: Intento de vinculación inválido.');
     }
 
     if (!userId) {
-        console.error('Error: No se encontró la sesión del usuario.');
         return res.status(401).send('Sesión expirada. Por favor intente nuevamente.');
     }
 
@@ -127,7 +123,6 @@ router.get('/callback', async (req, res) => {
         res.redirect(redirectUrl);
 
     } catch (error) {
-        console.error('❌ Error en LinkedIn Callback:', error.response?.data || error.message);
         res.status(500).send('Error al vincular cuenta de LinkedIn.');
     }
 });

@@ -1,20 +1,38 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { X, Linkedin } from 'lucide-react';
+import { AuthContext } from '../../../context/AuthContext';
+import axios from 'axios';
 
-const LinkedinModal = ({ show, onClose, isConnected, baseUrl, token, onDisconnect }) => {
+const LinkedinModal = ({ show, onClose }) => {
+    const { user, setUser, BASE_URL, token } = useContext(AuthContext);
+
     if (!show) return null;
 
-    const handleAction = () => {
+    const isConnected = !!user?.linkedin;
+
+    const handleAction = async () => {
         if (isConnected) {
             // Lógica para desconectar
-            if (onDisconnect) {
-                onDisconnect();
+            try {
+                // Eliminamos el link de LinkedIn y cambiamos el rol a 'cliente'
+                const response = await axios.put(
+                    `${BASE_URL}/api/users/${user._id}`,
+                    { role: "cliente", linkedin: "" },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+
+                const updatedUser = response.data.user ? response.data.user : response.data;
+                setUser(updatedUser);
+                alert("Cambiado a perfil Cliente. Tu configuración de freelancer se ha guardado.");
+                onClose();
+            } catch (error) {
+                console.error(error);
+                alert("Error al desconectar la cuenta.");
             }
-            onClose();
         } else {
             // Lógica para conectar (OAuth)
-            if (baseUrl && token) {
-                const redirectUrl = `${baseUrl}/api/auth/linkedin/connect?token=${token}`;
+            if (BASE_URL && token) {
+                const redirectUrl = `${BASE_URL}/api/auth/linkedin/connect?token=${token}`;
                 window.location.href = redirectUrl;
             } else {
                 onClose();

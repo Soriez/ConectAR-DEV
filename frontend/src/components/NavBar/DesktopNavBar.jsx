@@ -32,7 +32,7 @@ const DesktopNavBar = ({ isLoggedIn, user }) => {
   }, []);
 
   const userId = user?.id || user?._id;
-  const profileLink = userId ? `/ perfil` : '/dashboard';
+  const profileLink = userId ? `/perfil/${userId}` : '/dashboard';
 
   // Estilos comunes para los items del menú (siguiendo estética mobile)
   const itemClass = "flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl transition-all group mx-2 mb-1";

@@ -50,10 +50,10 @@ const ConfiguracionDashboard = () => {
   // 3. Desvincular LinkedIn (Downgrade a Cliente)
   const handleDisconnectLinkedin = async () => {
     try {
-      // No eliminamos el link de LinkedIn, solo cambiamos el rol a 'cliente'
+      // Eliminamos el link de LinkedIn y cambiamos el rol a 'cliente'
       const response = await axios.put(
         `${BASE_URL}/api/users/${user._id}`,
-        { role: "cliente" },
+        { role: "cliente", linkedin: "" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -197,10 +197,6 @@ const ConfiguracionDashboard = () => {
       <LinkedinModal
         show={showLinkedinModal}
         onClose={() => setShowLinkedinModal(false)}
-        isConnected={!!user.linkedin}
-        baseUrl={BASE_URL}
-        token={token}
-        onDisconnect={handleDisconnectLinkedin}
       />
 
     </div>

@@ -428,6 +428,7 @@ export const getPremiumFreelancers = async (req, res) => {
 export const getFreelancersByMainCategory = async (req, res) => {
   try {
     const { category } = req.params;
+
     const freelancers = await userService.obtenerFreelancersPorCategoria(category);
 
     // Calcular rating para cada freelancer

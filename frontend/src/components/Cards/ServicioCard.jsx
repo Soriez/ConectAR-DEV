@@ -13,7 +13,7 @@ library.add(fas)
  * @param {object} props.data - Objeto con el icono, título, descripción, color del icono y color de fondo.
  * @returns {JSX.Element} El elemento Tarjeta (<li>).
  */
-const Card = ( { data } ) => {
+const Card = ({ data }) => {
   return (
     // Contenedor principal de la tarjeta (<li>). Mantenemos flex-col y h-full para compatibilidad si el padre lo soporta.
     <li className={`
@@ -35,35 +35,35 @@ const Card = ( { data } ) => {
         sm:pb-2 
         md:pb-4                        
     `}>
-        
-        {/* Contenedor del Icono: Altura fija, no crece */}
-        <div className={`
+
+      {/* Contenedor del Icono: Altura fija, no crece */}
+      <div className={`
             text-4xl sm:text-5xl md:text-6xl 
             p-2 sm:p-4
         `}>
-          <FontAwesomeIcon 
-            icon={['fas', data.icon]} 
-            style={{color: data.color, backgroundColor: data.bgColor}}
-            className='
+        <FontAwesomeIcon
+          icon={['fas', data.icon]}
+          style={{ color: data.color, backgroundColor: data.bgColor }}
+          className='
               p-3 rounded-xl         
               shadow-lg                     
             '
-          />
-        </div>
-        
-        {/* Título: Altura fija */}
-        <div className="
+        />
+      </div>
+
+      {/* Título: Altura fija */}
+      <div className="
            text-white 
             font-extrabold 
             py-1 sm:py-2 
             text-lg sm:text-xl md:text-2xl
         ">
-            {data.title}
-        </div>
-        
-        {/* descipción */}
-        <div className='grow min-h-24 flex-col justify-start'>
-            <div className="
+        {data.title}
+      </div>
+
+      {/* descipción */}
+      <div className='grow min-h-24 flex-col justify-start'>
+        <div className="
                text-gray-400 
                 pt-2 pb-0
                 text-sm sm:text-base
@@ -71,10 +71,10 @@ const Card = ( { data } ) => {
                 h-auto
                 max-h-26
             ">
-                {data.description}
-            </div>
+          {data.description}
         </div>
-        
+      </div>
+
     </li>
   )
 }

@@ -8,18 +8,21 @@ import axios from 'axios';
 
 const Freelancers = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    // const initialEspecialidad = searchParams.get('especialidad') || 'Todas'; // No se usa en el render
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterCategoriaPrincipal, setFilterCategoriaPrincipal] = useState('Todas');
+    // Inicialización perezosa o directa basada en URL para evitar flash de "Todas"
+    const [filterCategoriaPrincipal, setFilterCategoriaPrincipal] = useState(searchParams.get('categoria') || 'Todas');
     const [filterCategoriaEspecifica, setFilterCategoriaEspecifica] = useState('Todas');
 
-    // Sincronizar filtro con URL si cambia externamente
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Sincronizar filtro con URL si cambia externamente (navegación por popstate o links)
     useEffect(() => {
         const currentCat = searchParams.get('categoria') || 'Todas';
-        setFilterCategoriaPrincipal(currentCat);
-        setFilterCategoriaEspecifica('Todas'); // Resetear subcategoría al cambiar la principal desde URL
-    }, [searchParams]);
+        if (currentCat !== filterCategoriaPrincipal) {
+            setFilterCategoriaPrincipal(currentCat);
+            setFilterCategoriaEspecifica('Todas'); // Resetear subcategoría al cambiar categoría principal
+        }
+    }, [searchParams, filterCategoriaPrincipal]);
 
     const [filterRating, setFilterRating] = useState(0);
     const [filterTarifaMax, setFilterTarifaMax] = useState(200000);

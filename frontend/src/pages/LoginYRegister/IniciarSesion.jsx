@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 // Importamos FontAwesome para replicar el estilo del panel derecho (si lo usaremos)
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

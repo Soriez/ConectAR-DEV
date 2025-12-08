@@ -154,7 +154,7 @@ const ContactForm = () => {
           className="bg-red-900/20 border border-red-500 rounded-lg p-4 mb-6 flex items-start gap-3"
           role="alert"
         >
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-red-400 font-semibold mb-2">
               Error al enviar el mensaje

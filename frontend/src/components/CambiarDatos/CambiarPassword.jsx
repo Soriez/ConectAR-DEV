@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react'
-import { NavLink, useNavigate } from 'react-router';
+import { useState, useContext } from 'react'
+import { useNavigate } from 'react-router';
 import { Lock } from 'lucide-react';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';

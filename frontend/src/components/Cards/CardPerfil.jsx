@@ -1,4 +1,3 @@
-import React from 'react';
 
 const formatARS = (n) =>
     new Intl.NumberFormat("es-AR", {
@@ -29,14 +28,14 @@ const CardPerfil = ({
         <aside className="hidden lg:block relative">
             {/* CAMBIO: Card oscura (slate-900) con borde slate-800 */}
             <div className="sticky top-8 bg-slate-900 rounded-2xl p-8 shadow-2xl border border-slate-800 backdrop-blur-sm">
-                
+
                 <div className="flex flex-col items-center text-center">
                     {/* CAMBIO: Avatar con borde oscuro */}
                     <img src={avatar} alt={fullName} className="w-32 h-32 rounded-full object-cover shadow-lg mb-4 border-4 border-slate-800" />
-                    
+
                     {/* CAMBIO: Nombre blanco */}
                     <h3 className="text-2xl font-bold text-white">{fullName}</h3>
-                    
+
                     <div className="flex items-center gap-1 mt-2 mb-6">
                         <span className="text-amber-400 text-lg">★</span>
                         {/* CAMBIO: Rating blanco y count gris claro */}

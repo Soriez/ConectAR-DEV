@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Star, Crown, Briefcase, ExternalLink, Quote } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import axios from 'axios';

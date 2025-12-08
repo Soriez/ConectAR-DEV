@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Mail, ChevronDown } from 'lucide-react';
 import ContactForm from '../../components/ContactForm/ContactForm';
 
@@ -42,10 +42,10 @@ const Contacto = () => {
       respuesta: "Ofrecemos soporte continuo a través de nuestro chat en vivo, email y teléfono. También contamos con un sistema de mediación para resolver cualquier conflicto que pueda surgir durante la ejecución del proyecto."
     }
   ];
-  
+
   // Estado para controlar qué pregunta del FAQ está abierta (solo una a la vez)
   const [openFaq, setOpenFaq] = useState(null)
-    
+
   // Función para alternar la apertura/cierre de preguntas FAQ
   // @param {number} id - ID de la pregunta a abrir/cerrar
 
@@ -56,7 +56,7 @@ const Contacto = () => {
   };
 
   return (
-      <div className="bg-linear-to-b from-gray-700 to-gray-900 pb-0">
+    <div className="bg-linear-to-b from-gray-700 to-gray-900 pb-0">
       {/* 
         SECCIÓN HERO / INTRODUCCIÓN 
         Presenta la página y el botón para mostrar el formulario
@@ -75,8 +75,8 @@ const Contacto = () => {
 
           {/* Descripción */}
           <p className="text-lg text-sky-200 mb-8">
-            Estamos aquí para ayudarte. Ya sea que tengas preguntas sobre nuestros servicios, 
-            necesites soporte técnico o quieras discutir un proyecto, nuestro equipo está 
+            Estamos aquí para ayudarte. Ya sea que tengas preguntas sobre nuestros servicios,
+            necesites soporte técnico o quieras discutir un proyecto, nuestro equipo está
             listo para asistirte.
           </p>
 
@@ -98,9 +98,8 @@ const Contacto = () => {
       */}
       <section
         id="contact-form-section"
-        className={`container mx-auto px-4 transition-all duration-500 ease-in-out ${
-          showForm ? 'opacity-100 max-h-[2000px] mb-16' : 'opacity-0 max-h-0 overflow-hidden'
-        }`}
+        className={`container mx-auto px-4 transition-all duration-500 ease-in-out ${showForm ? 'opacity-100 max-h-[2000px] mb-16' : 'opacity-0 max-h-0 overflow-hidden'
+          }`}
         aria-hidden={!showForm}
       >
         <div className="max-w-2xl mx-auto">
@@ -141,20 +140,18 @@ const Contacto = () => {
 
                   {/* Icono de chevron que rota cuando se abre */}
                   <ChevronDown
-                    className={`w-5 h-5 text-blue-500 shrink-0 transition-transform duration-300 ${
-                      openFaq === faq.id ? 'rotate-180' : ''
-                    }`}
+                    className={`w-5 h-5 text-blue-500 shrink-0 transition-transform duration-300 ${openFaq === faq.id ? 'rotate-180' : ''
+                      }`}
                   />
                 </button>
 
                 {/* Respuesta (contenido del accordion) */}
                 <div
                   id={`faq-answer-${faq.id}`}
-                  className={`transition-all duration-300 ease-in-out ${
-                    openFaq === faq.id
+                  className={`transition-all duration-300 ease-in-out ${openFaq === faq.id
                       ? 'max-h-96 opacity-100'
                       : 'max-h-0 opacity-0 overflow-hidden'
-                  }`}
+                    }`}
                 >
                   <div className="px-6 pb-4 pt-2">
                     <p className="text-blue-200 leading-relaxed">

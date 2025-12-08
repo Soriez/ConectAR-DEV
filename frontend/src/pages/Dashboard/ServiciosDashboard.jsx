@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Plus, Trash2, Briefcase, X, DollarSign, FileText, Edit } from 'lucide-react';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';

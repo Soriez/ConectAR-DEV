@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { X, Linkedin } from 'lucide-react';
 import { AuthContext } from '../../../context/AuthContext';
 import axios from 'axios';

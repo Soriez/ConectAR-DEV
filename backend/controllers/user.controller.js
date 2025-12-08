@@ -148,7 +148,7 @@ export const getAllFreelancers = async (req, res) => {
       });
 
       // C) Calcular Rating Promedio
-      let avgRating = 0;
+      let avgRating = 1;
       if (obj.opiniones && obj.opiniones.length > 0) {
         const sum = obj.opiniones.reduce((acc, op) => acc + (op.calificacion || op.puntuacion || 0), 0);
         avgRating = sum / obj.opiniones.length;
@@ -400,7 +400,7 @@ export const getPremiumFreelancers = async (req, res) => {
       // Convertimos a objeto plano para poder agregar propiedades
       const freelancerObj = f.toObject();
 
-      let avgRating = 0;
+      let avgRating = 1;
       if (f.opiniones && f.opiniones.length > 0) {
         const sum = f.opiniones.reduce((acc, op) => acc + (op.calificacion || op.puntuacion || 0), 0);
         avgRating = sum / f.opiniones.length;
@@ -434,7 +434,7 @@ export const getFreelancersByMainCategory = async (req, res) => {
     // Calcular rating para cada freelancer
     const freelancersWithRating = freelancers.map(f => {
       const obj = f.toObject();
-      let avgRating = 0;
+      let avgRating = 1;
       if (obj.opiniones && obj.opiniones.length > 0) {
         const sum = obj.opiniones.reduce((acc, op) => acc + (op.calificacion || op.puntuacion || 0), 0);
         avgRating = sum / obj.opiniones.length;
@@ -459,7 +459,7 @@ export const getFreelancersBySpecificCategory = async (req, res) => {
     // Calcular rating para cada freelancer
     const freelancersWithRating = freelancers.map(f => {
       const obj = f.toObject();
-      let avgRating = 0;
+      let avgRating = 1;
       if (obj.opiniones && obj.opiniones.length > 0) {
         const sum = obj.opiniones.reduce((acc, op) => acc + (op.calificacion || op.puntuacion || 0), 0);
         avgRating = sum / obj.opiniones.length;

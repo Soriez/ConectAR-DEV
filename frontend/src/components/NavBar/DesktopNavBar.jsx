@@ -21,7 +21,7 @@ const DesktopNavBar = ({ isLoggedIn, user }) => {
     "flex items-center gap-3 px-4 py-2 text-base font-medium transition duration-150 ease-in-out mx-3 rounded-md text-white hover:bg-blue-300 hover:text-black";
 
   // CLAVE: Determinamos el ID de usuario de forma robusta
-  const userId = user?.id || user?._id; 
+  const userId = user?.id || user?._id;
   const profileLink = userId ? `/perfil/${userId}` : '/dashboard';
 
   return (
@@ -46,24 +46,24 @@ const DesktopNavBar = ({ isLoggedIn, user }) => {
           {isMenuOpen && (
             <div
               // Fondo azul claro (bg-blue-300), Centrado
-              className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 bg-blue-950 rounded-lg shadow-xl py-2 z-10 text-black"
-              style={{ borderTop: "1px solid #a8caff" }} 
+              className="absolute right-0 mt-2 w-64 bg-blue-950 rounded-lg shadow-xl py-2 z-10 text-black"
+              style={{ borderTop: "1px solid #a8caff" }}
             >
-              
+
               {/* 1. Saludo: Fondo Distinto */}
-              <div 
+              <div
                 className="px-4 py-3 mb-2 bg-blue-950 rounded-t-lg mx-2"
-                style={{ borderBottom: "1px solid #1e3a8a" }} 
+                style={{ borderBottom: "1px solid #1e3a8a" }}
               >
                 <p className="text-sm font-extrabold text-white truncate">
-                    Hola, {user?.nombre || "Usuario"}
+                  Hola, {user?.nombre || "Usuario"}
                 </p>
               </div>
 
               {/* 2. Mi Perfil - SOLO FREELANCERS */}
               {(user?.role === "freelancer" || user?.isFreelancer) && userId && (
                 <NavLink
-                  to={profileLink} 
+                  to={profileLink}
                   onClick={() => setIsMenuOpen(false)}
                   className={menuLinkClasses}
                 >
@@ -71,7 +71,7 @@ const DesktopNavBar = ({ isLoggedIn, user }) => {
                   Mi Perfil
                 </NavLink>
               )}
-              
+
               {/* 3. Mi Panel de Control */}
               <NavLink
                 to="/dashboard"

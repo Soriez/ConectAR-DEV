@@ -48,6 +48,26 @@ const ConfiguracionDashboard = () => {
     navigate('/hacerse-premium');
   };
 
+  // 3. Desvincular LinkedIn (Downgrade a Cliente)
+  const handleDisconnectLinkedin = async () => {
+    try {
+      // No eliminamos el link de LinkedIn, solo cambiamos el rol a 'cliente'
+      const response = await axios.put(
+        `${BASE_URL}/api/users/${user._id}`,
+        { role: "cliente" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const updatedUser = response.data.user ? response.data.user : response.data;
+      setUser(updatedUser);
+      alert("Cambiado a perfil Cliente. Tu configuración de freelancer se ha guardado.");
+
+    } catch (error) {
+      console.error("Error al desvincular LinkedIn", error);
+      alert("Error al cambiar el tipo de cuenta.");
+    }
+  };
+
   // Componente de Item de Configuración
   const ConfigItem = ({ title, subtitle, actionLabel, icon, onClick, toggle }) => (
     <div
@@ -182,6 +202,7 @@ const ConfiguracionDashboard = () => {
         isConnected={!!user.linkedin}
         baseUrl={BASE_URL}
         token={token}
+        onDisconnect={handleDisconnectLinkedin}
       />
 
     </div>

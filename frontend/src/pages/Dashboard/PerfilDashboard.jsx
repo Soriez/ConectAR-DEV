@@ -192,6 +192,23 @@ const PerfilDashboard = () => {
     navigate('/hacerse-premium');
   };
 
+  const handleDisconnectLinkedin = async () => {
+    try {
+      // No eliminamos el link de LinkedIn, solo cambiamos el rol a 'cliente'
+      const response = await axios.put(
+        `${BASE_URL}/api/users/${user._id}`,
+        { role: "cliente" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const updatedUser = response.data.user ? response.data.user : response.data;
+      setUser(updatedUser);
+
+    } catch (error) {
+      console.error("Error al desvincular LinkedIn", error);
+    }
+  };
+
   const renderStars = () => {
     const rating = user.rating || 5;
     return [...Array(5)].map((_, index) => (
@@ -496,6 +513,7 @@ const PerfilDashboard = () => {
         isConnected={!!user.linkedin}
         baseUrl={BASE_URL}
         token={token}
+        onDisconnect={handleDisconnectLinkedin}
       />
     </div>
   );

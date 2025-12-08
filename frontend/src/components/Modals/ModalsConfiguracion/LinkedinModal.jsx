@@ -1,17 +1,15 @@
 import React from 'react';
 import { X, Linkedin } from 'lucide-react';
 
-const LinkedinModal = ({ show, onClose, isConnected, baseUrl, token }) => {
+const LinkedinModal = ({ show, onClose, isConnected, baseUrl, token, onDisconnect }) => {
     if (!show) return null;
 
     const handleAction = () => {
-        console.log("LinkedinModal: handleAction triggered");
-        console.log("BaseURL:", baseUrl);
-        console.log("Token:", token);
-
         if (isConnected) {
             // Lógica para desconectar
-            alert("Desvinculando cuenta...");
+            if (onDisconnect) {
+                onDisconnect();
+            }
             onClose();
         } else {
             // Lógica para conectar (OAuth)
@@ -21,7 +19,6 @@ const LinkedinModal = ({ show, onClose, isConnected, baseUrl, token }) => {
                 window.location.href = redirectUrl;
             } else {
                 console.error("Base URL o Token no definidos");
-                console.error("BaseURL:", baseUrl, "Token:", token);
                 alert("Error de configuración: No se puede conectar con el servidor.");
                 onClose();
             }
@@ -43,7 +40,7 @@ const LinkedinModal = ({ show, onClose, isConnected, baseUrl, token }) => {
                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
                     <p className="text-slate-600 text-sm leading-relaxed">
                         {isConnected
-                            ? "Tu cuenta de LinkedIn está actualmente vinculada. Si la desconectas, no podrás usarla para iniciar sesión ni mostrarla en tu perfil."
+                            ? "Tu cuenta de LinkedIn está actualmente vinculada. Si la desconectas, dejarás de ser freelancer, perderás tu perfil público y la posibilidad de brindar servicios (la configuración de tu cuenta freelancer será guardada)."
                             : "Conecta tu perfil profesional para aumentar la confianza con los clientes y mostrar tu experiencia verificada."}
                     </p>
                 </div>

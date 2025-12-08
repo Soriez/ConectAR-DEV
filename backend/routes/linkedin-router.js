@@ -2,9 +2,7 @@ import express from 'express';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
-import userModel from '../models/user.model.js';
-
-const { User } = userModel;
+import User from '../models/user.model.js';
 const router = express.Router();
 
 // Helper para parsear cookies manualmente
@@ -22,10 +20,10 @@ const parseCookies = (request) => {
 
 // Variables de entorno
 const getEnv = () => ({
-    CLIENT_ID: process.env.LINKEDIN_CLIENT_ID || process.env.VITE_LINKEDIN_CLIENT_ID,
-    CLIENT_SECRET: process.env.LINKEDIN_CLIENT_SECRET || process.env.VITE_LINKEDIN_CLIENT_SECRET,
-    REDIRECT_URI: process.env.LINKEDIN_REDIRECT_URI || process.env.VITE_LINKEDIN_REDIRECT_URI,
-    FRONTEND_FORM_URL: process.env.FRONTEND_FREELANCER_FORM_URL || process.env.VITE_FRONTEND_PROFILE_URL,
+    CLIENT_ID: process.env.VITE_LINKEDIN_CLIENT_ID,
+    CLIENT_SECRET: process.env.VITE_LINKEDIN_CLIENT_SECRET,
+    REDIRECT_URI: process.env.VITE_LINKEDIN_REDIRECT_URI,
+    FRONTEND_FORM_URL: process.env.VITE_FRONTEND_FREELANCER_FORM_URL,
     JWT_SECRET: process.env.VITE_JWT_SECRET
 });
 
@@ -114,27 +112,19 @@ router.get('/callback', async (req, res) => {
 
         const userData = userInfoResponse.data;
 
-        // 4. Actualizar Usuario en Base de Datos
-        // Nota: La API actual de LinkedIn (v2/userinfo) no devuelve la URL pública (vanityName) sin permisos especiales (r_basicprofile).
-        // Usamos el ID (sub) para construir una URL funcional o guardamos lo que llegue.
+        // 4. NO Actualizar Usuario en Base de Datos Automáticamente
+        // Pasamos el link obtenido como parámetro para pre-llenar o validar en el front.
+
         const profileURL = userData.profile || `https://www.linkedin.com/in/${userData.sub}`;
 
-        const updatedUser = await User.findByIdAndUpdate(userId, {
-            linkedin: profileURL
-            // No cambiamos el role a 'freelancer' aquí, se hará en el formulario final si corresponde.
-        }, { new: true });
 
-        console.log('--------------------------------------------------');
-        console.log('✅ VINCULACIÓN EXITOSA Y GUARDADA');
-        console.log(`👤 Usuario: ${updatedUser.email}`);
-        console.log(`� LinkedIn: ${updatedUser.linkedin}`);
-        console.log('--------------------------------------------------');
+        // 5. Redireccionar al formulario con parámetros de éxito
+        const form_hacerse_freelancer = FRONTEND_FORM_URL;
 
-        // 5. Redireccionar
-        // El usuario pidió "redirigir al dashboard". 
-        // Si tenemos una variable para el dashboard, la usamos. Si no, la raíz.
-        const dashboardUrl = process.env.VITE_FRONTEND_PROFILE_URL || 'http://localhost:5173/dashboard';
-        res.redirect(dashboardUrl);
+        // Añadimos parámetros para que el frontend sepa que fue exitoso
+        const redirectUrl = `${form_hacerse_freelancer}?status=success&linkedin=${encodeURIComponent(profileURL)}`;
+
+        res.redirect(redirectUrl);
 
     } catch (error) {
         console.error('❌ Error en LinkedIn Callback:', error.response?.data || error.message);

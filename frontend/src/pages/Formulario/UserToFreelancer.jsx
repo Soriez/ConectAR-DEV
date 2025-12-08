@@ -19,6 +19,19 @@ const UserToFreelancer = () => {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
+  // Efecto para leer parámetros de la URL (retorno de LinkedIn)
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    const linkedinUrl = params.get('linkedin');
+
+    if (status === 'success') {
+      if (linkedinUrl) {
+        setFormData(prev => ({ ...prev, linkedin: linkedinUrl }));
+      }
+    }
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -124,6 +137,8 @@ const UserToFreelancer = () => {
     );
   }
 
+
+
   return (
     <div className="min-h-screen bg-[#1a233a] font-sans selection:bg-[#2563EB] selection:text-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
@@ -145,6 +160,14 @@ const UserToFreelancer = () => {
               </div>
             )}
 
+            {/* Mensaje de Vinculación Exitosa */}
+            {new URLSearchParams(window.location.search).get('status') === 'success' && (
+              <div className="bg-green-900/30 text-green-400 border border-green-500/50 rounded-lg p-3 mb-6 max-w-lg mx-auto flex items-center justify-center gap-2">
+                <CheckCircle size={20} />
+                <span>¡Cuenta de LinkedIn vinculada correctamente!</span>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto text-left">
 
               <div>
@@ -161,9 +184,13 @@ const UserToFreelancer = () => {
                     placeholder="https://linkedin.com/in/tu-perfil"
                     value={formData.linkedin}
                     onChange={handleChange}
-                    className="block w-full pl-10 pr-4 py-3 bg-[#111827] border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none transition-all"
+                    className={`block w-full pl-10 pr-4 py-3 bg-[#111827] border rounded-lg text-white placeholder-gray-500 focus:ring-2 outline-none transition-all ${new URLSearchParams(window.location.search).get('status') === 'success' ? 'border-green-500 focus:ring-green-500' : 'border-gray-600 focus:ring-[#2563EB] focus:border-transparent'}`}
                   />
+                  {new URLSearchParams(window.location.search).get('status') === 'success' && (
+                    <CheckCircle className="absolute right-3 top-3 text-green-500" size={20} />
+                  )}
                 </div>
+                <p className="text-xs text-gray-500 mt-1">Este es el link que se guardará en tu perfil.</p>
               </div>
 
               <div>

@@ -2,18 +2,33 @@ import { useState, useEffect, useContext } from 'react';
 import { Plus, Trash2, Briefcase, X, DollarSign, FileText, Edit } from 'lucide-react';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';
+import ConfirmationModal from '../../components/Modals/ConfirmationModal';
 
 const ServiciosDashboard = () => {
   const { user: authUser, isAuthenticated, BASE_URL, token } = useContext(AuthContext);
   const [profile, setProfile] = useState(null);
   const [services, setServices] = useState([]);
-  const [serviceTypes, setServiceTypes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Estados para el Modal
+  // Estados para el Modal de Creación/Edición
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentServiceId, setCurrentServiceId] = useState(null);
+
+  // Estados para el Modal de Confirmación de Borrado
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState(null);
+
+  // Estado para Notificaciones (Toasts)
+  const [notification, setNotification] = useState({ show: false, message: '', isError: false });
+
+  // Estados para selección jerárquica de categorías
+  const [mainCategories, setMainCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [availableServiceTypes, setAvailableServiceTypes] = useState([]);
+
+  const [selectedMainCategory, setSelectedMainCategory] = useState('');
+  const [selectedSubCategory, setSelectedSubCategory] = useState('');
 
   const [formData, setFormData] = useState({
     tipoServicio: '',
@@ -21,7 +36,13 @@ const ServiciosDashboard = () => {
     precio: ''
   });
 
-  // Fetch profile, services and service types
+  // Helper para mostrar notificaciones
+  const showNotification = (message, isError = false) => {
+    setNotification({ show: true, message, isError });
+    setTimeout(() => setNotification({ show: false, message: '', isError: false }), 4000);
+  };
+
+  // Fetch inicial (Perfil, Servicios existentes, Categorías Principales)
   useEffect(() => {
     if (!isAuthenticated || !authUser || !authUser._id) {
       setLoading(false);
@@ -30,20 +51,21 @@ const ServiciosDashboard = () => {
 
     const fetchData = async () => {
       try {
-        // Obtener perfil del usuario
+        // 1. Obtener perfil
         const userRes = await axios.get(`${BASE_URL}/api/users/${authUser._id}`);
         setProfile(userRes.data);
 
-        // Si es freelancer, cargar sus servicios y los tipos disponibles
         if (userRes.data.role === 'freelancer') {
-          const servicesRes = await axios.get(`${BASE_URL}/api/services/freelancer/${authUser._id}`);
+          // 2. Obtener servicios del freelancer
+          const servicesRes = await axios.get(`${BASE_URL}/api/servicios/freelancer/${authUser._id}`);
           setServices(servicesRes.data);
 
-          const typesRes = await axios.get(`${BASE_URL}/api/services/types`);
-          setServiceTypes(typesRes.data);
+          // 3. Obtener Categorías Principales (Nivel 1)
+          const catRes = await axios.get(`${BASE_URL}/api/types/categorias-principales`);
+          setMainCategories(catRes.data);
         }
       } catch (err) {
-        throw err;
+        console.error("Error loading dashboard data:", err);
       } finally {
         setLoading(false);
       }
@@ -51,24 +73,86 @@ const ServiciosDashboard = () => {
     fetchData();
   }, [isAuthenticated, authUser, BASE_URL]);
 
+  // Cargar Sub Categorías cuando cambia la Principal
+  useEffect(() => {
+    if (selectedMainCategory) {
+      const fetchSubcats = async () => {
+        try {
+          // Usamos param 'principal' según el backend
+          const res = await axios.get(`${BASE_URL}/api/types/categorias?principal=${encodeURIComponent(selectedMainCategory)}`);
+          setSubCategories(res.data);
+        } catch (err) {
+          console.error("Error fetching subcategories:", err);
+        }
+      };
+      fetchSubcats();
+    } else {
+      setSubCategories([]);
+    }
+  }, [selectedMainCategory, BASE_URL]);
+
+  // Cargar Servicios (Tipos) cuando cambia la Sub Categoría
+  useEffect(() => {
+    if (selectedSubCategory) {
+      const fetchTypes = async () => {
+        try {
+          // Usamos param 'categoria' según el backend
+          const res = await axios.get(`${BASE_URL}/api/types/nombres?categoria=${encodeURIComponent(selectedSubCategory)}`);
+          setAvailableServiceTypes(res.data);
+        } catch (err) {
+          console.error("Error fetching service types:", err);
+        }
+      };
+      fetchTypes();
+    } else {
+      setAvailableServiceTypes([]);
+    }
+  }, [selectedSubCategory, BASE_URL]);
+
+
   // Abrir modal para CREAR
   const handleOpenCreate = () => {
     setFormData({ tipoServicio: '', descripcion: '', precio: '' });
+    setSelectedMainCategory('');
+    setSelectedSubCategory('');
     setIsEditing(false);
     setCurrentServiceId(null);
     setShowModal(true);
   };
 
   // Abrir modal para EDITAR
-  const handleOpenEdit = (service) => {
+  const handleOpenEdit = async (service) => {
+    setIsEditing(true);
+    setCurrentServiceId(service._id);
+
+    // Pre-llenar datos básicos
     setFormData({
-      tipoServicio: service.tipoServicio._id, // ID para el select (aunque esté deshabilitado)
+      tipoServicio: service.tipoServicio?._id || '',
       descripcion: service.descripcionPersonalizada,
       precio: service.precio
     });
-    // Guardamos el nombre del tipo para mostrarlo visualmente si deshabilitamos el select
-    setIsEditing(true);
-    setCurrentServiceId(service._id);
+
+    // Pre-llenar selectores fetch manual
+    const typeObj = service.tipoServicio;
+    if (typeObj) {
+      try {
+        // 1. Setear Main Category 
+        setSelectedMainCategory(typeObj.categoria_principal);
+
+        // Fetch Subcategorias de esta principal
+        const subRes = await axios.get(`${BASE_URL}/api/types/categorias?principal=${encodeURIComponent(typeObj.categoria_principal)}`);
+        setSubCategories(subRes.data);
+        setSelectedSubCategory(typeObj.categoria);
+
+        // Fetch Nombres de esta subcategoria
+        const nameRes = await axios.get(`${BASE_URL}/api/types/nombres?categoria=${encodeURIComponent(typeObj.categoria)}`);
+        setAvailableServiceTypes(nameRes.data);
+
+      } catch (err) {
+        console.error("Error pre-filling edit modal:", err);
+      }
+    }
+
     setShowModal(true);
   };
 
@@ -76,7 +160,7 @@ const ServiciosDashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.precio || !formData.descripcion) {
-      alert('Completa todos los campos');
+      showNotification('Completa todos los campos', true);
       return;
     }
 
@@ -85,53 +169,62 @@ const ServiciosDashboard = () => {
 
       if (isEditing) {
         // --- LOGICA PUT ---
-        // Enviamos 'descripcionPersonalizada' porque así lo espera el backend en el updateService
         const updateData = {
           precio: formData.precio,
           descripcionPersonalizada: formData.descripcion
         };
 
-        const res = await axios.put(`${BASE_URL}/api/services/${currentServiceId}`, updateData, config);
+        const res = await axios.put(`${BASE_URL}/api/servicios/${currentServiceId}`, updateData, config);
 
         // Actualizar estado local
         setServices(services.map(s => s._id === currentServiceId ? res.data.servicio : s));
-        alert('Servicio actualizado correctamente');
+        showNotification('Servicio actualizado correctamente');
 
       } else {
         // --- LOGICA POST ---
-        if (!formData.tipoServicio) return alert("Selecciona un tipo de servicio");
+        if (!formData.tipoServicio) return showNotification('Selecciona un tipo de servicio completo', true);
 
-        const res = await axios.post(`${BASE_URL}/api/services`, formData, config);
+        const res = await axios.post(`${BASE_URL}/api/servicios`, formData, config);
 
-        // El backend devuelve { message, servicio: ... } pero necesitamos popular el tipoServicio para mostrarlo bien sin recargar
-        // Truco: Buscamos el objeto tipoServicio completo de nuestra lista local 'serviceTypes'
-        const fullType = serviceTypes.find(t => t._id === formData.tipoServicio);
+        // Recuperar objeto completo del tipo seleccionado para mostrarlo en la UI sin refetch
+        const fullType = availableServiceTypes.find(t => t._id === formData.tipoServicio);
         const newServiceWithPopulate = { ...res.data.servicio, tipoServicio: fullType };
 
         setServices([...services, newServiceWithPopulate]);
-        alert('Servicio creado correctamente');
+        showNotification('Servicio creado correctamente');
       }
 
       setShowModal(false);
 
     } catch (err) {
-      alert(err.response?.data?.message || 'Ocurrió un error');
+      showNotification(err.response?.data?.message || 'Ocurrió un error', true);
     }
   };
 
-  const handleDeleteService = async (serviceId) => {
-    if (!window.confirm('¿Estás seguro de eliminar este servicio?')) return;
+  // 1. Iniciar Flujo de Borrado
+  const handleDeleteClick = (serviceId) => {
+    setServiceToDelete(serviceId);
+    setShowDeleteModal(true);
+  };
+
+  // 2. Confirmar Borrado
+  const confirmDeleteService = async () => {
+    if (!serviceToDelete) return;
+
     try {
       const config = {
         headers: {
           Authorization: `Bearer ${token}`
         }
       };
-      await axios.delete(`${BASE_URL}/api/services/${serviceId}`, config);
-      setServices(services.filter(s => s._id !== serviceId));
-      alert('Servicio eliminado');
+      await axios.delete(`${BASE_URL}/api/servicios/${serviceToDelete}`, config);
+      setServices(services.filter(s => s._id !== serviceToDelete));
+      showNotification('Servicio eliminado correctamente');
     } catch (err) {
-      alert('Error al eliminar el servicio');
+      showNotification('Error al eliminar el servicio', true);
+    } finally {
+      setShowDeleteModal(false);
+      setServiceToDelete(null);
     }
   };
 
@@ -151,7 +244,23 @@ const ServiciosDashboard = () => {
   }
 
   return (
-    <div className="animate-fade-in-up">
+    <div className="animate-fade-in-up relative">
+      {/* Notificación Flotante */}
+      {notification.show && (
+        <div className={`fixed top-5 left-1/2 transform -translate-x-1/2 p-3 rounded-lg text-white font-semibold shadow-lg transition-all duration-300 z-[70] ${notification.isError ? 'bg-red-600' : 'bg-blue-600'}`}>
+          <p>{notification.message}</p>
+        </div>
+      )}
+
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDeleteService}
+        title="¿Eliminar Servicio?"
+        message="Esta acción no se puede deshacer. ¿Estás seguro de que quieres eliminar este servicio de tu perfil?"
+        confirmText="Eliminar"
+      />
+
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Mis Servicios</h1>
@@ -169,7 +278,7 @@ const ServiciosDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {/* Lista de Servicios */}
-        {services.map(service => (
+        {services.length > 0 && services.map(service => (
           <div key={service._id} className="group bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
 
             {/* Decoración Fondo */}
@@ -189,13 +298,19 @@ const ServiciosDashboard = () => {
                     <Edit size={18} />
                   </button>
                   <button
-                    onClick={() => handleDeleteService(service._id)}
+                    onClick={() => handleDeleteClick(service._id)} // Cambiado a handleDeleteClick
                     className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
                     title="Eliminar"
                   >
                     <Trash2 size={18} />
                   </button>
                 </div>
+              </div>
+
+              <div className="mb-2">
+                <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                  {service.tipoServicio?.categoria_principal || 'Sin Categ.'}
+                </span>
               </div>
 
               <h3 className="font-bold text-lg text-slate-800 mb-2 line-clamp-1">
@@ -207,7 +322,7 @@ const ServiciosDashboard = () => {
               </p>
 
               <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Precio Base</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Precio Base</span>
                 <span className="text-lg font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
                   ${service.precio}
                 </span>
@@ -216,14 +331,15 @@ const ServiciosDashboard = () => {
           </div>
         ))}
 
-        {/* Card para agregar (Si no hay servicios o para rellenar grid) */}
+        {/* Card para agregar (Si no hay servicios) */}
         {services.length === 0 && (
           <button
             onClick={handleOpenCreate}
-            className="border-2 border-dashed border-slate-300 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[250px] text-slate-400 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50/50 transition duration-300"
+            className="border-2 border-dashed border-slate-300 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[250px] text-slate-400 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50/50 transition duration-300 w-full"
           >
             <Plus size={48} className="mb-4 opacity-50" />
-            <span className="font-semibold">Agregar tu primer servicio</span>
+            <h3 className="text-lg font-bold mb-2">No tienes servicios activos</h3>
+            <span className="font-medium">Agregar tu primer servicio</span>
           </button>
         )}
       </div>
@@ -231,7 +347,7 @@ const ServiciosDashboard = () => {
       {/* --- MODAL CREAR / EDITAR --- */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative overflow-hidden max-h-[90vh] overflow-y-auto">
 
             <button
               onClick={() => setShowModal(false)}
@@ -247,19 +363,64 @@ const ServiciosDashboard = () => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
 
-              {/* Select Tipo Servicio */}
+              {/* Categoría Principal */}
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Tipo de Servicio</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Categoría Principal</label>
+                <div className="relative">
+                  <select
+                    disabled={isEditing}
+                    value={selectedMainCategory}
+                    onChange={e => {
+                      setSelectedMainCategory(e.target.value);
+                      setSelectedSubCategory('');
+                      setFormData({ ...formData, tipoServicio: '' });
+                    }}
+                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white ${isEditing ? 'bg-slate-100 text-slate-500' : 'border-slate-300'}`}
+                  >
+                    <option value="">Selecciona principal...</option>
+                    {mainCategories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  {!isEditing && <div className="absolute right-4 top-3.5 pointer-events-none text-slate-500">▼</div>}
+                </div>
+              </div>
+
+              {/* Sub Categoría */}
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Categoría Específica</label>
+                <div className="relative">
+                  <select
+                    disabled={isEditing || !selectedMainCategory}
+                    value={selectedSubCategory}
+                    onChange={e => {
+                      setSelectedSubCategory(e.target.value);
+                      setFormData({ ...formData, tipoServicio: '' });
+                    }}
+                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white ${isEditing || !selectedMainCategory ? 'bg-slate-100 text-slate-500' : 'border-slate-300'}`}
+                  >
+                    <option value="">Selecciona sub-categoría...</option>
+                    {subCategories.map((cat, idx) => (
+                      <option key={idx} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  {!isEditing && <div className="absolute right-4 top-3.5 pointer-events-none text-slate-500">▼</div>}
+                </div>
+              </div>
+
+              {/* Nombre del Servicio (El ID final) */}
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Servicio</label>
                 <div className="relative">
                   <select
                     required
-                    disabled={isEditing} // No permitimos cambiar el tipo al editar para simplificar lógica
+                    disabled={isEditing || !selectedSubCategory}
                     value={formData.tipoServicio}
                     onChange={e => setFormData({ ...formData, tipoServicio: e.target.value })}
-                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white ${isEditing ? 'bg-slate-100 text-slate-500 border-slate-200' : 'border-slate-300'}`}
+                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white ${isEditing || !selectedSubCategory ? 'bg-slate-100 text-slate-500' : 'border-slate-300'}`}
                   >
-                    <option value="">Selecciona una categoría...</option>
-                    {serviceTypes.map(type => (
+                    <option value="">Selecciona el servicio...</option>
+                    {availableServiceTypes.map(type => (
                       <option key={type._id} value={type._id}>{type.nombre}</option>
                     ))}
                   </select>

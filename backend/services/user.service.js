@@ -312,6 +312,12 @@ const actualizarSkillsUser = async (userId, newSkills) => {
     return updatedUser.toJSON();
 };
 
+//Eliminar usuario
+const eliminarUsuario = async (userId) => {
+    const deletedUser = await User.findByIdAndDelete(userId);
+    return deletedUser;
+};
+
 export default {
     obtenerTodosLosUsuarios,
     usuarioExiste,
@@ -331,5 +337,6 @@ export default {
     incrementarLinkedin,
     incrementarPortfolio,
     obtenerFreelancersPorCategoria,
-    obtenerFreelancersPorSubCategoria
+    obtenerFreelancersPorSubCategoria,
+    eliminarUsuario
 }

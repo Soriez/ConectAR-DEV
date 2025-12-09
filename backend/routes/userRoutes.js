@@ -19,7 +19,8 @@ import {
     incrementLinkedinAccess,
     incrementPortfolioAccess,
     getFreelancersByMainCategory,
-    getFreelancersBySpecificCategory
+    getFreelancersBySpecificCategory,
+    deleteUser
 } from '../controllers/user.controller.js';
 
 const router = express.Router();
@@ -75,6 +76,10 @@ router.put('/hacerse-premium', protect, upgradeToPremium);
 
 // PUT /api/users/:id/skills
 router.put('/:id/skills', protect, actualizarSkillsUser);
+
+// (D) DELETE - Eliminar un usuario por ID
+// Petición DELETE a /api/users/:id
+router.delete('/:id', protect, deleteUser);
 
 // --- ESTADÍSTICAS ---
 router.put('/:id/visitas', incrementVisit);

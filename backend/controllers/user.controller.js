@@ -473,3 +473,13 @@ export const getFreelancersBySpecificCategory = async (req, res) => {
     res.status(500).json({ message: "Error al filtrar por subcategoría", error: error.message });
   }
 };
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedUser = await userService.eliminarUsuario(id);
+    res.status(200).json(deletedUser);
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar el usuario", error: error.message });
+  }
+};

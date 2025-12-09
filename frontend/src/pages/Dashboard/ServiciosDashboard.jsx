@@ -2,10 +2,13 @@ import { useState, useEffect, useContext } from 'react';
 import { Plus, Trash2, Briefcase, X, DollarSign, FileText, Edit } from 'lucide-react';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 import ConfirmationModal from '../../components/Modals/ConfirmationModal';
 
 const ServiciosDashboard = () => {
   const { user: authUser, isAuthenticated, BASE_URL, token } = useContext(AuthContext);
+  const { showErrorModal, showSuccess } = useNotification();
+
   const [profile, setProfile] = useState(null);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,9 +21,6 @@ const ServiciosDashboard = () => {
   // Estados para el Modal de Confirmación de Borrado
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState(null);
-
-  // Estado para Notificaciones (Toasts)
-  const [notification, setNotification] = useState({ show: false, message: '', isError: false });
 
   // Estados para selección jerárquica de categorías
   const [mainCategories, setMainCategories] = useState([]);
@@ -35,12 +35,6 @@ const ServiciosDashboard = () => {
     descripcion: '',
     precio: ''
   });
-
-  // Helper para mostrar notificaciones
-  const showNotification = (message, isError = false) => {
-    setNotification({ show: true, message, isError });
-    setTimeout(() => setNotification({ show: false, message: '', isError: false }), 4000);
-  };
 
   // Fetch inicial (Perfil, Servicios existentes, Categorías Principales)
   useEffect(() => {
@@ -160,7 +154,7 @@ const ServiciosDashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.precio || !formData.descripcion) {
-      showNotification('Completa todos los campos', true);
+      showErrorModal('Completa todos los campos');
       return;
     }
 
@@ -178,11 +172,11 @@ const ServiciosDashboard = () => {
 
         // Actualizar estado local
         setServices(services.map(s => s._id === currentServiceId ? res.data.servicio : s));
-        showNotification('Servicio actualizado correctamente');
+        showSuccess('Servicio actualizado correctamente');
 
       } else {
         // --- LOGICA POST ---
-        if (!formData.tipoServicio) return showNotification('Selecciona un tipo de servicio completo', true);
+        if (!formData.tipoServicio) return showErrorModal('Selecciona un tipo de servicio completo');
 
         const res = await axios.post(`${BASE_URL}/api/servicios`, formData, config);
 
@@ -191,13 +185,13 @@ const ServiciosDashboard = () => {
         const newServiceWithPopulate = { ...res.data.servicio, tipoServicio: fullType };
 
         setServices([...services, newServiceWithPopulate]);
-        showNotification('Servicio creado correctamente');
+        showSuccess('Servicio creado correctamente');
       }
 
       setShowModal(false);
 
     } catch (err) {
-      showNotification(err.response?.data?.message || 'Ocurrió un error', true);
+      showErrorModal(err.response?.data?.message || 'Ocurrió un error');
     }
   };
 
@@ -219,9 +213,9 @@ const ServiciosDashboard = () => {
       };
       await axios.delete(`${BASE_URL}/api/servicios/${serviceToDelete}`, config);
       setServices(services.filter(s => s._id !== serviceToDelete));
-      showNotification('Servicio eliminado correctamente');
+      showSuccess('Servicio eliminado correctamente');
     } catch (err) {
-      showNotification('Error al eliminar el servicio', true);
+      showErrorModal('Error al eliminar el servicio');
     } finally {
       setShowDeleteModal(false);
       setServiceToDelete(null);
@@ -245,13 +239,6 @@ const ServiciosDashboard = () => {
 
   return (
     <div className="animate-fade-in-up relative">
-      {/* Notificación Flotante */}
-      {notification.show && (
-        <div className={`fixed top-5 left-1/2 transform -translate-x-1/2 p-3 rounded-lg text-white font-semibold shadow-lg transition-all duration-300 z-[70] ${notification.isError ? 'bg-red-600' : 'bg-blue-600'}`}>
-          <p>{notification.message}</p>
-        </div>
-      )}
-
       <ConfirmationModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}

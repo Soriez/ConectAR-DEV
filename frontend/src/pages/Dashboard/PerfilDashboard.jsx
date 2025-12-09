@@ -10,6 +10,7 @@ import {
   Lock,
 } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
+import { useNotification } from "../../context/NotificationContext";
 import axios from "axios";
 import LinkedinModal from "../../components/Modals/ModalsConfiguracion/LinkedinModal"; // Importar Modal
 
@@ -48,6 +49,7 @@ const PerfilDashboard = () => {
 
   // Hook 1: Obtener el contexto de autenticación
   const { user, isLoading, BASE_URL, setUser, token } = useContext(AuthContext); // Agregamos token
+  const { showErrorModal, showSuccess } = useNotification();
   const navigate = useNavigate();
 
   // Hook 2: Lista de tecnologías disponibles (del backend)
@@ -153,7 +155,7 @@ const PerfilDashboard = () => {
     if (technologies.length > 5) {
       // En un caso real, esto no debería pasar por la validación del input,
       // pero es una seguridad extra.
-      return alert("Error: No puedes tener más de 5 habilidades.");
+      return showErrorModal("Error: No puedes tener más de 5 habilidades.");
     }
 
     try {
@@ -171,7 +173,7 @@ const PerfilDashboard = () => {
       // actualizamos el usuario en el contexto.
       setUser(response.data);
 
-      alert("Habilidades actualizadas con éxito."); // Usa una librería de notificaciones real
+      showSuccess("Habilidades actualizadas con éxito.");
     } catch (error) {
       // 5. Manejo de Errores
       // El error de validación del límite de 5 viene con status 400.
@@ -180,7 +182,7 @@ const PerfilDashboard = () => {
         "Error desconocido al intentar guardar las habilidades.";
 
       // Este mensaje te dirá si el problema es de validación (Mongoose) o interno.
-      alert(`Fallo al guardar: ${errorMessage}`);
+      showErrorModal(`Fallo al guardar: ${errorMessage}`);
     }
   };
   // --- Handler para hacerse Premium ---

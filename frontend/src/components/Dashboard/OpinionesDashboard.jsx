@@ -2,6 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import { Star, MessageSquare, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
+import ConfirmationModal from '../../components/Modals/ConfirmationModal'; // Importar si no estaba
 
 const renderStars = (rating) => {
   return [...Array(5)].map((_, index) => (
@@ -15,6 +17,7 @@ const renderStars = (rating) => {
 
 const OpinionesDashboard = () => {
   const { user: authUser, isAuthenticated, BASE_URL } = useContext(AuthContext);
+  const { showErrorModal, showSuccess } = useNotification();
   const [profile, setProfile] = useState(null);
   const [opinionesRecibidas, setOpinionesRecibidas] = useState([]);
   const [opinionesRealizadas, setOpinionesRealizadas] = useState([]);
@@ -44,8 +47,9 @@ const OpinionesDashboard = () => {
       // Cerrar modal
       setShowDeleteModal(false);
       setOpinionToDelete(null);
+      showSuccess("Opinión eliminada correctamente");
     } catch (error) {
-      alert("Error al eliminar la opinión");
+      showErrorModal("Error al eliminar la opinión");
     }
   };
 
@@ -90,6 +94,22 @@ const OpinionesDashboard = () => {
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-800 mb-6">Opiniones</h1>
+
+      {/* Usamos el ConfirmationModal genérico si lo tenemos disponible e importado, 
+          o mantenemos el modal inline si el usuario no pidió explícitamente cambiar eso 
+          (aunque pidió usar ErrorModal para errores). 
+          Voy a usar el ConfirmationModal genérico si está disponible para consistencia. 
+      */}
+      {/* Reemplazo manual del modal inline por ConfirmationModal para mejor consistencia visual */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="¿Eliminar opinión?"
+        message="Esta acción no se puede deshacer. La opinión desaparecerá permanentemente del perfil del freelancer."
+        confirmText="Eliminar de todos modos"
+        isDestructive={true}
+      />
 
       {profile.role === 'freelancer' && (
         <div className="flex gap-4 mb-6 border-b border-slate-200">
@@ -176,37 +196,6 @@ const OpinionesDashboard = () => {
               </div>
             ))
           )}
-        </div>
-      )}
-
-      {/* Modal de Confirmación de Eliminación */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-6 text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="text-red-600" size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">¿Eliminar opinión?</h3>
-              <p className="text-gray-600 mb-6">
-                Esta acción no se puede deshacer. La opinión desaparecerá permanentemente del perfil del freelancer.
-              </p>
-              <div className="flex gap-3 justify-center">
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
-                >
-                  Eliminar de todos modos
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       )}
     </div>

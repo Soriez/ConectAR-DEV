@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router';
 import { ChevronRight, Mail, Lock, Linkedin, Briefcase, Link as LinkIcon, Crown, Trash2 } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext'; // Importar contexto
+import { useNotification } from '../../context/NotificationContext';
 import axios from 'axios';
 
 //import de modales
@@ -11,6 +12,7 @@ import ConfirmationModal from '../Modals/ConfirmationModal';
 
 const ConfiguracionDashboard = () => {
   const { user, setUser, BASE_URL, token, logout } = useContext(AuthContext); // Datos reales
+  const { showErrorModal, showSuccess } = useNotification();
   const navigate = useNavigate();
 
   // --- ESTADOS PARA MODALES ---
@@ -37,10 +39,10 @@ const ConfiguracionDashboard = () => {
       // Actualizamos el contexto solo con el objeto de usuario limpio
       setUser(updatedUser);
 
-      alert("Portfolio actualizado correctamente.");
+      showSuccess("Portfolio actualizado correctamente.");
 
     } catch (error) {
-      alert("Error al guardar el portfolio.");
+      showErrorModal("Error al guardar el portfolio.");
     }
   };
 
@@ -49,26 +51,7 @@ const ConfiguracionDashboard = () => {
     navigate('/hacerse-premium');
   };
 
-  // 3. Desvincular LinkedIn (Downgrade a Cliente)
-  const handleDisconnectLinkedin = async () => {
-    try {
-      // Eliminamos el link de LinkedIn y cambiamos el rol a 'cliente'
-      const response = await axios.put(
-        `${BASE_URL}/api/users/${user._id}`,
-        { role: "cliente", linkedin: "" },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      const updatedUser = response.data.user ? response.data.user : response.data;
-      setUser(updatedUser);
-      alert("Cambiado a perfil Cliente. Tu configuración de freelancer se ha guardado.");
-
-    } catch (error) {
-      alert("Error al cambiar el tipo de cuenta.");
-    }
-  };
-
-  // 4. Eliminar Cuenta
+  // 3. Eliminar Cuenta
   const handleDeleteAccount = async () => {
     try {
       await axios.delete(`${BASE_URL}/api/users/${user._id}`, {
@@ -79,7 +62,7 @@ const ConfiguracionDashboard = () => {
       navigate('/');
     } catch (error) {
       console.error(error);
-      alert('Error al eliminar la cuenta. Inténtalo de nuevo.');
+      showErrorModal('Error al eliminar la cuenta. Inténtalo de nuevo.');
     }
   };
 

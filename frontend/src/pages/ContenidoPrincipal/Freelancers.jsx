@@ -123,7 +123,8 @@ const Freelancers = () => {
             // Eliminamos el filtrado local de categorías.
             let matchesCategoria = true;
 
-            const matchesRating = (item.rating ?? 1) >= filterRating;
+            const ratingVal = item.rating ?? 1;
+            const matchesRating = filterRating === 0 || Math.floor(ratingVal) === filterRating;
             const matchesTarifa = (item.tarifa || 0) <= filterTarifaMax;
 
             return matchesSearch && matchesCategoria && matchesRating && matchesTarifa;

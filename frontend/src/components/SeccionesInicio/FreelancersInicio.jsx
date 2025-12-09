@@ -163,7 +163,7 @@ const FreelancersInicio = ({ data, title, subtitle, showPremiumBadge = true }) =
                                             </p>
                                             <div className="flex items-center gap-1">
                                                 <Star size={12} className="text-amber-400 fill-current" />
-                                                <span className="text-xs font-bold text-slate-300">{(user.rating || 1).toFixed(1)}</span>
+                                                <span className="text-xs font-bold text-slate-300">{Number(user.rating || 1).toFixed(1)}</span>
                                             </div>
                                         </div>
                                     </div>

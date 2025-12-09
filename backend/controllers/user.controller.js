@@ -409,7 +409,7 @@ export const getPremiumFreelancers = async (req, res) => {
       // Agregamos el rating calculado al objeto
       freelancerObj.calculatedRating = avgRating;
       // También aseguramos que el campo 'rating' (si se usa en el front) tenga este valor
-      freelancerObj.rating = avgRating.toFixed(1);
+      freelancerObj.rating = avgRating;
 
       return freelancerObj;
     });

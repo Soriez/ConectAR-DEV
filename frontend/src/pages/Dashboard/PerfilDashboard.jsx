@@ -281,7 +281,7 @@ const PerfilDashboard = () => {
                     title="Rating promedio"
                   >
                     <span className="font-bold text-slate-700 text-lg">
-                      {(user.rating || 1).toFixed(1)}
+                      {Number(user.rating || 1).toFixed(1)}
                     </span>
                     <div className="flex gap-0.5">{renderStars()}</div>
                   </div>

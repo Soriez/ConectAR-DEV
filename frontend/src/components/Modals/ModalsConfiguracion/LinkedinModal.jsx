@@ -1,10 +1,12 @@
 import { useContext } from 'react';
 import { X, Linkedin } from 'lucide-react';
 import { AuthContext } from '../../../context/AuthContext';
+import { useNotification } from '../../../context/NotificationContext';
 import axios from 'axios';
 
 const LinkedinModal = ({ show, onClose }) => {
     const { user, setUser, BASE_URL, token } = useContext(AuthContext);
+    const { showErrorModal, showSuccess } = useNotification();
 
     if (!show) return null;
 
@@ -23,11 +25,11 @@ const LinkedinModal = ({ show, onClose }) => {
 
                 const updatedUser = response.data.user ? response.data.user : response.data;
                 setUser(updatedUser);
-                alert("Cambiado a perfil Cliente. Tu configuración de freelancer se ha guardado.");
+                showSuccess("Cambiado a perfil Cliente. Tu configuración de freelancer se ha guardado.");
                 onClose();
             } catch (error) {
                 console.error(error);
-                alert("Error al desconectar la cuenta.");
+                showErrorModal("Error al desconectar la cuenta.");
             }
         } else {
             // Lógica para conectar (OAuth)

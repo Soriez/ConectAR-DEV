@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { X, Mail, Lock } from 'lucide-react';
+import { useNotification } from '../../context/NotificationContext';
 
 const EmailModal = ({ show, onClose, userEmail }) => {
     const [newEmail, setNewEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const { showSuccess, showErrorModal } = useNotification();
 
     if (!show) return null;
 
@@ -17,7 +19,7 @@ const EmailModal = ({ show, onClose, userEmail }) => {
         setTimeout(() => {
             setLoading(false);
             onClose();
-            alert("Correo actualizado correctamente");
+            showSuccess("Correo actualizado correctamente");
         }, 1500);
     };
 

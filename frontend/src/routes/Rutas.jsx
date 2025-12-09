@@ -24,6 +24,8 @@ import ConfiguracionDashboard from '../components/Dashboard/ConfiguracionDashboa
 import OpinionesDashboard from '../components/Dashboard/OpinionesDashboard'
 import UserToFreelancer from '../pages/Formulario/UserToFreelancer'
 import FreeToPremium from '../pages/Formulario/FreeToPremium'
+import AdminDashboard from '../pages/Dashboard/AdminDashboard'
+import AdminStats from '../components/Dashboard/AdminStats'
 
 // --- Imports de Guards ---
 import { OnlyNonFreelancers, OnlyStandardFreelancers, RequireFreelancer } from './RutasPrivadas';
@@ -89,6 +91,10 @@ const Rutas = () => {
                 }
             ]
         },
+
+        // --- ADMIN DASHBOARD ---
+        { path: '/admin', element: <AdminDashboard /> },
+        { path: '/admin/estadisticas', element: <AdminStats /> },
 
         // --- 404 NO ENCONTRADO ---
         { path: '*', element: <NoEncontrado /> },

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import axios from "axios";
 import { useAuth } from "../../context/useAuth";
@@ -356,12 +356,12 @@ const Perfil = () => {
                   Opiniones <span className="text-lg text-slate-500 font-medium ml-1">({reviews.length})</span>
                 </h2>
                 <div className="flex gap-2">
-                  {currentUser && (
+                  {currentUser && currentUser._id !== id && (
                     <button
                       onClick={() => setShowReviewModal(true)}
                       className="text-sm font-medium text-blue-400 hover:bg-slate-800 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-slate-700"
                     >
-                      + Agregar opinión
+                      Agregar opinión
                     </button>
                   )}
                   {reviews.length > 0 && (

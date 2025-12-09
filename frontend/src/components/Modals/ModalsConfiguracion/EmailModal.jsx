@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, Mail, Lock } from 'lucide-react';
 
 const EmailModal = ({ show, onClose, userEmail }) => {

@@ -1,34 +1,33 @@
-import React from 'react';
-import { Crown, X, Link as LinkIcon } from 'lucide-react';
+import { Crown, X } from 'lucide-react';
 
 const BecomeFreelancerModal = ({ show, onClose, data, setData, onSubmit }) => {
-    
+
     // Si la prop 'show' es falsa, no renderizamos nada
     if (!show) return null;
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            
+
             {/* Fondo oscuro para cerrar al hacer clic fuera */}
-            <div 
-                className="absolute inset-0" 
+            <div
+                className="absolute inset-0"
                 onClick={onClose}
             ></div>
-            
+
             {/* Contenedor del Modal */}
             <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl relative z-10 overflow-hidden animate-fade-in-up">
-                
+
                 {/* Header */}
                 <div className="bg-linear-to-r from-blue-600 to-blue-700 p-6 flex justify-between items-start text-white">
                     <div>
                         <h2 className="text-2xl font-bold flex items-center gap-2">
-                            <Crown className="text-yellow-300 fill-yellow-300" size={24} /> 
+                            <Crown className="text-yellow-300 fill-yellow-300" size={24} />
                             Modo Freelancer
                         </h2>
                         <p className="text-blue-100 text-sm mt-1">Completa tu perfil profesional para empezar.</p>
                     </div>
-                    <button 
-                        onClick={onClose} 
+                    <button
+                        onClick={onClose}
                         className="bg-white/20 hover:bg-white/30 p-1.5 rounded-full transition text-white"
                     >
                         <X size={20} />
@@ -38,7 +37,7 @@ const BecomeFreelancerModal = ({ show, onClose, data, setData, onSubmit }) => {
                 {/* Formulario */}
                 <div className="p-8">
                     <form onSubmit={onSubmit} className="space-y-5">
-                        
+
                         {/* 1. Descripción */}
                         <div>
                             <label className="block text-sm font-bold text-slate-700 mb-2">
@@ -53,7 +52,7 @@ const BecomeFreelancerModal = ({ show, onClose, data, setData, onSubmit }) => {
                                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-slate-700"
                             />
                         </div>
-                        
+
                         {/* 2. Tarifa */}
                         <div>
                             <label className="block text-sm font-bold text-slate-700 mb-2">

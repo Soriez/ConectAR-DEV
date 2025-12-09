@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Search, Filter, X, Check, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import FreelancerCard from '../../components/Cards/FreelancerCard';
 import FreelancersInicio from '../../components/SeccionesInicio/FreelancersInicio';

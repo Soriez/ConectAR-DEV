@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, Lock } from 'lucide-react';
 
 const PasswordModal = ({ show, onClose }) => {

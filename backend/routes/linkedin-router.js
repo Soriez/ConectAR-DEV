@@ -2,6 +2,7 @@ import express from 'express';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
+import User from '../models/user.model.js'; // Importar modelo de usuario
 const router = express.Router();
 
 // Helper para parsear cookies manualmente
@@ -101,28 +102,45 @@ router.get('/callback', async (req, res) => {
 
         const { access_token } = tokenResponse.data;
 
-        // 3. Obtener datos del usuario
+        // 3. Obtener datos del usuario de LinkedIn
         const userInfoResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
             headers: { 'Authorization': `Bearer ${access_token}` }
         });
 
         const userData = userInfoResponse.data;
+        const profileURL = userData.profile || `https://www.linkedin.com/in/${userData.sub}`; // Obtener URL de perfil
 
-        // 4. NO Actualizar Usuario en Base de Datos Automáticamente
-        // Pasamos el link obtenido como parámetro para pre-llenar o validar en el front.
+        // 4. Buscar usuario en base de datos
+        const user = await User.findById(userId);
 
-        const profileURL = userData.profile || `https://www.linkedin.com/in/${userData.sub}`;
+        if (!user) {
+            return res.status(404).send('Usuario no encontrado.');
+        }
 
+        // 5. Lógica condicional
+        // Si YA tiene portfolio y descripción, lo convertimos directamente
+        if (user.portfolio && user.descripcion) {
 
-        // 5. Redireccionar al formulario con parámetros de éxito
-        const form_hacerse_freelancer = FRONTEND_FORM_URL;
+            user.linkedin = profileURL;    // Guardamos LinkedIn
+            user.role = 'freelancer';      // Convertimos a freelancer
+            user.isDisponible = true;      // Nos aseguramos que esté disponible (opcional)
+
+            await user.save();
+
+            // Redireccionar al Dashboard o Perfil (Asumimos base URL desde el FRONTEND_FORM_URL)
+            // Si FRONTEND_FORM_URL es "http://localhost:5173/hacerse-freelancer", obtenemos "http://localhost:5173"
+            const frontendBaseUrl = new URL(FRONTEND_FORM_URL).origin;
+            return res.redirect(`${frontendBaseUrl}/dashboard?status=success_auto_freelancer`);
+        }
+
+        // 6. Si NO tiene los datos completos, flujo normal (redirigir al formulario)
 
         // Añadimos parámetros para que el frontend sepa que fue exitoso
-        const redirectUrl = `${form_hacerse_freelancer}?status=success&linkedin=${encodeURIComponent(profileURL)}`;
-
+        const redirectUrl = `${FRONTEND_FORM_URL}?status=success&linkedin=${encodeURIComponent(profileURL)}`;
         res.redirect(redirectUrl);
 
     } catch (error) {
+        console.error("Error en callback de LinkedIn:", error);
         res.status(500).send('Error al vincular cuenta de LinkedIn.');
     }
 });

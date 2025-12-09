@@ -8,18 +8,21 @@ import axios from 'axios';
 
 const Freelancers = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    // const initialEspecialidad = searchParams.get('especialidad') || 'Todas'; // No se usa en el render
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterCategoriaPrincipal, setFilterCategoriaPrincipal] = useState('Todas');
+    // Inicialización perezosa o directa basada en URL para evitar flash de "Todas"
+    const [filterCategoriaPrincipal, setFilterCategoriaPrincipal] = useState(searchParams.get('categoria') || 'Todas');
     const [filterCategoriaEspecifica, setFilterCategoriaEspecifica] = useState('Todas');
 
-    // Sincronizar filtro con URL si cambia externamente
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Sincronizar filtro con URL si cambia externamente (navegación por popstate o links)
     useEffect(() => {
         const currentCat = searchParams.get('categoria') || 'Todas';
-        setFilterCategoriaPrincipal(currentCat);
-        setFilterCategoriaEspecifica('Todas'); // Resetear subcategoría al cambiar la principal desde URL
-    }, [searchParams]);
+        if (currentCat !== filterCategoriaPrincipal) {
+            setFilterCategoriaPrincipal(currentCat);
+            setFilterCategoriaEspecifica('Todas'); // Resetear subcategoría al cambiar categoría principal
+        }
+    }, [searchParams, filterCategoriaPrincipal]);
 
     const [filterRating, setFilterRating] = useState(0);
     const [filterTarifaMax, setFilterTarifaMax] = useState(200000);
@@ -120,8 +123,17 @@ const Freelancers = () => {
             // Eliminamos el filtrado local de categorías.
             let matchesCategoria = true;
 
-            const matchesRating = (item.rating || 5) >= filterRating;
-            const matchesTarifa = (item.tarifa || 0) <= filterTarifaMax;
+            const ratingVal = item.rating ?? 1;
+            const matchesRating = filterRating === 0 || Math.floor(ratingVal) === filterRating;
+            let calculatedTariff = item.tarifa || 0;
+            if (item.servicios && item.servicios.length > 0) {
+                const prices = item.servicios.map(s => s.precio).filter(p => p !== undefined && p !== null);
+                if (prices.length > 0) {
+                    const sum = prices.reduce((acc, curr) => acc + curr, 0);
+                    calculatedTariff = sum / prices.length;
+                }
+            }
+            const matchesTarifa = calculatedTariff <= filterTarifaMax;
 
             return matchesSearch && matchesCategoria && matchesRating && matchesTarifa;
         });

@@ -187,7 +187,7 @@ const Perfil = () => {
 
   const averageRating = reviews.length > 0
     ? (reviews.reduce((acc, curr) => acc + (curr.puntuacion || curr.calificacion || 0), 0) / reviews.length).toFixed(1)
-    : "0.0";
+    : "1.0";
 
   // CAMBIO: Loading oscuro
   if (loading) {

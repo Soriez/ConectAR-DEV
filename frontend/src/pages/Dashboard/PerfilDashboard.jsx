@@ -206,7 +206,7 @@ const PerfilDashboard = () => {
   };
 
   const renderStars = () => {
-    const rating = user.rating || 5;
+    const rating = user.rating || 1;
     return [...Array(5)].map((_, index) => (
       <Star
         key={index}
@@ -281,7 +281,7 @@ const PerfilDashboard = () => {
                     title="Rating promedio"
                   >
                     <span className="font-bold text-slate-700 text-lg">
-                      5.0
+                      {Number(user.rating || 1).toFixed(1)}
                     </span>
                     <div className="flex gap-0.5">{renderStars()}</div>
                   </div>

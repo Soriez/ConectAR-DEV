@@ -52,7 +52,7 @@ const ServiciosInicio = () => {
               // Asumiendo que ServicioCard es flexible, aquí se verá bien sobre oscuro.
               <Link
                 key={card.title}
-                to={`/freelancers?especialidad=${encodeURIComponent(card.title)}`}
+                to={`/freelancers?categoria=${encodeURIComponent(card.title)}`}
                 className="transform hover:-translate-y-1 transition-transform duration-300 block"
               >
                 <ServicioCard data={card} />

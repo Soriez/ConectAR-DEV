@@ -125,7 +125,15 @@ const Freelancers = () => {
 
             const ratingVal = item.rating ?? 1;
             const matchesRating = filterRating === 0 || Math.floor(ratingVal) === filterRating;
-            const matchesTarifa = (item.tarifa || 0) <= filterTarifaMax;
+            let calculatedTariff = item.tarifa || 0;
+            if (item.servicios && item.servicios.length > 0) {
+                const prices = item.servicios.map(s => s.precio).filter(p => p !== undefined && p !== null);
+                if (prices.length > 0) {
+                    const sum = prices.reduce((acc, curr) => acc + curr, 0);
+                    calculatedTariff = sum / prices.length;
+                }
+            }
+            const matchesTarifa = calculatedTariff <= filterTarifaMax;
 
             return matchesSearch && matchesCategoria && matchesRating && matchesTarifa;
         });

@@ -247,17 +247,9 @@ const PerfilDashboard = () => {
 
 
 
-  const handleReapply = async () => {
-    try {
-      const res = await axios.post(`${BASE_URL}/api/users/reapply`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setUser(res.data);
-      showSuccess("Solicitud reenviada correctamente.");
-      setIsReapplyModalOpen(false);
-    } catch (error) {
-      showErrorModal("Error al reenviar solicitud.");
-    }
+  const handleReapply = () => {
+    navigate('/hacerse-freelancer');
+    setIsReapplyModalOpen(false);
   };
 
   return (
@@ -270,11 +262,11 @@ const PerfilDashboard = () => {
       {isReapplyModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
           <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 animate-scale-in">
-            <h3 className="text-xl font-bold text-slate-800 mb-3">Reenviar Solicitud</h3>
+            <h3 className="text-xl font-bold text-slate-800 mb-3">Corregir Solicitud</h3>
             <p className="text-slate-600 mb-6">
-              ¿Estás seguro de que deseas reenviar tu solicitud para ser revisada nuevamente?
+              Para reenviar tu solicitud, necesitas revisar y corregir los datos ingresados en el formulario.
               <br /><br />
-              <span className="text-sm text-slate-500 italic">Asegúrate de haber corregido los datos indicados en el motivo de rechazo desde la configuración.</span>
+              <span className="text-sm text-slate-500 italic">Serás redirigido al formulario de registro de freelancer.</span>
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -287,7 +279,7 @@ const PerfilDashboard = () => {
                 onClick={handleReapply}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition"
               >
-                Reenviar Solicitud
+                Ir al Formulario
               </button>
             </div>
           </div>
@@ -392,12 +384,12 @@ const PerfilDashboard = () => {
                 >
                   Revisar Solicitud
                 </button>
-                {/* Link auxiliar para ir a configuración si quieren editar antes */}
+                {/* Link auxiliar para ir contactate con nosotros */}
                 <button
-                  onClick={() => navigate('/dashboard/configuracion')}
+                  onClick={() => navigate('/contacto')}
                   className="text-xs text-red-600 hover:underline"
                 >
-                  Ir a Configuración
+                  Contactate con nosotros
                 </button>
               </div>
             </div>

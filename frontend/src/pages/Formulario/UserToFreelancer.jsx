@@ -73,6 +73,8 @@ const UserToFreelancer = () => {
       // Se envía role: 'pendiente' en lugar de 'freelancer'
       const { data } = await axios.put(`${BASE_URL}/api/users/hacerse-freelancer`, {
         role: 'pendiente',
+        estado: 'pendiente', // Enviamos explícitamente el estado pendiente
+        motivoRechazo: '',
         linkedin: cleanLinkedin,
         portfolio: cleanPortfolio,
         descripcion: formData.descripcion

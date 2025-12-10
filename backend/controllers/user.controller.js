@@ -237,13 +237,14 @@ export const updateUser = async (req, res) => {
 export const becomeFreelancer = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { linkedin, portfolio, descripcion } = req.body;
+    const { linkedin, portfolio, descripcion, role, estado, motivoRechazo } = req.body;
 
     if (!linkedin || !portfolio || !descripcion) {
       return res.status(400).json({ message: "Todos los campos son obligatorios para ser freelancer" });
     }
 
-    const updatedUser = await userService.convertirAFreelancer(userId, linkedin, portfolio, descripcion, 'pendiente');
+    // Pasamos el estado también
+    const updatedUser = await userService.convertirAFreelancer(userId, linkedin, portfolio, descripcion, role, motivoRechazo, estado);
 
     res.status(200).json(updatedUser);
 

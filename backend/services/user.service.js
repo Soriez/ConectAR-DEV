@@ -116,16 +116,30 @@ const buscarUsuarioSinPassword = async (decoded) => {
 // --- NUEVAS FUNCIONES DE ESTADO ---
 
 // 1. Convertir a Freelancer (con campos nuevos)
-const convertirAFreelancer = async (userId, linkedin, portfolio, descripcion, role) => {
+// 1. Convertir a Freelancer (con campos nuevos)
+const convertirAFreelancer = async (userId, linkedin, portfolio, descripcion, role, motivo, estado) => {
+    // Usamos findByIdAndUpdate para una actualización atómica y segura
+    const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+            $set: {
+                linkedin: linkedin,
+                portfolio: portfolio,
+                descripcion: descripcion,
+                role: role,
+                estado: estado,
+                motivoRechazo: motivo
+            }
+        },
+        { new: true, runValidators: true }
+    ).select('-password');
 
-    // Usamos findById y save() en lugar de findByIdAndUpdate para asegurar que se guarden los cambios
-    const user = await User.findById(userId);
-    const userSaved = await user.save();
 
-    const userJson = userSaved.toJSON();
-    delete userJson.password;
+    if (!updatedUser) {
+        throw new Error('Usuario no encontrado al intentar convertir a freelancer');
+    }
 
-    return userJson;
+    return updatedUser.toJSON();
 };
 
 // 2. Cambiar Disponibilidad (Disponible / Ocupado)

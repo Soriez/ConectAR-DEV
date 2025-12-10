@@ -21,10 +21,15 @@ import {
     getFreelancersByMainCategory,
     getFreelancersBySpecificCategory,
     deleteUser,
-    cancelFreelancerRequest
+    cancelFreelancerRequest,
+    rejectUser,
+    approveUser,
+    reapplyUser
 } from '../controllers/user.controller.js';
 
 const router = express.Router();
+
+
 // --- Definimos las rutas CRUD ---
 
 // (C) CREATE - Crear un usuario (Registro)
@@ -85,10 +90,19 @@ router.put('/:id/skills', protect, actualizarSkillsUser);
 // Petición DELETE a /api/users/:id
 router.delete('/:id', protect, deleteUser);
 
+// (U) UPDATE - Rechazar un usuario
+router.put('/:id/reject', protect, rejectUser);
+
+// (U) UPDATE - Aprobar un usuario
+router.put('/:id/approve', protect, approveUser);
+
 // --- ESTADÍSTICAS ---
 router.put('/:id/visitas', incrementVisit);
 router.put('/:id/linkedin', incrementLinkedinAccess);
 router.put('/:id/portfolio', incrementPortfolioAccess);
+
+// (U) UPDATE - Reenviar Solicitud (Reaplicar)
+router.post('/reapply', protect, reapplyUser);
 
 // 2. Exportamos el router para que server.js pueda usarlo
 export default router;

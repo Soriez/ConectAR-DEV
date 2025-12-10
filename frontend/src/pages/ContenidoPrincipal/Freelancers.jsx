@@ -322,18 +322,22 @@ const Freelancers = () => {
                                 {/* CAMBIO: Slider track oscuro */}
                                 <input
                                     type="range"
-                                    min="1"
+                                    min="0"
                                     max="200000"
                                     step="1000"
                                     value={filterTarifaMax}
-                                    onChange={(e) => { setFilterTarifaMax(Number(e.target.value)); setCurrentPage(1); }}
+                                    onChange={(e) => {
+                                        const val = Number(e.target.value);
+                                        setFilterTarifaMax(val === 0 ? 1 : val);
+                                        setCurrentPage(1);
+                                    }}
                                     className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                 />
                             </div>
 
                             {/* Rating */}
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Calificación Mínima</label>
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Calificación Maxima</label>
                                 <div className="flex flex-col gap-1">
                                     {[5, 4, 3, 2, 1].map(stars => (
                                         <button

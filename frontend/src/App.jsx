@@ -12,22 +12,22 @@ const App = () => {
     // true = usuario
     // false = visitante
 
-   // Obtenemos la ruta actual
+    // Obtenemos la ruta actual
     const location = useLocation();
-    
-    // Verificamos si estamos dentro del dashboard
-    // Si la ruta empieza con "/dashboard", es true.
-    const isDashboard = location.pathname.startsWith('/dashboard');
+
+    // Verificamos si estamos dentro del dashboard (Usuario o Admin)
+    // Si la ruta empieza con "/dashboard" o "/admin", ocultamos Nav y Footer.
+    const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin');
 
     return (
         <div className="flex flex-col min-h-screen">
             {/* Solo mostramos NavBar si NO es dashboard */}
-            {!isDashboard && <NavBar isLoggedIn={isLoggedIn}/>}
+            {!isDashboard && <NavBar isLoggedIn={isLoggedIn} />}
             <ScrollToTop />
 
-           <main className={isDashboard ? "" : "flex-1"}> 
+            <main className={isDashboard ? "" : "flex-1"}>
                 {/* Si es dashboard, quitamos flex-1 del main principal para que no choque con el layout interno */}
-                <Rutas/>
+                <Rutas />
             </main>
 
             {/* Solo mostramos Footer si NO es dashboard */}

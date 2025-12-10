@@ -86,9 +86,9 @@ const DesktopNavBar = ({ isLoggedIn, user }) => {
                 )}
 
                 {/* 2. Dashboard */}
-                <NavLink to="/dashboard" onClick={() => setIsMenuOpen(false)} className={itemClass}>
+                <NavLink to={user?.role === 'admin' ? '/admin' : '/dashboard'} onClick={() => setIsMenuOpen(false)} className={itemClass}>
                   <LayoutDashboard size={18} className={iconClass} />
-                  <span className="font-medium text-sm">Mi Panel de Control</span>
+                  <span className="font-medium text-sm">{user?.role === 'admin' ? 'Panel de Administrador' : 'Mi Panel de Control'}</span>
                 </NavLink>
 
                 {/* 3. Ayuda */}

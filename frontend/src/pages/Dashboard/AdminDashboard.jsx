@@ -44,7 +44,7 @@ const AdminDashboard = () => {
                 // Nota: Antes filtrábamos clientes, pero ahora 'pendiente' es el rol específico para freelancers esperando aprobación.
                 // Si quieres incluir TAMBIÉN clientes nuevos, tendrías que ver cómo se diferencian.
                 // Asumimos que 'pendiente' son los que requieren acción.
-                const pendingUsers = users.filter(u => u.role === 'pendiente' && u.estado !== 'rechazado').map(u => ({
+                const pendingUsers = users.filter(u => u.role === 'pendiente' && u.estado !== 'rechazado' && u.role !== 'cliente' && u.role !== 'admin').map(u => ({
                     id: u._id,
                     name: `${u.nombre} ${u.apellido}`,
                     email: u.email,

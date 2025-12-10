@@ -71,6 +71,7 @@ const PerfilDashboard = () => {
   // Hook 6: Estado para el modal de LinkedIn
   const [showLinkedinModal, setShowLinkedinModal] = useState(false);
   const [showCancelRequestModal, setShowCancelRequestModal] = useState(false);
+  const [isReapplyModalOpen, setIsReapplyModalOpen] = useState(false); // Hook 7: Estado para el modal de reenvío
 
   // 4. Cancelar Solicitud de Freelancer
   const handleCancelRequest = async () => {

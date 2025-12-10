@@ -142,9 +142,9 @@ const NavBar = () => {
                                     </NavLink>
                                 )}
 
-                                <NavLink to="/dashboard" onClick={() => setActiva(false)} className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl transition-all group">
+                                <NavLink to={user?.role === 'admin' ? '/admin' : '/dashboard'} onClick={() => setActiva(false)} className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl transition-all group">
                                     <LayoutDashboard size={20} className="text-blue-500 group-hover:text-white transition-colors" />
-                                    <span className="font-medium">Panel de Control</span>
+                                    <span className="font-medium">{user?.role === 'admin' ? 'Panel de Admin' : 'Panel de Control'}</span>
                                 </NavLink>
 
                                 <NavLink to="/contacto" onClick={() => setActiva(false)} className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl transition-all group">

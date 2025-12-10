@@ -8,6 +8,7 @@ import {
   User as UserIcon,
   Crown,
   Lock,
+  AlertTriangle,
 } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import { useNotification } from "../../context/NotificationContext";
@@ -123,7 +124,7 @@ const PerfilDashboard = () => {
   }
 
   // Variables de conveniencia (AHORA es seguro acceder a user.*)
-  const isFreelancer = user.role === 'freelancer';
+  const isFreelancer = user.role === 'freelancer' || user.role === 'premium';
   const isPremium = user.plan === 'premium';
   const handleSelectTech = (tech) => {
     if (technologies.length < 5) {
@@ -219,17 +220,56 @@ const PerfilDashboard = () => {
     ));
   };
 
+  const [isReapplyModalOpen, setIsReapplyModalOpen] = useState(false);
+
+  const handleReapply = async () => {
+    try {
+      const res = await axios.post(`${BASE_URL}/api/users/reapply`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser(res.data);
+      showSuccess("Solicitud reenviada correctamente.");
+      setIsReapplyModalOpen(false);
+    } catch (error) {
+      showErrorModal("Error al reenviar solicitud.");
+    }
+  };
+
   return (
-    <div className="animate-fade-in-up">
+    <div className="animate-fade-in-up relative">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-slate-800">Mi Perfil</h1>
-        {/* {isFreelancer && (
-          <button className="text-sm text-blue-600 hover:underline font-medium">
-            Editar Perfil Público
-          </button>
-        )} */}
       </div>
 
+      {/* MODAL DE CONFIRMACIÓN DE REENVÍO */}
+      {isReapplyModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 animate-scale-in">
+            <h3 className="text-xl font-bold text-slate-800 mb-3">Reenviar Solicitud</h3>
+            <p className="text-slate-600 mb-6">
+              ¿Estás seguro de que deseas reenviar tu solicitud para ser revisada nuevamente?
+              <br /><br />
+              <span className="text-sm text-slate-500 italic">Asegúrate de haber corregido los datos indicados en el motivo de rechazo desde la configuración.</span>
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsReapplyModalOpen(false)}
+                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleReapply}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition"
+              >
+                Reenviar Solicitud
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RESTO DEL CONTENIDO */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* COLUMNA PRINCIPAL */}
         <div className="lg:col-span-2 space-y-6">
@@ -296,6 +336,48 @@ const PerfilDashboard = () => {
               )}
             </div>
           </div>
+
+          {/* AVISO DE RECHAZO */}
+          {user.estado === 'rechazado' && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-6 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+              <div className="flex gap-4">
+                <div className="p-3 bg-red-100 rounded-full h-fit text-red-600">
+                  <AlertTriangle size={24} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-red-700 text-lg mb-1">Solicitud Rechazada</h3>
+                  <p className="text-red-600 text-sm mb-2">
+                    Tu solicitud para ser freelancer no fue aprobada.
+                  </p>
+                  {user.motivoRechazo && (
+                    <p className="text-red-800 text-sm italic bg-red-100/50 p-2 rounded-lg border border-red-100">
+                      "Motivo: {user.motivoRechazo}"
+                    </p>
+                  )}
+                  <p className="text-slate-600 text-sm mt-2">
+                    Por favor, completa correctamente todos tus datos y vuelve a intentarlo.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                {/* Botón para abrir modal de reenvío */}
+                <button
+                  onClick={() => setIsReapplyModalOpen(true)}
+                  className="whitespace-nowrap px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-sm transition-colors text-sm"
+                >
+                  Revisar Solicitud
+                </button>
+                {/* Link auxiliar para ir a configuración si quieren editar antes */}
+                <button
+                  onClick={() => navigate('/dashboard/configuracion')}
+                  className="text-xs text-red-600 hover:underline"
+                >
+                  Ir a Configuración
+                </button>
+              </div>
+            </div>
+          )}
+
 
           {/* 2. Sección de Descripción y Links (Solo Freelancers) */}
           {isFreelancer && (

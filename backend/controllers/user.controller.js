@@ -483,3 +483,34 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ message: "Error al eliminar el usuario", error: error.message });
   }
 };
+
+export const rejectUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { motivo } = req.body;
+    const rejectedUser = await userService.rechazarUsuario(id, motivo);
+    res.status(200).json(rejectedUser);
+  } catch (error) {
+    res.status(500).json({ message: "Error al rechazar el usuario", error: error.message });
+  }
+};
+
+export const approveUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const approvedUser = await userService.aprobarUsuario(id);
+    res.status(200).json(approvedUser);
+  } catch (error) {
+    res.status(500).json({ message: "Error al aprobar el usuario", error: error.message });
+  }
+};
+
+export const reapplyUser = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await userService.reaplicarUsuario(userId);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Error al reenviar solicitud", error: error.message });
+  }
+};

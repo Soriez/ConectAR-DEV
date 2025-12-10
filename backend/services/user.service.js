@@ -1,9 +1,9 @@
-// funciones que se usarán en user.controller.js para que el controlador no maneje lógica y quede todo bien modularizado y bien distribuidas las responsabilidades
-
 import User from "../models/user.model.js";
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import mongoose from "mongoose";
+
+
 
 //Función para obtener todos los usuarios que hay en la base de datos
 const obtenerTodosLosUsuarios = async () => {
@@ -36,10 +36,16 @@ const guardarUsuario = async (nombre, apellido, email, password, role, saltRound
 
     const hashedPassword = await hashearPassword(password, saltRounds)
 
+    // Si se intenta registrar como freelancer, forzamos el rol 'pendiente'
+    let userRole = role || 'cliente';
+    if (userRole === 'freelancer') {
+        userRole = 'pendiente';
+    }
+
     const newUser = new User({
         nombre, apellido, email,
         password: hashedPassword,
-        role: role || 'cliente'
+        role: userRole,
     })
 
     const usuarioGuardado = await newUser.save()
@@ -97,9 +103,7 @@ const obtenerFreelancers = async (filter = {}) => {
 // Función para obtener freelancers premium
 const obtenerFreelancersPremium = async () => {
     const freelancers = await User.find({
-        plan: 'premium',
-        isDisponible: true,
-        role: 'freelancer'
+        role: 'premium' // Buscamos por ROL premium ahora
     }).populate('opiniones');
     return freelancers;
 };
@@ -116,18 +120,6 @@ const convertirAFreelancer = async (userId, linkedin, portfolio, descripcion, ro
 
     // Usamos findById y save() en lugar de findByIdAndUpdate para asegurar que se guarden los cambios
     const user = await User.findById(userId);
-
-    if (!user) {
-        throw new Error('Usuario no encontrado al intentar convertir a freelancer');
-    }
-
-    // Actualizamos los campos manualmente
-    user.role = role || 'freelancer';
-    user.linkedin = linkedin;
-    user.portfolio = portfolio;
-    user.descripcion = descripcion;
-
-    // Guardamos el usuario actualizado
     const userSaved = await user.save();
 
     const userJson = userSaved.toJSON();
@@ -162,10 +154,8 @@ const convertirAPremium = async (userId, plan) => {
 
     user.plan = plan;
 
-    // Aseguramos que sea freelancer al hacerse premium
-    if (user.role !== 'freelancer') {
-        user.role = 'freelancer';
-    }
+    // Si se convierte a premium, actualizamos el ROL a 'premium'
+    user.role = 'premium'; // NUEVO REQUERIMIENTO: Premium es un rol
 
     const userSaved = await user.save();
 
@@ -318,6 +308,49 @@ const eliminarUsuario = async (userId) => {
     return deletedUser;
 };
 
+// Rechazar usuario (Actualizar estado a rechazado)
+const rechazarUsuario = async (userId, motivo) => {
+    console.log(`Rechazando usuario ${userId} con motivo: ${motivo}`);
+    const user = await User.findByIdAndUpdate(
+        userId,
+        { $set: { estado: 'rechazado', role: 'cliente', motivoRechazo: motivo } },
+        { new: true }
+    );
+    console.log("Usuario rechazado resultado:", user);
+    return user;
+};
+
+// Aprobar usuario (Convertir a Freelancer)
+const aprobarUsuario = async (userId) => {
+    const user = await User.findById(userId);
+    if (!user) throw new Error('Usuario no encontrado');
+
+    user.estado = 'aprobado';
+    // Si era pendiente, pasa a freelancer (o premium si ya tenía plan, pero asumimos freelancer base)
+    if (user.role === 'pendiente') {
+        user.role = 'freelancer';
+    }
+
+    await user.save();
+    return user;
+};
+
+// Reaplicar usuario (Volver a pendiente)
+const reaplicarUsuario = async (userId) => {
+    const user = await User.findByIdAndUpdate(
+        userId,
+        {
+            $set: {
+                estado: 'pendiente',
+                role: 'pendiente',
+                motivoRechazo: null // Limpiamos el motivo anterior
+            }
+        },
+        { new: true }
+    );
+    return user;
+};
+
 export default {
     obtenerTodosLosUsuarios,
     usuarioExiste,
@@ -338,5 +371,8 @@ export default {
     incrementarPortfolio,
     obtenerFreelancersPorCategoria,
     obtenerFreelancersPorSubCategoria,
-    eliminarUsuario
+    eliminarUsuario,
+    rechazarUsuario,
+    aprobarUsuario,
+    reaplicarUsuario
 }

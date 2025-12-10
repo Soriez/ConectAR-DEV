@@ -11,9 +11,15 @@ const userSchema = new Schema({
   // --- Rol y Estado ---
   role: {
     type: String,
-    enum: ['cliente', 'freelancer'],
+    enum: ['cliente', 'freelancer', 'pendiente', 'premium', 'admin', 'rechazado'],
     default: 'cliente'
   },
+  estado: {
+    type: String,
+    enum: ['pendiente', 'aprobado', 'rechazado'],
+    default: 'pendiente'
+  },
+  motivoRechazo: { type: String },
 
   // Para la pasarela de pago y ordenamiento
   plan: {

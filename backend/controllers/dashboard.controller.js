@@ -1,7 +1,7 @@
 import userService from '../services/user.service.js';
 import opinionService from '../services/opinion.service.js';
 import servicioService from '../services/servicio.service.js';
-import SiteStats from '../models/siteStats.model.js';
+import SiteStats from '../models/SiteStats.model.js';
 
 
 // ! GET /api/dashboard

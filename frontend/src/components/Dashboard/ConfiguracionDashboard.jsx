@@ -1,6 +1,6 @@
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router';
-import { ChevronRight, Mail, Lock, Linkedin, Briefcase, Link as LinkIcon, Crown, Trash2 } from 'lucide-react';
+import { ChevronRight, Mail, Lock, Linkedin, Briefcase, Link as LinkIcon, Crown, Trash2, Clock } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext'; // Importar contexto
 import { useNotification } from '../../context/NotificationContext';
 import axios from 'axios';
@@ -19,6 +19,7 @@ const ConfiguracionDashboard = () => {
   const [showLinkedinModal, setShowLinkedinModal] = useState(false);
   const [showPortfolioModal, setShowPortfolioModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCancelRequestModal, setShowCancelRequestModal] = useState(false);
 
   // Helpers
   const isFreelancer = user?.role === 'freelancer';
@@ -63,6 +64,23 @@ const ConfiguracionDashboard = () => {
     } catch (error) {
       console.error(error);
       showErrorModal('Error al eliminar la cuenta. Inténtalo de nuevo.');
+    }
+  };
+
+  // 4. Cancelar Solicitud de Freelancer
+  const handleCancelRequest = async () => {
+    try {
+      const { data } = await axios.put(`${BASE_URL}/api/users/cancelar-solicitud/${user._id}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // Asegurar que usamos el objeto de usuario correcto
+      const updatedUser = data.user || data;
+      setUser(updatedUser);
+      showSuccess("Solicitud cancelada correctamente");
+      setShowCancelRequestModal(false);
+    } catch (error) {
+      console.error(error);
+      showErrorModal("Error al cancelar la solicitud");
     }
   };
 
@@ -174,13 +192,24 @@ const ConfiguracionDashboard = () => {
         <div className="mb-8">
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 ml-1">Oportunidades</h3>
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <ConfigItem
-              title="Convertirse en Freelancer"
-              subtitle="Empieza a vender tus servicios hoy"
-              icon={<Briefcase size={18} />}
-              actionLabel="Empezar"
-              onClick={() => setShowLinkedinModal(true)}
-            />
+            {user.role === 'pendiente' ? (
+              <ConfigItem
+                title="Convertirse en Freelancer"
+                subtitle="Solicitud Pendiente de Revisión"
+                icon={<Clock size={18} className="text-orange-500" />}
+                actionLabel="Cancelar Petición"
+                isDestructive={true}
+                onClick={() => setShowCancelRequestModal(true)}
+              />
+            ) : (
+              <ConfigItem
+                title="Convertirse en Freelancer"
+                subtitle="Empieza a vender tus servicios hoy"
+                icon={<Briefcase size={18} />}
+                actionLabel="Empezar"
+                onClick={() => setShowLinkedinModal(true)}
+              />
+            )}
           </div>
         </div>
       )}
@@ -221,6 +250,16 @@ const ConfiguracionDashboard = () => {
         message="Estás a punto de eliminar tu cuenta. Todos tus datos, servicios y configuraciones se perderán de forma permanente y no podrán recuperarse. Sin embargo, siempre serás bienvenido si decides registrarte nuevamente en el futuro."
         confirmText="Sí, eliminar mi cuenta"
         cancelText="Cancelar"
+      />
+
+      <ConfirmationModal
+        isOpen={showCancelRequestModal}
+        onClose={() => setShowCancelRequestModal(false)}
+        onConfirm={handleCancelRequest}
+        title="¿Cancelar solicitud de Freelancer?"
+        message="Si cancelas la solicitud, tu perfil volverá a ser de cliente y se borrarán los datos de freelancer ingresados. Podrás volver a enviar la solicitud cuando quieras."
+        confirmText="Sí, cancelar solicitud"
+        cancelText="No, mantener"
       />
 
     </div>

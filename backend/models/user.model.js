@@ -11,7 +11,7 @@ const userSchema = new Schema({
   // --- Rol y Estado ---
   role: {
     type: String,
-    enum: ['cliente', 'freelancer'],
+    enum: ['cliente', 'freelancer', 'pendiente'],
     default: 'cliente'
   },
 

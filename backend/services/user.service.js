@@ -151,6 +151,29 @@ const cambiarDisponibilidad = async (userId, estado) => {
     return userUpdate.toJSON();
 };
 
+const cancelarSolicitudFreelancer = async (userId) => {
+    // 1. Buscamos el usuario (instancia de Mongoose)
+    const user = await User.findById(userId);
+    console.log(user);
+    if (!user) {
+        throw new Error('Usuario no encontrado');
+    }
+
+    // 2. Modificamos las propiedades directamente
+    user.role = 'cliente';
+    user.linkedin = "";
+    user.portfolio = "";
+    user.descripcion = "";
+
+    // 3. Guardamos los cambios. Esto dispara validaciones y middleware de Mongoose.
+    const updatedUser = await user.save();
+
+    // 4. Retornamos el objeto limpio
+    const userJson = updatedUser.toJSON();
+    delete userJson.password;
+    return userJson;
+};
+
 // 3. Convertir a Premium
 const convertirAPremium = async (userId, plan) => {
     // Usamos findById y save()
@@ -338,5 +361,6 @@ export default {
     incrementarPortfolio,
     obtenerFreelancersPorCategoria,
     obtenerFreelancersPorSubCategoria,
-    eliminarUsuario
+    eliminarUsuario,
+    cancelarSolicitudFreelancer
 }

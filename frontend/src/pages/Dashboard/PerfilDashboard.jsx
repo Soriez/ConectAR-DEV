@@ -8,11 +8,13 @@ import {
   User as UserIcon,
   Crown,
   Lock,
+  Clock
 } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import { useNotification } from "../../context/NotificationContext";
 import axios from "axios";
 import LinkedinModal from "../../components/Modals/ModalsConfiguracion/LinkedinModal"; // Importar Modal
+import ConfirmationModal from "../../components/Modals/ConfirmationModal";
 
 // Lista preestablecida de tecnologías (si fallara la carga del backend)
 const FALLBACK_TECHS = ["React", "NodeJS", "MongoDB", "JavaScript"];
@@ -67,6 +69,28 @@ const PerfilDashboard = () => {
 
   // Hook 6: Estado para el modal de LinkedIn
   const [showLinkedinModal, setShowLinkedinModal] = useState(false);
+  const [showCancelRequestModal, setShowCancelRequestModal] = useState(false);
+
+  // 4. Cancelar Solicitud de Freelancer
+  const handleCancelRequest = async () => {
+    try {
+      const { data } = await axios.put(`${BASE_URL}/api/users/cancelar-solicitud/${user._id}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      console.log("Respuesta Cancelar:", data);
+
+      // Asegurar que usamos el objeto de usuario correcto
+      const updatedUser = data.user || data;
+      console.log("Usuario Actualizado:", updatedUser);
+
+      setUser(updatedUser);
+      showSuccess("Solicitud cancelada correctamente");
+      setShowCancelRequestModal(false);
+    } catch (error) {
+      console.error(error);
+      showErrorModal("Error al cancelar la solicitud");
+    }
+  };
 
   // 2. EFECTO: Sincronizar 'technologies' con 'user.skills' cuando el usuario carga
   useEffect(() => {
@@ -420,18 +444,39 @@ const PerfilDashboard = () => {
         {/* COLUMNA DERECHA: Stats o CTA */}
         <div className="space-y-6">
           {!isFreelancer && (
-            <div className="bg-linear-to-br from-blue-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg">
-              <h3 className="font-bold text-xl mb-2">¿Eres Desarrollador?</h3>
-              <p className="text-blue-100 text-sm mb-4">
-                Convierte tu cuenta a perfil Freelancer y comienza a ofrecer tus
-                servicios hoy mismo.
-              </p>
-              <button
-                onClick={() => setShowLinkedinModal(true)}
-                className="w-full bg-white text-blue-700 font-bold py-2 rounded-lg hover:bg-blue-50 transition shadow-sm"
-              >
-                Convertirme en Freelancer
-              </button>
+            <div className={`bg-linear-to-br transition-all duration-300 rounded-xl p-6 text-white shadow-lg ${user.role === 'pendiente' ? 'from-orange-500 to-orange-600' : 'from-blue-600 to-indigo-700'
+              }`}>
+              {user.role === 'pendiente' ? (
+                <>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock size={24} className="text-white animate-pulse" />
+                    <h3 className="font-bold text-xl">Solicitud Pendiente</h3>
+                  </div>
+                  <p className="text-orange-100 text-sm mb-4">
+                    Estamos revisando tu perfil. Pronto recibirás una notificación sobre el estado de tu solicitud.
+                  </p>
+                  <button
+                    onClick={() => setShowCancelRequestModal(true)}
+                    className="w-full bg-white/20 hover:bg-white/30 text-white font-bold py-2 rounded-lg transition shadow-sm border border-white/40"
+                  >
+                    Cancelar Petición
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 className="font-bold text-xl mb-2">¿Eres Desarrollador?</h3>
+                  <p className="text-blue-100 text-sm mb-4">
+                    Convierte tu cuenta a perfil Freelancer y comienza a ofrecer tus
+                    servicios hoy mismo.
+                  </p>
+                  <button
+                    onClick={() => setShowLinkedinModal(true)}
+                    className="w-full bg-white text-blue-700 font-bold py-2 rounded-lg hover:bg-blue-50 transition shadow-sm"
+                  >
+                    Convertirme en Freelancer
+                  </button>
+                </>
+              )}
             </div>
           )}
           {/* Stats simples */}
@@ -512,6 +557,17 @@ const PerfilDashboard = () => {
         baseUrl={BASE_URL}
         token={token}
         onDisconnect={handleDisconnectLinkedin}
+      />
+
+      {/* Modal de confirmación para cancelar solicitud */}
+      <ConfirmationModal
+        isOpen={showCancelRequestModal}
+        onClose={() => setShowCancelRequestModal(false)}
+        onConfirm={handleCancelRequest}
+        title="¿Cancelar solicitud de Freelancer?"
+        message="Si cancelas la solicitud, tu perfil volverá a ser de cliente y se borrarán los datos de freelancer ingresados. Podrás volver a enviar la solicitud cuando quieras."
+        confirmText="Sí, cancelar solicitud"
+        cancelText="No, mantener"
       />
     </div>
   );

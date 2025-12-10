@@ -237,19 +237,39 @@ export const updateUser = async (req, res) => {
 export const becomeFreelancer = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { linkedin, portfolio, descripcion, role } = req.body;
+    const { linkedin, portfolio, descripcion } = req.body;
 
     if (!linkedin || !portfolio || !descripcion) {
       return res.status(400).json({ message: "Todos los campos son obligatorios para ser freelancer" });
     }
 
-    const updatedUser = await userService.convertirAFreelancer(userId, linkedin, portfolio, descripcion, role);
+    const updatedUser = await userService.convertirAFreelancer(userId, linkedin, portfolio, descripcion, 'pendiente');
 
     res.status(200).json(updatedUser);
 
 
   } catch (error) {
     res.status(500).json({ message: "Error al convertir a freelancer", error: error.message });
+  }
+};
+
+// ! PUT /api/users/cancelar-solicitud/:id
+export const cancelFreelancerRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const authenticatedUserId = req.user._id.toString();
+
+    // Verificación de seguridad: Coincidencia del ID
+    if (id !== authenticatedUserId) {
+      return res.status(403).json({ message: "No tienes permiso para cancelar esta solicitud." });
+    }
+
+    const updatedUser = await userService.cancelarSolicitudFreelancer(id);
+    console.log("Solicitud cancelada para usuario:", updatedUser._id);
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("Error en cancelFreelancerRequest:", error);
+    res.status(500).json({ message: "Error al cancelar la solicitud", error: error.message });
   }
 };
 

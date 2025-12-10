@@ -20,7 +20,8 @@ import {
     incrementPortfolioAccess,
     getFreelancersByMainCategory,
     getFreelancersBySpecificCategory,
-    deleteUser
+    deleteUser,
+    cancelFreelancerRequest
 } from '../controllers/user.controller.js';
 
 const router = express.Router();
@@ -65,6 +66,9 @@ router.put('/:id', protect, updateUser);
 // (U) UPDATE - Convertirse en Freelancer
 // PUT a /api/users/become-freelancer
 router.put('/hacerse-freelancer', protect, becomeFreelancer);
+
+// (U) UPDATE - Cancelar solicitud Freelancer
+router.put('/cancelar-solicitud/:id', protect, cancelFreelancerRequest);
 
 // (U) UPDATE - Cambiar Disponibilidad
 // PUT a /api/users/availability

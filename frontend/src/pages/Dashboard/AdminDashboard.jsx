@@ -77,6 +77,12 @@ const AdminDashboard = () => {
         fetchUsers();
     }, [BASE_URL]);
 
+    const handleRejectClick = (user) => {
+        setUserToReject(user);
+        setRejectionReason(""); // Reset reason
+        setIsRejectModalOpen(true);
+    };
+
     const confirmReject = async () => {
         if (!userToReject) return;
 
@@ -86,33 +92,7 @@ const AdminDashboard = () => {
                 { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
             );
 
-            // --- Enviar Notificación de Rechazo por EmailJS ---
-            const templateParams = {
-                to_email: userToReject.email,
-                to_name: userToReject.name,
-                reply_to: "soporte@conectar.com",
 
-                // Asumiendo que la plantilla usa estas variables
-                title: "Actualización sobre tu solicitud en ConectAR",
-                message: `Hola ${userToReject.name}, lamentamos informarte que tu solicitud para ser perfil Freelancer ha sido rechazada.\n\nMotivo: ${rejectionReason}\n\nPor favor, ingresa a tu panel de control, revisa y completa tus datos correctamente para realizar una nueva solicitud.`,
-                email: userToReject.email,
-                name: userToReject.name
-            };
-
-            try {
-                if (userToReject.email) {
-                    await emailjs.send(
-                        YOUR_SERVICE_ID,
-                        YOUR_TEMPLATE_ID,
-                        templateParams,
-                        YOUR_PUBLIC_KEY
-                    );
-                    console.log("Notificación de rechazo enviada.");
-                }
-            } catch (emailError) {
-                console.error("Error al enviar email de rechazo:", emailError);
-            }
-            // ------------------------------------------------
 
             // Update UI
             setPendingProfiles(prev => prev.filter(p => p.id !== userToReject.id));
@@ -130,12 +110,12 @@ const AdminDashboard = () => {
 
         } catch (error) {
             console.error("Error rejecting user:", error);
-            alert("Error al rechazar usuario.");
+            // alert("Error al rechazar usuario."); // Removed Alert
         }
     };
 
     const handleApproveClick = async (user) => {
-        if (!window.confirm(`¿Aprobar a ${user.name}?`)) return;
+        // if (!window.confirm(`¿Aprobar a ${user.name}?`)) return; // Removed Confirmation
 
         try {
             await axios.put(`${BASE_URL}/api/users/${user.id}/approve`, {}, {
@@ -159,11 +139,11 @@ const AdminDashboard = () => {
                 freelancers: [newFreelancer, ...prev.freelancers]
             }));
 
-            alert(`Usuario ${user.name} aprobado exitosamente.`);
+            // alert(`Usuario ${user.name} aprobado exitosamente.`); // Removed Success Alert
 
         } catch (error) {
             console.error("Error approving user:", error);
-            alert("Error al aprobar la solicitud.");
+            // alert("Error al aprobar la solicitud."); // Removed Error Alert
         }
     };
 
@@ -204,10 +184,10 @@ const AdminDashboard = () => {
                                 className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all"
                             >
                                 <option value="" disabled>Selecciona una opción...</option>
-                                <option value="Incomplete Info">Información incompleta</option>
-                                <option value="Inappropriate Content">Contenido inapropiado</option>
-                                <option value="Spam">Es Spam / Bot</option>
-                                <option value="Other">Otro motivo</option>
+                                <option value="Información incompleta">Información incompleta</option>
+                                <option value="Contenido inapropiado">Contenido inapropiado</option>
+                                <option value="Es Spam / Bot">Es Spam / Bot</option>
+                                <option value="Otro motivo">Otro motivo</option>
                             </select>
                         </div>
 

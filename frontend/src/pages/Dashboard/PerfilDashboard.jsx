@@ -68,6 +68,7 @@ const PerfilDashboard = () => {
 
   // Hook 6: Estado para el modal de LinkedIn
   const [showLinkedinModal, setShowLinkedinModal] = useState(false);
+  const [isReapplyModalOpen, setIsReapplyModalOpen] = useState(false);
 
   // 2. EFECTO: Sincronizar 'technologies' con 'user.skills' cuando el usuario carga
   useEffect(() => {
@@ -220,7 +221,7 @@ const PerfilDashboard = () => {
     ));
   };
 
-  const [isReapplyModalOpen, setIsReapplyModalOpen] = useState(false);
+
 
   const handleReapply = async () => {
     try {

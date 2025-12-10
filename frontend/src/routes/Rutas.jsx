@@ -1,5 +1,5 @@
 
-import { useRoutes } from 'react-router'
+import { useRoutes, Navigate } from 'react-router'
 
 // --- Imports de Páginas ---
 import Inicio from '../pages/ContenidoPrincipal/Inicio'
@@ -93,8 +93,9 @@ const Rutas = () => {
         },
 
         // --- ADMIN DASHBOARD ---
-        { path: '/admin', element: <AdminDashboard /> },
-        { path: '/admin/estadisticas', element: <AdminStats /> },
+        { path: '/admin', element: <AdminStats /> },
+        { path: '/admin/estadisticas', element: <Navigate to="/admin" replace /> }, // Redirección de compatibilidad
+        { path: '/admin/perfiles', element: <AdminDashboard /> },
 
         // --- 404 NO ENCONTRADO ---
         { path: '*', element: <NoEncontrado /> },

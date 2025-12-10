@@ -1,6 +1,7 @@
 import userService from '../services/user.service.js';
 import opinionService from '../services/opinion.service.js';
 import servicioService from '../services/servicio.service.js';
+import SiteStats from '../models/siteStats.model.js';
 
 
 // ! GET /api/dashboard
@@ -236,4 +237,48 @@ const calcularTasaConversion = (visitas, accesosLinkedin, accesosPortfolio) => {
         portfolio: parseFloat(tasaPortfolio),
         total: parseFloat(tasaTotal)
     };
+};
+
+// --- ESTADÍSTICAS GLOBALES DEL SITIO ---
+
+// Registrar Visita al Sitio (Solo una vez por IP)
+export const registrarVisitaSitio = async (req, res) => {
+    try {
+        let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.ip;
+        if (ip && ip.includes('::ffff:')) {
+            ip = ip.split(':').pop();
+        }
+
+        let stats = await SiteStats.findOne({ docId: 'global' });
+        if (!stats) {
+            stats = new SiteStats({ docId: 'global' });
+        }
+
+        const yaVisitado = stats.visitHistory.some(v => v.ip === ip);
+
+        if (!yaVisitado) {
+            stats.visitHistory.push({ ip, date: new Date() });
+            stats.totalVisits += 1;
+            await stats.save();
+            return res.json({ success: true, counted: true, total: stats.totalVisits });
+        }
+
+        return res.json({ success: true, counted: false, message: 'IP ya registrada' });
+
+    } catch (error) {
+        console.error("Error al registrar visita:", error);
+        res.status(500).json({ message: "Error al registrar visita" });
+    }
+};
+
+// Obtener Estadísticas Globales
+export const obtenerEstadisticasSitio = async (req, res) => {
+    try {
+        const stats = await SiteStats.findOne({ docId: 'global' });
+        res.json({
+            totalVisits: stats ? stats.totalVisits : 0
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error al obtener estadísticas" });
+    }
 };

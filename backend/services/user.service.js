@@ -310,13 +310,13 @@ const eliminarUsuario = async (userId) => {
 
 // Rechazar usuario (Actualizar estado a rechazado)
 const rechazarUsuario = async (userId, motivo) => {
-    console.log(`Rechazando usuario ${userId} con motivo: ${motivo}`);
+
     const user = await User.findByIdAndUpdate(
         userId,
         { $set: { estado: 'rechazado', role: 'cliente', motivoRechazo: motivo } },
         { new: true }
     );
-    console.log("Usuario rechazado resultado:", user);
+
     return user;
 };
 

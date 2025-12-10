@@ -1,48 +1,57 @@
 import { useState, useEffect, useContext } from 'react';
-import { Users, UserCheck, TrendingUp, Menu } from 'lucide-react';
+import { Users, TrendingUp, Menu, Crown } from 'lucide-react';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';
 import AdminSidebar from './AdminSidebar';
 
 const AdminStats = () => {
     const { BASE_URL } = useContext(AuthContext);
-    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-    const [stats, setStats] = useState({
-        totalVisits: 0,
+    const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
+    const [estadisticas, setEstadisticas] = useState({
+        visitasTotales: 0,
         totalFreelancers: 0,
-        availableFreelancers: 0
+        freelancersPremium: 0
     });
-    const [loading, setLoading] = useState(true);
+    const [cargando, setCargando] = useState(true);
 
     useEffect(() => {
-        const fetchUsers = async () => {
+        const obtenerDatos = async () => {
             try {
-                const res = await axios.get(`${BASE_URL}/api/users`);
-                const users = res.data;
+                // 1. Obtener Usuarios
+                const resUsers = await axios.get(`${BASE_URL}/api/users`);
+                const usuarios = resUsers.data;
 
-                // 1. Total Visitas
-                const visits = users.reduce((acc, user) => acc + (user.cantVisitas || 0), 0);
+                // 2. Obtener Estadísticas Globales del Sitio
+                let visitasSitio = 0;
+                try {
+                    const resStats = await axios.get(`${BASE_URL}/api/dashboard/stats/site-global`);
+                    visitasSitio = resStats.data.totalVisits;
+                } catch (errorStats) {
+                    console.error("Error al obtener estadísticas globales:", errorStats);
+                }
 
-                // 2. Freelancers Count
-                const freelancers = users.filter(u => u.role === 'freelancer');
-                const freelancersCount = freelancers.length;
+                // --- Cálculos ---
 
-                // 3. Available Freelancers
-                const available = freelancers.filter(u => u.role === 'freelancer' && u.isDisponible).length;
+                // Total de Freelancers (Standard + Premium)
+                const freelancers = usuarios.filter(u => u.role === 'freelancer' || u.plan === 'premium');
+                const cantidadFreelancers = freelancers.length;
 
-                setStats({
-                    totalVisits: visits,
-                    totalFreelancers: freelancersCount,
-                    availableFreelancers: available
+                // Freelancers Premium
+                const cantidadPremium = usuarios.filter(u => u.plan === 'premium').length;
+
+                setEstadisticas({
+                    visitasTotales: visitasSitio,
+                    totalFreelancers: cantidadFreelancers,
+                    freelancersPremium: cantidadPremium
                 });
             } catch (error) {
-                console.error("Error fetching stats:", error);
+                console.error("Error al obtener datos para admin stats:", error);
             } finally {
-                setLoading(false);
+                setCargando(false);
             }
         };
 
-        fetchUsers();
+        obtenerDatos();
     }, [BASE_URL]);
 
     const StatCard = ({ title, value, icon: Icon, color, subColor }) => (
@@ -52,7 +61,7 @@ const AdminStats = () => {
             </div>
             <div>
                 <p className="text-slate-500 text-sm font-bold uppercase tracking-wide">{title}</p>
-                <h3 className="text-3xl font-extrabold text-slate-800">{loading ? '...' : value}</h3>
+                <h3 className="text-3xl font-extrabold text-slate-800">{cargando ? '...' : value}</h3>
             </div>
         </div>
     );
@@ -60,8 +69,8 @@ const AdminStats = () => {
     return (
         <div className="flex min-h-screen bg-slate-100 font-sans">
             <AdminSidebar
-                isOpen={isMobileSidebarOpen}
-                onClose={() => setIsMobileSidebarOpen(false)}
+                isOpen={menuMovilAbierto}
+                onClose={() => setMenuMovilAbierto(false)}
             />
 
             <div className="flex-1 flex flex-col md:ml-64 transition-all duration-300">
@@ -69,7 +78,7 @@ const AdminStats = () => {
                 <header className="bg-white border-b border-slate-200 p-4 flex items-center justify-between md:hidden sticky top-0 z-30">
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={() => setIsMobileSidebarOpen(true)}
+                            onClick={() => setMenuMovilAbierto(true)}
                             className="p-2 rounded-lg text-slate-600 hover:bg-slate-100"
                         >
                             <Menu size={24} />
@@ -85,33 +94,77 @@ const AdminStats = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <StatCard
                                 title="Ingresos al Sitio"
-                                value={stats.totalVisits}
+                                value={estadisticas.visitasTotales}
                                 icon={TrendingUp}
                                 color="text-blue-600"
                                 subColor="bg-blue-100"
                             />
                             <StatCard
                                 title="Freelancers Totales"
-                                value={stats.totalFreelancers}
+                                value={estadisticas.totalFreelancers}
                                 icon={Users}
                                 color="text-indigo-600"
                                 subColor="bg-indigo-100"
                             />
                             <StatCard
-                                title="Disponibles Ahora"
-                                value={stats.availableFreelancers}
-                                icon={UserCheck}
-                                color="text-green-600"
-                                subColor="bg-green-100"
+                                title="Freelancers Premium"
+                                value={estadisticas.freelancersPremium}
+                                icon={Crown}
+                                color="text-amber-500"
+                                subColor="bg-amber-100"
                             />
                         </div>
 
-                        <div className="mt-8 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <h2 className="text-lg font-bold text-slate-800 mb-4">Resumen General</h2>
-                            <p className="text-slate-600">
-                                Actualmente hay <span className="font-bold text-indigo-600">{stats.totalFreelancers}</span> freelancers registrados en la plataforma.
-                                De ellos, el <span className="font-bold text-green-600">{stats.totalFreelancers > 0 ? Math.round((stats.availableFreelancers / stats.totalFreelancers) * 100) : 0}%</span> está disponible para trabajar inmediatamente.
-                            </p>
+                        <div className="mt-8 bg-white p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-around gap-8">
+
+                            {/* Gráfico de Donut CSS */}
+                            <div className="relative w-40 h-40 rounded-full flex items-center justify-center shadow-inner"
+                                style={{ background: `conic-gradient(#f59e0b ${estadisticas.totalFreelancers > 0 ? (estadisticas.freelancersPremium / estadisticas.totalFreelancers) * 100 : 0}%, #4f46e5 0)` }}>
+                                <div className="w-28 h-28 bg-white rounded-full flex flex-col items-center justify-center shadow-sm z-10">
+                                    <span className="text-3xl font-extrabold text-slate-800">
+                                        {estadisticas.totalFreelancers}
+                                    </span>
+                                    <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">Total</span>
+                                </div>
+                            </div>
+
+                            {/* Leyenda y Detalles */}
+                            <div className="flex-1 max-w-lg">
+                                <h2 className="text-xl font-bold text-slate-800 mb-4">Balance de Suscripciones</h2>
+                                <p className="text-slate-600 mb-6">
+                                    Visualización de la distribución entre cuentas gratuitas y premium en la plataforma.
+                                </p>
+
+                                <div className="space-y-4">
+                                    {/* Barra Premium */}
+                                    <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg border border-amber-100">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-4 h-4 rounded-full bg-amber-500 shadow-sm ring-2 ring-amber-200"></div>
+                                            <span className="font-semibold text-slate-700">Premium</span>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="block font-bold text-amber-600 text-lg">{estadisticas.freelancersPremium}</span>
+                                            <span className="text-xs text-slate-500">
+                                                {estadisticas.totalFreelancers > 0 ? Math.round((estadisticas.freelancersPremium / estadisticas.totalFreelancers) * 100) : 0}%
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Barra Free */}
+                                    <div className="flex items-center justify-between p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-4 h-4 rounded-full bg-indigo-600 shadow-sm ring-2 ring-indigo-200"></div>
+                                            <span className="font-semibold text-slate-700">Estándar (Free)</span>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="block font-bold text-indigo-600 text-lg text-right">{estadisticas.totalFreelancers - estadisticas.freelancersPremium}</span>
+                                            <span className="text-xs text-slate-500">
+                                                {estadisticas.totalFreelancers > 0 ? Math.round(((estadisticas.totalFreelancers - estadisticas.freelancersPremium) / estadisticas.totalFreelancers) * 100) : 0}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </main>

@@ -1,10 +1,11 @@
-import { NavLink, useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { LayoutDashboard, TrendingUp, LogOut, X, ShieldCheck, Home } from 'lucide-react';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 
 const AdminSidebar = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, logout } = useContext(AuthContext);
 
     // Fallback Dummy User si no hay sesion iniciada (para pruebas)
@@ -17,6 +18,18 @@ const AdminSidebar = ({ isOpen, onClose }) => {
     const handleLogout = () => {
         logout();
         navigate('/');
+    };
+
+    const handleNavigation = (path) => {
+        navigate(path);
+        if (onClose) onClose();
+    };
+
+    const isActive = (path, end = false) => {
+        if (end) {
+            return location.pathname === path;
+        }
+        return location.pathname.startsWith(path);
     };
 
     return (
@@ -50,38 +63,31 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                 {/* Navegación */}
                 <nav className="flex-1 py-6 px-3 space-y-1 overflow-y-auto">
                     {/* Estadísticas (Anteriormente Sitio) */}
-                    <NavLink
-                        to="/admin/estadisticas"
-                        onClick={onClose}
-                        className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${isActive ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                            }`
-                        }
+                    <button
+                        onClick={() => handleNavigation('/admin')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${isActive('/admin', true) ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                            }`}
                     >
                         <TrendingUp size={20} />
                         <span className="font-medium">Estadísticas</span>
-                    </NavLink>
+                    </button>
 
                     {/* Historial de Perfiles (Dashboard Admin) - COLOR AZUL */}
-                    <NavLink
-                        to="/admin"
-                        end
-                        onClick={onClose}
-                        className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${isActive ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                            }`
-                        }
+                    <button
+                        onClick={() => handleNavigation('/admin/perfiles')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${isActive('/admin/perfiles') ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                            }`}
                     >
                         <LayoutDashboard size={20} />
                         <span className="font-medium">Historial de Perfiles</span>
-                    </NavLink>
+                    </button>
                 </nav>
 
                 {/* Footer Sidebar */}
                 <div className="p-4 border-t border-slate-700 space-y-2">
-                    <NavLink to="/" className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
+                    <button onClick={() => handleNavigation('/')} className="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
                         <Home size={20} /> <span className="font-medium">Volver al Inicio</span>
-                    </NavLink>
+                    </button>
                     <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer">
                         <LogOut size={20} /> <span>Cerrar sesión</span>
                     </button>
